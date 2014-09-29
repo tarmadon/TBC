@@ -1,16 +1,15 @@
 package TBC.CombatScreen;
 
-
-class SelectAbilityFunction implements IGenericAction 
+class SelectAbilityFunction implements IGenericAction
 {
 	private BattleScreen sc;
-	
+
 	public SelectAbilityFunction(BattleScreen sc)
 	{
 		this.sc = sc;
 	}
-	
-	public void Invoke() 
+
+	public void Invoke()
 	{
 		sc.ChooseAbilityCommand();
 	}

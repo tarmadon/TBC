@@ -17,14 +17,14 @@ import java.util.Map.Entry;
 import org.lwjgl.opengl.GL11;
 
 import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.common.network.NetworkMod;
-import cpw.mods.fml.common.network.NetworkModHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
 import TBC.HenchmanItem;
 import TBC.MainMod;
+import TBC.NBTTagCompoundMessage;
 import TBC.Pair;
+import TBC.StringMessage;
 import TBC.Combat.CombatEngine;
 import TBC.Combat.CombatEntity;
 import TBC.Combat.CombatEntityLookup;
@@ -42,11 +42,11 @@ import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.audio.PositionedSoundRecord;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.multiplayer.NetClientHandler;
 import net.minecraft.client.multiplayer.ServerAddress;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.RenderBlocks;
@@ -57,6 +57,7 @@ import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntityWitch;
@@ -65,42 +66,42 @@ import net.minecraft.inventory.Container;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 
-public class BattleScreen extends GuiScreen 
+public class BattleScreen extends GuiScreen
 {
 	private ArrayList<GenericGuiButton> buttonsToSwap;
-	
+
 	private ArrayList<CombatEntity> enemies = new ArrayList<CombatEntity>();
 	private ArrayList<CombatEntity> allies = new ArrayList<CombatEntity>();
 	private CombatEngine combatEngine;
 	private LevelingEngine levelingEngine;
 	private EntityPlayer player;
-	
+
 	private CombatEntity entityForCurrentTurn;
 	private ICombatAbility abilityToUse;
 	private BattleScreenDrawer display;
 
 	private boolean skipMessage = false;
 	private TurnState nextState = null;
-	
+
 	private TurnState turnState;
 	private ItemStack[] henchmenItems;
-	
-	public BattleScreen(EntityPlayer player, EntityLiving enemyEntity, boolean isAttacker)
+
+	public BattleScreen(EntityPlayer player, EntityLivingBase enemyEntity, boolean isAttacker)
 	{
 		henchmenItems = new ItemStack[player.inventory.getHotbarSize()];
 		this.turnState = new TurnState(this.mc);
 		this.display = new BattleScreenDrawer(this);
 		this.player = player;
 		allies.add(CombatEntity.GetCombatEntity(player, 1));
-		
+
 		int foundHenchmen = 0;
 		for(int i = 0; i< player.inventory.getHotbarSize(); i++)
 		{
@@ -111,18 +112,18 @@ public class BattleScreen extends GuiScreen
 				renderEntity.setPosition(player.posX, player.posY, player.posZ);
 				renderEntity.getEntityData().setInteger("henchmanIndex", i);
 				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(renderEntity, h.henchmanName);
-				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getItemDamageFromStack(player.inventory.mainInventory[i])/(float)h.getMaxDamage())));
+				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(player.inventory.mainInventory[i])/(float)h.getMaxDamage())));
 				if(henchmanEntity.currentHp < 1)
 				{
 					continue;
 				}
-				
+
 				NBTTagCompound itemData = player.inventory.mainInventory[i].getTagCompound();
 				if(itemData != null && itemData.hasKey("HenchMP"))
 				{
 					henchmanEntity.currentMp = itemData.getInteger("HenchMP");
 				}
-				
+
 				henchmenItems[i] = player.inventory.mainInventory[i];
 				allies.add(henchmanEntity);
 				foundHenchmen++;
@@ -132,19 +133,19 @@ public class BattleScreen extends GuiScreen
 				}
 			}
 		}
-		
+
 		Vec3 position = enemyEntity.getPosition(1.0F);
 		double enemyX = position.xCoord;
 		double enemyY = position.yCoord;
 		double enemyZ = position.zCoord;
-		
+
 		int encounterRadius = 10;
-		AxisAlignedBB boundingBox = AxisAlignedBB.getBoundingBox(enemyX - encounterRadius, enemyY - encounterRadius, enemyZ - encounterRadius, enemyX + encounterRadius, enemyY + encounterRadius, enemyZ + encounterRadius); 
+		AxisAlignedBB boundingBox = AxisAlignedBB.getBoundingBox(enemyX - encounterRadius, enemyY - encounterRadius, enemyZ - encounterRadius, enemyX + encounterRadius, enemyY + encounterRadius, enemyZ + encounterRadius);
 		List additionalEnemies = enemyEntity.worldObj.getEntitiesWithinAABBExcludingEntity(enemyEntity, boundingBox);
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		map.put(EntityList.getEntityString(enemyEntity), 1);
 		enemies.add(CombatEntity.GetCombatEntity(enemyEntity, 1));
-		
+
 		if(additionalEnemies != null && additionalEnemies.size() > 0)
 		{
 			for(int i = 0; i<additionalEnemies.size(); i++)
@@ -154,22 +155,22 @@ public class BattleScreen extends GuiScreen
 				{
 					continue;
 				}
-			
+
 				if(additionalEnemy instanceof EntityLiving)
 				{
 					EntityLiving additionalLivingEnemy = (EntityLiving)additionalEnemy;
 					if(additionalLivingEnemy.canEntityBeSeen(player))
 					{
-						Integer existingOfThisType = map.get(additionalLivingEnemy.getEntityName());
+						Integer existingOfThisType = map.get(EntityList.getEntityString(additionalLivingEnemy));
 						int numOfThisType = 1;
 						if(existingOfThisType != null)
 						{
 							numOfThisType += existingOfThisType;
 						}
-						
+
 						enemies.add(CombatEntity.GetCombatEntity(additionalLivingEnemy, numOfThisType));
 						map.put(EntityList.getEntityString(additionalLivingEnemy), numOfThisType);
-						
+
 						if(enemies.size() >= 5)
 						{
 							break;
@@ -178,7 +179,7 @@ public class BattleScreen extends GuiScreen
 				}
 			}
 		}
-		
+
 		this.combatEngine = new CombatEngine(this.allies, this.enemies, isAttacker);
 		this.levelingEngine = new LevelingEngine();
 		this.StartNextTurn();
@@ -191,7 +192,7 @@ public class BattleScreen extends GuiScreen
 		this.display = new BattleScreenDrawer(this);
 		this.player = player;
 		allies.add(CombatEntity.GetCombatEntity(player, 1));
-		
+
 		int foundHenchmen = 0;
 		for(int i = 0; i< player.inventory.getHotbarSize(); i++)
 		{
@@ -202,18 +203,18 @@ public class BattleScreen extends GuiScreen
 				renderEntity.setPosition(player.posX, player.posY, player.posZ);
 				renderEntity.getEntityData().setInteger("henchmanIndex", i);
 				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(renderEntity, h.henchmanName);
-				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getItemDamageFromStack(player.inventory.mainInventory[i])/(float)h.getMaxDamage())));
+				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(player.inventory.mainInventory[i])/(float)h.getMaxDamage())));
 				if(henchmanEntity.currentHp < 1)
 				{
 					continue;
 				}
-				
+
 				NBTTagCompound itemData = player.inventory.mainInventory[i].getTagCompound();
 				if(itemData != null && itemData.hasKey("HenchMP"))
 				{
 					henchmanEntity.currentMp = itemData.getInteger("HenchMP");
 				}
-				
+
 				henchmenItems[i] = player.inventory.mainInventory[i];
 				allies.add(henchmanEntity);
 				foundHenchmen++;
@@ -223,7 +224,7 @@ public class BattleScreen extends GuiScreen
 				}
 			}
 		}
-		
+
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		for(int i = 0; i< setEnemies.size(); i++)
 		{
@@ -233,51 +234,51 @@ public class BattleScreen extends GuiScreen
 			{
 				numOfThisType += existingOfThisType;
 			}
-			
+
 			enemies.add(CombatEntity.GetCombatEntity(setEnemies.get(i).item1, setEnemies.get(i).item2, 1));
 			map.put(setEnemies.get(i).item2, numOfThisType);
 		}
-		
+
 		this.combatEngine = new CombatEngine(this.allies, this.enemies, isAttacker);
 		this.levelingEngine = new LevelingEngine();
 		this.StartNextTurn();
 	}
-	
-	public void initGui() 
+
+	public void initGui()
 	{
 		this.display.initGui();
 	}
-	
+
 	public void ChangeButtons(List newButtons)
 	{
 		this.buttonList.clear();
 		this.buttonList.addAll(newButtons);
 	}
-	
+
 	public Minecraft GetMc()
 	{
 		return this.mc;
 	}
-	
-	public boolean doesGuiPauseGame() 
+
+	public boolean doesGuiPauseGame()
 	{
 		return true;
 	}
 
-	protected void keyTyped(char par1, int par2) 
+	protected void keyTyped(char par1, int par2)
 	{
 	};
-	
+
 	public void ChooseAbilityCommand()
 	{
 		this.display.DisplayAbilityButtons(this.entityForCurrentTurn, this.combatEngine.GetChoosableAbilitiesForEntity(this.entityForCurrentTurn));
 	}
-	
+
 	public void ChooseItemCommand()
 	{
 		this.display.DisplayItemButtons(this.mc, this.player);
 	}
-	
+
 	public void DefaultAttackCommand()
 	{
 		if(this.entityForCurrentTurn != null)
@@ -285,33 +286,33 @@ public class BattleScreen extends GuiScreen
 			this.UseAbilityCommand(this.entityForCurrentTurn.GetAbilities()[0].item2);
 		}
 	}
-	
+
 	public void CancelAttackCommand()
 	{
 		this.display.DisplayCommandButtons();
 		this.abilityToUse = null;
 	}
-	
+
 	public void UseAbilityCommand(ICombatAbility ability)
 	{
 		this.abilityToUse = ability;
 		ArrayList<ArrayList<CombatEntity>> targets = this.combatEngine.GetValidTargets(this.entityForCurrentTurn, ability.GetAbilityTarget());
 		if(targets.size() == 1)
-		{			
+		{
 			this.TargetCombatEntity(targets.get(0));
 		}
-		else 
+		else
 		{
 			ArrayList<CombatEntity> masterList = new ArrayList<CombatEntity>();
 			for(ArrayList<CombatEntity> target : targets)
 			{
 				masterList.add(target.get(0));
 			}
-			
+
 			this.display.DisplayTargetButtons(masterList);
 		}
 	}
-	
+
 	public void AttemptEscape()
 	{
 		if(this.combatEngine.CanEscape())
@@ -338,7 +339,7 @@ public class BattleScreen extends GuiScreen
 		targets.add(target);
 		TargetCombatEntity(targets);
 	}
-	
+
 	public void TargetCombatEntity(ArrayList<CombatEntity> targets)
 	{
 		ArrayList<CombatEntity> targetsToDisplay = targets;
@@ -349,27 +350,27 @@ public class BattleScreen extends GuiScreen
 				targetsToDisplay = new ArrayList<CombatEntity>();
 			}
 		}
-		
+
 		ArrayList<String> messageQueue = new ArrayList<String>();
 		this.combatEngine.Attack(this.entityForCurrentTurn, targets, this.abilityToUse, messageQueue);
 		this.buttonList.clear();
 		TurnState next = new TurnState(mc);
 		next.SetState(TurnState.DisplayingAttack, this.turnState.activeEntity, this.abilityToUse, targetsToDisplay);
 		this.turnState.SetDisplayMessageState(messageQueue, next);
-		
+
 		for(int i = 0; i<targetsToDisplay.size(); i++){
 			String soundName = "damage.hit";
-			try 
+			try
 			{
 				Method getHurtSoundMethod = targets.get(i).innerEntity.getClass().getDeclaredMethod("getHurtSound");
 				getHurtSoundMethod.setAccessible(true);
 				soundName = (String)getHurtSoundMethod.invoke(targets.get(i).innerEntity);
-			} 
+			}
 			catch (Exception e)	{}
-			this.mc.sndManager.playSoundFX(soundName, .99F, 1.0F);
+			targets.get(i).innerEntity.playSound(soundName, .99F, 1.0F);
 		}
 	}
-	
+
 	private Boolean EndAttack()
 	{
 		int activeEnemies = 0;
@@ -381,7 +382,7 @@ public class BattleScreen extends GuiScreen
 				activeEnemies++;
 			}
 		}
-		
+
 		int activeAllies = 0;
 		for(CombatEntity ally : this.allies)
 		{
@@ -391,7 +392,7 @@ public class BattleScreen extends GuiScreen
 				activeAllies++;
 			}
 		}
-		
+
 		boolean endCombatCalled = false;
 		CombatEntity currentEntity = this.entityForCurrentTurn;
 		this.ClearAttack();
@@ -419,10 +420,10 @@ public class BattleScreen extends GuiScreen
 		{
 			this.StartNextTurn();
 		}
-		
+
 		return false;
 	}
-	
+
 	private void SetEndOfCombat()
 	{
 		boolean wonBattle = false;
@@ -433,7 +434,7 @@ public class BattleScreen extends GuiScreen
 				wonBattle = true;
 			}
 		}
-		
+
 		ArrayList<String> messageQueue = new ArrayList<String>();
 		if(wonBattle)
 		{
@@ -449,17 +450,17 @@ public class BattleScreen extends GuiScreen
 		{
 			messageQueue.add("You have been defeated.");
 		}
-		
+
 		TurnState next = new TurnState(this.mc);
 		next.SetState(TurnState.EndOfCombat, null, null, (CombatEntity)null);
 		this.turnState.SetDisplayMessageState(messageQueue, next);
 	}
-	
+
 	private void StartNextTurn()
 	{
 		CombatEntity next = this.combatEngine.GetNextTurn();
 		this.entityForCurrentTurn = next;
-		
+
 		if(this.allies.contains(next)) 	// If next turn is for player
 		{
 			Pair<ICombatAbility, ArrayList<CombatEntity>> queued = this.combatEngine.GetQueuedAbility(next);
@@ -486,13 +487,13 @@ public class BattleScreen extends GuiScreen
 			this.turnState.SetDisplayMessageState(messageQueue, nextTurn);
 		}
 	}
-	
+
 	private void ClearAttack()
 	{
 		this.entityForCurrentTurn = null;
 		this.abilityToUse = null;
 	}
-	
+
 	private void EndCombat()
 	{
 		DamageSource source = DamageSource.causePlayerDamage(this.player);
@@ -505,26 +506,26 @@ public class BattleScreen extends GuiScreen
 				anyAlliesAlive = true;
 			}
 		}
-		
+
 		for(int i = 0; i<this.allies.size(); i++)
 		{
 			CombatEntity entity = this.allies.get(i);
 			if(entity.currentHp < 1)
 			{
-				EntityLiving deadEntity = entity.innerEntity;
+				EntityLivingBase deadEntity = entity.innerEntity;
 				if(deadEntity instanceof EntityPlayer)
 				{
 					if(!anyAlliesAlive)
 					{
 						SyncTagToServer((EntityPlayer)deadEntity);
-						this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("TBCSetHealth", "0".getBytes()));
+						MainMod.setHealthHandler.sendToServer(new StringMessage("0"));
 					}
 					else
 					{
-						this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("TBCSetHealth", "1".getBytes()));
+						MainMod.setHealthHandler.sendToServer(new StringMessage("1"));
 						NBTTagCompound tag = deadEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
 						tag.setInteger("TBCPlayerMP", entity.currentMp);
-						deadEntity.getEntityData().setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
+						deadEntity.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
 						SyncTagToServer((EntityPlayer)deadEntity);
 					}
 				}
@@ -533,19 +534,19 @@ public class BattleScreen extends GuiScreen
 					int index = deadEntity.getEntityData().getInteger("henchmanIndex");
 					ItemStack h = this.henchmenItems[index];
 					int currentMp = entity.currentMp;
-					this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("TBCSetDur", (index + ",101," + currentMp).getBytes()));
+					MainMod.setItemDataHandler.sendToServer(new StringMessage(index + ",101," + currentMp));
 				}
 			}
 			else if(entity.innerEntity != null && entity.innerEntity instanceof EntityPlayer)
 			{
-				int maxHealth = entity.innerEntity.getMaxHealth();
+				float maxHealth = entity.innerEntity.getMaxHealth();
 				float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
 				int healthToSet = Math.round((currentHpPercentage * maxHealth) + .499999F);
-				this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("TBCSetHealth", ("" + healthToSet).getBytes()));
-				
+				MainMod.setHealthHandler.sendToServer(new StringMessage(healthToSet + ""));
+
 				NBTTagCompound tag = entity.innerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
 				tag.setInteger("TBCPlayerMP", entity.currentMp);
-				entity.innerEntity.getEntityData().setCompoundTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
+				entity.innerEntity.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
 				SyncTagToServer((EntityPlayer)entity.innerEntity);
 			}
 			else if(entity.innerEntity.getEntityData().hasKey("henchmanIndex"))
@@ -554,38 +555,38 @@ public class BattleScreen extends GuiScreen
 				int healthToSet = Math.round((currentHpPercentage * 100) + .499999F);
 				int index = entity.innerEntity.getEntityData().getInteger("henchmanIndex");
 				ItemStack h = this.henchmenItems[index];
-				this.mc.getNetHandler().addToSendQueue(new Packet250CustomPayload("TBCSetDur", (index + "," + (100 - healthToSet) + "," + entity.currentMp).getBytes()));
+				MainMod.setItemDataHandler.sendToServer(new StringMessage(index + "," + (100 - healthToSet) + "," + entity.currentMp));
 			}
 		}
-		
+
 		for(int i = 0; i<this.enemies.size(); i++)
 		{
 			CombatEntity entity = this.enemies.get(i);
 			if(entity.currentHp < 1)
 			{
-				EntityLiving deadEntity = entity.innerEntity;
+				EntityLivingBase deadEntity = entity.innerEntity;
 				deadEntity.attackEntityFrom(source, 1000);
-				deadEntity.setLastAttackingEntity(this.player);
+				deadEntity.setLastAttacker(this.player);
 			}
 		}
-		
+
 		this.mc.thePlayer.closeScreen();
 		this.mc.displayGuiScreen((GuiScreen)null);
 		MainMod.enemy = null;
 		MainMod.setEnemies = null;
 	}
 
-	public void drawScreen(int par1, int par2, float par3) 
+	public void drawScreen(int par1, int par2, float par3)
 	{
 		String message = null;
 		if(turnState.messages != null && turnState.messages.size() > 0)
 		{
 			message = turnState.messages.get(0);
 		}
-		
+
         this.display.drawBackground(this.turnState, this.enemies, this.allies, message);
         super.drawScreen(par1, par2, par3);
-        
+
         if(this.turnState.phase == TurnState.DisplayingMessage)
         {
         	if(this.turnState.GetElapsedTime() > 1000 || (skipMessage && this.turnState.GetElapsedTime() > 250))
@@ -594,16 +595,16 @@ public class BattleScreen extends GuiScreen
 	        	{
 	        		turnState.messages.remove(0);
 	        	}
-	        
+
 	        	this.turnState.phaseStartTime = this.mc.getSystemTime();
 	        }
-        	
+
         	if(turnState.messages == null || turnState.messages.size() == 0)
         	{
         		this.turnState.SetState(this.turnState.nextState.phase, this.turnState.nextState.activeEntity, this.turnState.nextState.ability, this.turnState.nextState.targetEntities);
         	}
         }
-        
+
         this.skipMessage = false;
         this.display.drawForeground(this.turnState, this.enemies, this.allies);
         if(this.turnState.phase == TurnState.DisplayingAttack && this.turnState.GetElapsedTime() > this.turnState.ability.GetAnimationTime())
@@ -614,12 +615,12 @@ public class BattleScreen extends GuiScreen
         		this.turnState.SetState(TurnState.DisplayingEndOfTurn, turnState.activeEntity, null, turnState.targetEntities);
         	}
         }
-        
+
         if(this.turnState.phase == TurnState.DisplayingEndOfTurn && this.turnState.GetElapsedTime() > 400)
         {
         	this.EndAttack();
         }
-        
+
         if(this.turnState.phase == TurnState.EndOfCombat)
         {
     		this.EndCombat();
@@ -642,30 +643,26 @@ public class BattleScreen extends GuiScreen
             		{
             			((GenericGuiButton)guibutton).onClick();
             		}
-            		
+
             		if(guibutton instanceof GenericScrollBox)
             		{
             			playSound = ((GenericScrollBox)guibutton).onClick(par1, par2);
             		}
-                	
+
             		if(playSound)
             		{
-            			this.mc.sndManager.playSoundFX("random.click", 1.0F, 1.0F);
+            			this.mc.getSoundHandler().playSound(PositionedSoundRecord.func_147674_a(new ResourceLocation("gui.button.press"), 1.0F));
             		}
-            		
+
                     super.actionPerformed(guibutton);
                 }
             }
         }
     }
-	
+
 	private void SyncTagToServer(EntityPlayer playerEntity)
 	{
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		try {
-			NBTTagCompound.writeNamedTag(playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG), new DataOutputStream(outputStream));
-		} catch (IOException e) {}
-			
-		Minecraft.getMinecraft().getNetHandler().addToSendQueue(new Packet250CustomPayload("TBCPlayerData", outputStream.toByteArray()));
+		NBTTagCompoundMessage syncPlayer = new NBTTagCompoundMessage(playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+		MainMod.syncPlayerDataHandler.sendToServer(syncPlayer);
 	}
 }

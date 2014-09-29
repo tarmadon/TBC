@@ -8,24 +8,24 @@ import TBC.Combat.Effects.IOneTimeEffect;
 import TBC.CombatScreen.BattleScreenDrawer;
 import TBC.CombatScreen.TurnState;
 
-public class ChargeAbility extends StandardAbility 
+public class ChargeAbility extends StandardAbility
 {
 	public ChargeAbility(IOneTimeEffect[] effects, String name, int targetType,
-			int cost, Boolean usableOutOfCombat, Boolean isSpell) 
+			int cost, Boolean usableOutOfCombat, Boolean isSpell)
 	{
 		super(effects, name, targetType, cost, usableOutOfCombat, isSpell);
 	}
 
 	public void DrawUser(
-			BattleScreenDrawer display, 
+			BattleScreenDrawer display,
 			HashMap<CombatEntity, Pair<Integer, Integer>> positionLookup,
 			TurnState state,
-			CombatEntity entity, 
-			boolean isAlly, 
+			CombatEntity entity,
+			boolean isAlly,
 			boolean isTarget,
-			int startXPos, 
-			int startYPos, 
-			int startRotation) 
+			int startXPos,
+			int startYPos,
+			int startRotation)
 	{
 		long time = state.GetElapsedTime();
 		int targetXPos = 0;
@@ -37,7 +37,7 @@ public class ChargeAbility extends StandardAbility
 			targetXPos = pos.item1;
 			targetYPos = pos.item2 - 18;
 		}
-		
+
 		int xPos = startXPos;
 		int yPos = startYPos;
 		if(time < 500)
@@ -45,18 +45,18 @@ public class ChargeAbility extends StandardAbility
 			xPos = Math.round(startXPos + ((time * (targetXPos - startXPos))/500));
 			yPos = Math.round(startYPos + ((time * (targetYPos - startYPos))/500));
 		}
-		
+
 		display.DrawCombatEntity(entity, xPos, yPos, startRotation, time - 500, isTarget);
 	}
-	
+
 	public void DrawTarget(
-			BattleScreenDrawer display, 
+			BattleScreenDrawer display,
 			TurnState state,
-			CombatEntity entity, 
-			boolean isAlly, 
-			int startXPos, 
+			CombatEntity entity,
+			boolean isAlly,
+			int startXPos,
 			int startYPos,
-			int startRotation) 
+			int startRotation)
 	{
 		long time = state.GetElapsedTime();
 		boolean showHitIndicator = false;
@@ -64,11 +64,11 @@ public class ChargeAbility extends StandardAbility
 		{
 			showHitIndicator = true;
 		}
-		
+
 		display.DrawCombatEntity(entity, startXPos, startYPos, startRotation, time - 700, showHitIndicator);
 	}
 
-	public int GetAnimationTime() 
+	public int GetAnimationTime()
 	{
 		return 1500;
 	}

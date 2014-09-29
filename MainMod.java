@@ -11,6 +11,7 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -22,6 +23,7 @@ import java.util.Random;
 
 import javax.swing.text.html.parser.Entity;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
@@ -46,42 +48,43 @@ import TBC.Combat.LevelingEngine;
 import TBC.Combat.TimeBasedLevelScaling;
 import TBC.Combat.Abilities.AbilityLookup;
 import TBC.Combat.ItemReplacementLookup.ItemReplacementData;
+import TBC.ZoneGeneration.ZoneGenerationMod;
 import TBC.ZoneGeneration.ZoneHandler;
 import TBC.ZoneGeneration.ZoneChunkData;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.client.registry.KeyBindingRegistry;
 import cpw.mods.fml.client.registry.RenderingRegistry;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.modloader.ModLoaderHelper;
-import cpw.mods.fml.common.network.FMLPacket;
-import cpw.mods.fml.common.network.NetworkMod;
 import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.SimpleIndexedCodec;
+import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.Mod.Init;
-import cpw.mods.fml.common.Mod.PostInit;
-import cpw.mods.fml.common.Mod.PreInit;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPostInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.common.SidedProxy;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.MapColor;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.EnumStatus;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerPlayer;
 import net.minecraft.inventory.Slot;
@@ -91,12 +94,10 @@ import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagString;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.NetHandler;
-import net.minecraft.network.packet.Packet250CustomPayload;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.ChunkPosition;
+import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.biome.BiomeGenBase;
@@ -109,15 +110,15 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.client.event.sound.PlaySoundEffectSourceEvent;
 import net.minecraftforge.client.event.sound.SoundEvent;
 import net.minecraftforge.client.event.sound.SoundLoadEvent;
-import net.minecraftforge.common.Configuration;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.event.ForgeSubscribe;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
 import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
@@ -129,9 +130,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.multiplayer.NetClientHandler;
 import net.minecraft.client.multiplayer.WorldClient;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.Tessellator;
@@ -140,26 +141,36 @@ import net.minecraft.client.renderer.entity.RenderLiving;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.entity.RenderPlayer;
 import net.minecraft.client.settings.GameSettings;
+import net.minecraft.client.settings.KeyBinding;
 
-public class MainMod 
+public class MainMod
 {
 	private static boolean loadedProgress = false;
 	private int questProgress = 0;
-	
+
 	public static boolean playerDataInit = false;
 	public static ArrayList<Pair<EntityLiving, String>> setEnemies = null;
-	public static EntityLiving enemy;
+	public static EntityLivingBase enemy;
 	public static boolean isPlayerAttacker;
 	public static float lastAttackTime = 0;
 	private ILevelScale levelScaling;
+	private boolean wasKeyPressed = false;
 	public DistanceBasedLevelScaling distanceScaling;
+
+	public static SimpleNetworkWrapper setItemDataHandler;
+	public static SimpleNetworkWrapper syncPlayerDataHandler;
+	public static SimpleNetworkWrapper setHealthHandler;
+	public static SimpleNetworkWrapper removeItemHandler;
+	public static SimpleNetworkWrapper openGuiHandler;
 	
-	public void preInit(FMLPreInitializationEvent evt) 
+	public static KeyBinding openTBCGui;
+	
+	public void preInit(FMLPreInitializationEvent evt)
 	{
 		File enemyConfigFile = this.loadFileFromJar("TBCTemplates.csv");
-		File itemConfigFile = this.loadFileFromJar("TBCItemTemplates.csv"); 
+		File itemConfigFile = this.loadFileFromJar("TBCItemTemplates.csv");
 		File spawnConfigFile = this.loadFileFromJar("TBCWorldMobData.csv");
-		
+
 		Configuration config = new Configuration(evt.getSuggestedConfigurationFile());
 		config.load();
 		int distanceScaleMod = config.get(Configuration.CATEGORY_GENERAL, "DistanceScaleModifier", 150).getInt();
@@ -167,7 +178,7 @@ public class MainMod
 		int depthScaleMod = config.get(Configuration.CATEGORY_GENERAL, "DepthScaleModifier", 10).getInt();
 		int timeScaleMod = config.get(Configuration.CATEGORY_GENERAL, "TimeScaleModifier", 24000).getInt();
 		config.save();
-		
+
 		this.distanceScaling = new DistanceBasedLevelScaling(distanceScaleMod);
 		SetupStaticItems();
 		// Ability lookup initialization has to be before items since usable items will reference it.
@@ -184,7 +195,7 @@ public class MainMod
 		ItemReplacementLookup.Instance.SetupItems();
 	}
 
-	private File loadFileFromJar(String fileName) 
+	private File loadFileFromJar(String fileName)
 	{
 		File configFile = new File(Loader.instance().getConfigDir(), fileName);
 		if(!configFile.exists())
@@ -195,19 +206,27 @@ public class MainMod
 				Files.copy(new InputStreamSupplier(resource), configFile);
 			} catch (IOException e) {
 				FMLLog.severe("Unable to copy default config file. %s", e.toString());
-			}			
+			}
 		}
 		return configFile;
 	}
 
-	public void load(FMLInitializationEvent evt) 
+	public void load(FMLInitializationEvent evt)
 	{
-		NetworkRegistry.instance().registerGuiHandler(TBCMod.instance, new TBCGuiHandler());
-		NetworkRegistry.instance().registerChannel(new SetEntityHealthHandler(), "TBCSetHealth");
-		NetworkRegistry.instance().registerChannel(new SetItemDataHandler(), "TBCSetDur");
-		NetworkRegistry.instance().registerChannel(new SyncPlayerDataHandler(), "TBCPlayerData");
-		NetworkRegistry.instance().registerChannel(new RemoveItemHandler(), "TBCRemoveItem");
-		KeyBindingRegistry.registerKeyBinding(new KeyHandlerForStats(TBCMod.instance));
+		NetworkRegistry.INSTANCE.registerGuiHandler(TBCMod.instance, new TBCGuiHandler());
+		setItemDataHandler = new SimpleNetworkWrapper("TBCSetDur");
+		setItemDataHandler.registerMessage(SetItemDataHandler.class, StringMessage.class, 0, Side.SERVER);
+		setHealthHandler = new SimpleNetworkWrapper("TBCSetHealth");
+		setHealthHandler.registerMessage(SetEntityHealthHandler.class, StringMessage.class, 0, Side.SERVER);
+		syncPlayerDataHandler = new SimpleNetworkWrapper("TBCPlayerData");
+		syncPlayerDataHandler.registerMessage(SyncPlayerDataHandler.class, NBTTagCompoundMessage.class, 0, Side.SERVER);
+		syncPlayerDataHandler.registerMessage(SyncPlayerDataHandler.class, NBTTagCompoundMessage.class, 0, Side.CLIENT);
+		removeItemHandler = new SimpleNetworkWrapper("TBCRemoveItem");
+		removeItemHandler.registerMessage(RemoveItemHandler.class, StringMessage.class, 0, Side.SERVER);
+		openGuiHandler = new SimpleNetworkWrapper("TBCOpenGui");
+		openGuiHandler.registerMessage(OpenGuiHandler.class, StringMessage.class, 0, Side.CLIENT);
+		openTBCGui = new KeyBinding("Open Character Screen", Keyboard.KEY_TAB, "TBC Keys");
+		ClientRegistry.registerKeyBinding(openTBCGui);
 	}
 
 	public void syncPlayerData(EntityEvent.EnteringChunk buildingEntity)
@@ -216,18 +235,18 @@ public class MainMod
 		{
 			return;
 		}
-		
+
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT && buildingEntity.entity instanceof EntityPlayer)
 		{
 			EntityPlayer playerEntity = (EntityPlayer)buildingEntity.entity;
 			if(!playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG).hasKey("playerLevel"))
 			{
-				Minecraft.getMinecraft().getNetHandler().addToSendQueue(new Packet250CustomPayload("TBCPlayerData", new byte[0]));
+				syncPlayerDataHandler.sendToServer(new StringMessage());
 				CombatEntitySpawnLookup.Instance.LogUnknownEntities(playerEntity.worldObj);
 			}
 		}
 	}
-	
+
 	private long lastAttemptedSync = 0;
 	private long startupTime = 0;
 	public void renderHUD(RenderGameOverlayEvent.Text evt)
@@ -250,36 +269,37 @@ public class MainMod
 			long systemTime = Minecraft.getSystemTime();
 			if(lastAttemptedSync < systemTime + 10000)
 			{
-				lastAttackTime = systemTime;
-				Minecraft.getMinecraft().thePlayer.sendQueue.addToSendQueue(new Packet250CustomPayload("TBCReqZData", (c.xPosition + "," + c.zPosition).getBytes()));				
+				//lastAttackTime = systemTime;
+				//StringMessage zoneDataRequest = new StringMessage();
+				//zoneDataRequest.Data = c.xPosition + "," + c.zPosition;
+				//ZoneGenerationMod.zoneDataHandler.sendToServer(zoneDataRequest);
 			}
 		}
 
-		
-		if(!playerDataInit || mc.theWorld.difficultySetting != 3)
+		if(!playerDataInit || mc.theWorld.difficultySetting != EnumDifficulty.HARD)
 		{
 			return;
 		}
-		
+
 		if(!loadedProgress)
 		{
 			questProgress = LevelingEngine.Instance.GetXpDataForPlayer(mc.thePlayer).QuestProgress;
 			loadedProgress = true;
 		}
-		
+
 		long currentTime = Minecraft.getSystemTime();
 		if(startupTime == 0)
 		{
 			startupTime = currentTime;
 		}
-		
+
 		if(this.enemy == null && this.setEnemies == null && mc.theWorld.getWorldTime() > questProgress * 24000)
 		{
 			if(this.startupTime + 1000 > currentTime || this.lastAttackTime + 1000 > currentTime)
 			{
 				return;
 			}
-			
+
 			this.lastAttackTime = currentTime;
 			setEnemies = new ArrayList<Pair<EntityLiving,String>>();
 			questProgress = questProgress + 1;
@@ -287,7 +307,7 @@ public class MainMod
 			questData.QuestProgress = questProgress;
 			LevelingEngine.Instance.SaveXpDataForPlayer(mc.thePlayer, questData);
 			SyncTagToServer(mc.thePlayer);
-			
+
 			SetQuestBattle(mc);
 			mc.thePlayer.openGui(TBCMod.instance, 0, mc.thePlayer.worldObj, mc.thePlayer.serverPosX, mc.thePlayer.serverPosY, mc.thePlayer.serverPosZ);
 		}
@@ -295,15 +315,12 @@ public class MainMod
 
 	private void SyncTagToServer(EntityPlayer playerEntity)
 	{
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-		try {
-			NBTTagCompound.writeNamedTag(playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG), new DataOutputStream(outputStream));
-		} catch (IOException e) {}
-			
-		Minecraft.getMinecraft().getNetHandler().addToSendQueue(new Packet250CustomPayload("TBCPlayerData", outputStream.toByteArray()));
+		NBTTagCompoundMessage message = new NBTTagCompoundMessage();
+		message.tag = playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+		syncPlayerDataHandler.sendToServer(message);
 	}
-	
-	private void SetQuestBattle(Minecraft mc) 
+
+	private void SetQuestBattle(Minecraft mc)
 	{
 		if(questProgress == 2)
 		{
@@ -439,7 +456,7 @@ public class MainMod
 		{
 			return;
 		}
-		
+
 		String name = evt.entityLiving.getEntityData().getString("TBCEntityName");
 		ArrayList<Pair<Item, Item>> replacements = ItemReplacementLookup.Instance.GetItemReplacementForEntity(name);
 		if(replacements != null)
@@ -450,7 +467,7 @@ public class MainMod
 			}
 		}
 	}
-	
+
 	private void replaceDrops(LivingDropsEvent evt, ArrayList<EntityItem> drops, Item toReplace, Item replaceWith)
 	{
 		if(toReplace == null)
@@ -464,7 +481,7 @@ public class MainMod
 		{
 			for(int i = 0; i<drops.size(); i++)
 			{
-				if(drops.get(i).getEntityItem().itemID == toReplace.itemID)
+				if(Item.getIdFromItem(drops.get(i).getEntityItem().getItem()) == Item.getIdFromItem(toReplace))
 				{
 					ItemStack newStack = new ItemStack(replaceWith, drops.get(i).getEntityItem().stackSize);
 					drops.get(i).setEntityItemStack(newStack);
@@ -472,7 +489,7 @@ public class MainMod
 			}
 		}
 	}
-	
+
 	public void onRest(PlayerSleepInBedEvent evt)
 	{
 		if(FMLCommonHandler.instance().getEffectiveSide() != Side.SERVER)
@@ -482,24 +499,22 @@ public class MainMod
 
         double d0 = 8.0D;
         double d1 = 5.0D;
-        List list = evt.entity.worldObj.getEntitiesWithinAABB(EntityMob.class, AxisAlignedBB.getAABBPool().getAABB((double)evt.x - d0, (double)evt.y - d1, (double)evt.z - d0, (double)evt.x + d0, (double)evt.y + d1, (double)evt.z + d0));
+        List list = evt.entity.worldObj.getEntitiesWithinAABB(EntityMob.class, AxisAlignedBB.getBoundingBox((double)evt.x - d0, (double)evt.y - d1, (double)evt.z - d0, (double)evt.x + d0, (double)evt.y + d1, (double)evt.z + d0));
         if (!list.isEmpty())
         {
             return;
         }
-		
+
 		CombatEntity entity = CombatEntityLookup.Instance.GetCombatEntityForPlayer(evt.entityPlayer);
 		evt.entityPlayer.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG).setInteger("TBCPlayerMP", entity.GetMaxMp());
-		
+
 		if(evt.entityPlayer instanceof EntityPlayerMP)
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)evt.entityPlayer;
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			try {
-				NBTTagCompound.writeNamedTag(mpPlayer.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG), new DataOutputStream(outputStream));
-			} catch (IOException e) {}
-			mpPlayer.playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload("TBCPlayerData", outputStream.toByteArray()));
-
+			NBTTagCompoundMessage playerDataMessage = new NBTTagCompoundMessage();
+			playerDataMessage.tag = mpPlayer.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+			syncPlayerDataHandler.sendTo(playerDataMessage, mpPlayer);
+			
 			ItemStack[] p = mpPlayer.inventory.mainInventory;
 			for(int i = 0; i<mpPlayer.inventory.mainInventory.length; i++)
 			{
@@ -517,38 +532,41 @@ public class MainMod
 
 					tag.setInteger("HenchMP", hench.GetMaxMp());
 					s.setTagCompound(tag);
-					mpPlayer.playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload("TBCSetDur", (i + ",0," + hench.GetMaxMp()).getBytes()));
+					
+					StringMessage itemDurMessage = new StringMessage();
+					itemDurMessage.Data = i + ",0," + hench.GetMaxMp();
+					setItemDataHandler.sendTo(itemDurMessage, mpPlayer);
 				}
 			}
 		}
-		
+
 		evt.result = EnumStatus.OTHER_PROBLEM;
 		long currentTime = evt.entity.worldObj.getWorldTime();
 		evt.entity.worldObj.setWorldTime(currentTime + 2000);
 	}
-	
+
 	public void onLivingAttacked(LivingAttackEvent e)
 	{
 		// If the damage source isn't a living entity, this isn't a battle.
 		net.minecraft.entity.Entity sourceEntity = e.source.getEntity();
-		if(sourceEntity == null || 
-		   !(sourceEntity instanceof EntityLiving) || 
+		if(sourceEntity == null ||
+		   !(sourceEntity instanceof EntityLivingBase) ||
 		   sourceEntity == e.entityLiving ||
 		   e.source.damageType == "bypass")
 		{
 			return;
 		}
-		
-		EntityLiving sourceLivingEntity = (EntityLiving)sourceEntity;
+
+		EntityLivingBase sourceLivingEntity = (EntityLivingBase)sourceEntity;
 		if(!sourceLivingEntity.isEntityAlive() || !e.entityLiving.isEntityAlive())
 		{
 			return;
 		}
-		
-		EntityLiving enemy = null;
+
+		EntityLivingBase enemy = null;
 		Boolean isPlayerAttacker = false;
 		EntityPlayer player = null;
-		
+
 		if(e.entityLiving instanceof EntityPlayerMP)
 		{
 			enemy = (EntityLiving)sourceEntity;
@@ -561,24 +579,24 @@ public class MainMod
 			isPlayerAttacker = true;
 			player = (EntityPlayer)sourceEntity;
 		}
-		
+
 		if(player != null)
 		{
 			e.setCanceled(true);
-			
+
 			float currentTime = Minecraft.getSystemTime();
 			if(this.lastAttackTime + 1000 > currentTime)
 			{
 				return;
 			}
-			
+
 			this.lastAttackTime = Minecraft.getSystemTime();
 			this.enemy = enemy;
 			this.isPlayerAttacker = isPlayerAttacker;
 			player.openGui(TBCMod.instance, 0, player.worldObj, player.serverPosX, player.serverPosY, player.serverPosZ);
 		}
 	}
-	
+
 	public void onPlayerJoin(EntityJoinWorldEvent evt)
 	{
 		if(evt.entity instanceof EntityPlayer)
@@ -592,99 +610,141 @@ public class MainMod
 			this.playerDataInit = false;
 		}
 	}
-	
+
 	public void SetupStaticItems()
 	{
-		Item smallHealthPotion = new CloneItem(5000, Item.potion, "Restores 20 HP").setUnlocalizedName("smallPotion");
+		Item smallHealthPotion = new CloneItem(Items.potionitem, "Restores 20 HP").setUnlocalizedName("smallPotion");
 		ItemStack smallHealthPotionStack = new ItemStack(smallHealthPotion);
-		GameRegistry.addShapelessRecipe(smallHealthPotionStack, Item.appleRed);
+		GameRegistry.addShapelessRecipe(smallHealthPotionStack, Items.apple);
 		LanguageRegistry.addName(smallHealthPotion, "S.Pot");
-		
-		Item medHealthPotion = new CloneItem(5001, Item.potion, "Restores 50 HP").setUnlocalizedName("medPotion");
+
+		Item medHealthPotion = new CloneItem(Items.potionitem, "Restores 50 HP").setUnlocalizedName("medPotion");
 		ItemStack medHealthPotionStack = new ItemStack(medHealthPotion);
-		GameRegistry.addShapelessRecipe(medHealthPotionStack, smallHealthPotion, smallHealthPotion, Item.bread);
+		GameRegistry.addShapelessRecipe(medHealthPotionStack, smallHealthPotion, smallHealthPotion, Items.bread);
 		LanguageRegistry.addName(medHealthPotion, "M.Pot");
-		
-		Item highHealthPotion = new CloneItem(5002, Item.potion, "Restores all HP").setUnlocalizedName("highPotion");
+
+		Item highHealthPotion = new CloneItem(Items.potionitem, "Restores all HP").setUnlocalizedName("highPotion");
 		ItemStack highHealthPotionStack = new ItemStack(highHealthPotion);
-		GameRegistry.addShapelessRecipe(highHealthPotionStack, medHealthPotion, medHealthPotion, Item.redstone);
+		GameRegistry.addShapelessRecipe(highHealthPotionStack, medHealthPotion, medHealthPotion, Items.redstone);
 		LanguageRegistry.addName(highHealthPotion, "H.Pot");
-		
-		Item smallManaPotion = new CloneItem(5003, Item.potion, "Restores 10 MP").setUnlocalizedName("smallManaPotion");
+
+		Item smallManaPotion = new CloneItem(Items.potionitem, "Restores 10 MP").setUnlocalizedName("smallManaPotion");
 		ItemStack smallManaPotionStack = new ItemStack(smallManaPotion);
-		GameRegistry.addShapelessRecipe(smallManaPotionStack, Item.fishRaw);
-		GameRegistry.addShapelessRecipe(smallManaPotionStack, Item.fishCooked);
+		GameRegistry.addShapelessRecipe(smallManaPotionStack, Items.fish);
+		GameRegistry.addShapelessRecipe(smallManaPotionStack, Items.cooked_fished);
 		LanguageRegistry.addName(smallManaPotion, "S.Mana Pot");
-		
-		Item highManaPotion = new CloneItem(5004, Item.potion, "Restores 100 MP").setUnlocalizedName("highManaPotion");
+
+		Item highManaPotion = new CloneItem(Items.potionitem, "Restores 100 MP").setUnlocalizedName("highManaPotion");
 		ItemStack highManaPotionStack = new ItemStack(highManaPotion);
-		GameRegistry.addShapelessRecipe(highManaPotionStack, smallManaPotion, smallManaPotion, Item.redstone);
+		GameRegistry.addShapelessRecipe(highManaPotionStack, smallManaPotion, smallManaPotion, Items.redstone);
 		LanguageRegistry.addName(highManaPotion, "H.Mana Pot");
-		
-		Item elixir = new CloneItem(5005, Item.potion, "Restores all HP and MP").setUnlocalizedName("elixir");
+
+		Item elixir = new CloneItem(Items.potionitem, "Restores all HP and MP").setUnlocalizedName("elixir");
 		ItemStack elixirStack = new ItemStack(elixir);
-		GameRegistry.addShapelessRecipe(elixirStack, highManaPotion, highHealthPotion, Item.emerald);
+		GameRegistry.addShapelessRecipe(elixirStack, highManaPotion, highHealthPotion, Items.emerald);
 		LanguageRegistry.addName(elixir, "Elixir");
-		
-		Item megalixir = new CloneItem(5006, Item.potion, "Restores entire party HP and MP").setUnlocalizedName("megalixir");
+
+		Item megalixir = new CloneItem(Items.potionitem, "Restores entire party HP and MP").setUnlocalizedName("megalixir");
 		ItemStack megalixirStack = new ItemStack(megalixir);
-		GameRegistry.addShapelessRecipe(megalixirStack, elixir, elixir, Item.dyePowder);
+		GameRegistry.addShapelessRecipe(megalixirStack, elixir, elixir, Items.dye);
 		LanguageRegistry.addName(megalixir, "Megalixir");
-		
-		Item antidote = new CloneItem(5007, Item.potion, "Cures Poison").setUnlocalizedName("antidote");
+
+		Item antidote = new CloneItem(Items.potionitem, "Cures Poison").setUnlocalizedName("antidote");
 		ItemStack antidoteStack = new ItemStack(antidote);
-		GameRegistry.addShapelessRecipe(antidoteStack, Block.plantYellow, Block.mushroomRed);
+		GameRegistry.addShapelessRecipe(antidoteStack, Blocks.yellow_flower, Blocks.red_mushroom);
 		LanguageRegistry.addName(antidote, "Antidote");
-		
-		Item echoScreen = new CloneItem(5008, Item.potion, "Cures Silence").setUnlocalizedName("echoScreen");
+
+		Item echoScreen = new CloneItem(Items.potionitem, "Cures Silence").setUnlocalizedName("echoScreen");
 		ItemStack echoScreenStack = new ItemStack(echoScreen);
-		GameRegistry.addShapelessRecipe(echoScreenStack, Item.feather, Block.plantRed);
+		GameRegistry.addShapelessRecipe(echoScreenStack, Items.feather, Blocks.red_flower);
 		LanguageRegistry.addName(echoScreen, "Echo Screen");
-		
-		Item parlyzHeal = new CloneItem(5009, Item.potion, "Cures Paralysis").setUnlocalizedName("parlyzHeal");
+
+		Item parlyzHeal = new CloneItem(Items.potionitem, "Cures Paralysis").setUnlocalizedName("parlyzHeal");
 		ItemStack parlyzHealStack = new ItemStack(parlyzHeal);
-		GameRegistry.addShapelessRecipe(parlyzHealStack, Item.egg, Block.mushroomBrown);
+		GameRegistry.addShapelessRecipe(parlyzHealStack, Items.egg, Blocks.brown_mushroom);
 		LanguageRegistry.addName(parlyzHeal, "Parlyz Heal");
-		
-		Item pinwheel = new CloneItem(5010, Item.potion, "Cures Confusion").setUnlocalizedName("pinwheel");
+
+		Item pinwheel = new CloneItem(Items.potionitem, "Cures Confusion").setUnlocalizedName("pinwheel");
 		ItemStack pinwheelStack = new ItemStack(pinwheel);
-		GameRegistry.addShapelessRecipe(pinwheelStack, Item.feather, Item.paper);
+		GameRegistry.addShapelessRecipe(pinwheelStack, Items.feather, Items.paper);
 		LanguageRegistry.addName(pinwheel, "Pinwheel");
-		
-		Item eyeDrops = new CloneItem(5011, Item.potion, "Cures Blindness").setUnlocalizedName("eyeDrops");
+
+		Item eyeDrops = new CloneItem(Items.potionitem, "Cures Blindness").setUnlocalizedName("eyeDrops");
 		ItemStack eyeDropsStack = new ItemStack(eyeDrops);
-		GameRegistry.addShapelessRecipe(eyeDropsStack, Block.plantYellow, Block.plantRed, Item.glassBottle);
+		GameRegistry.addShapelessRecipe(eyeDropsStack, Blocks.yellow_flower, Blocks.red_flower, Items.glass_bottle);
 		LanguageRegistry.addName(eyeDrops, "Eye Drops");
-		
-		Item panacea = new CloneItem(5012, Item.potion, "Recovers status").setUnlocalizedName("panacea");
+
+		Item panacea = new CloneItem(Items.potionitem, "Recovers status").setUnlocalizedName("panacea");
 		ItemStack panaceaStack = new ItemStack(panacea);
-		GameRegistry.addShapelessRecipe(panaceaStack, Block.plantYellow, Block.plantRed, Block.mushroomBrown, Block.mushroomRed, Item.dyePowder);
+		GameRegistry.addShapelessRecipe(panaceaStack, Blocks.yellow_flower, Blocks.red_flower, Blocks.brown_mushroom, Blocks.red_mushroom, Items.dye);
 		LanguageRegistry.addName(panacea, "Panacea");
-		
-		Item pheonixDown = new CloneItem(5013, Item.potion, "Revives ally").setUnlocalizedName("pheonixDown");
+
+		Item pheonixDown = new CloneItem(Items.potionitem, "Revives ally").setUnlocalizedName("pheonixDown");
 		ItemStack pheonixDownStack = new ItemStack(pheonixDown);
-		GameRegistry.addShapelessRecipe(pheonixDownStack, Item.feather, Item.bucketLava);
+		GameRegistry.addShapelessRecipe(pheonixDownStack, Items.feather, Items.lava_bucket);
 		LanguageRegistry.addName(pheonixDown, "Pheonix Down");
-		
-		Item fireBomb = new CloneItem(5014, Item.potion, "Deals Fire damage to one enemy").setUnlocalizedName("fireBomb");
+
+		Item fireBomb = new CloneItem(Items.potionitem, "Deals Fire damage to one enemy").setUnlocalizedName("fireBomb");
 		ItemStack fireBombStack = new ItemStack(fireBomb);
-		GameRegistry.addShapelessRecipe(fireBombStack, Item.paper, Item.flint, Item.gunpowder);
+		GameRegistry.addShapelessRecipe(fireBombStack, Items.paper, Items.flint, Items.gunpowder);
 		LanguageRegistry.addName(fireBomb, "Fire Bomb");
-		
-		Item earthGem = new CloneItem(5015, Item.potion, "Deals Earth damage to one enemy").setUnlocalizedName("earthGem");
+
+		Item earthGem = new CloneItem(Items.potionitem, "Deals Earth damage to one enemy").setUnlocalizedName("earthGem");
 		ItemStack earthGemStack = new ItemStack(earthGem);
-		GameRegistry.addShapelessRecipe(earthGemStack, Block.dirt, Item.flint, Block.blockClay);
+		GameRegistry.addShapelessRecipe(earthGemStack, Blocks.dirt, Items.flint, Blocks.clay);
 		LanguageRegistry.addName(earthGem, "Earth Gem");
-		
-		Item iceCrystal = new CloneItem(5016, Item.potion, "Deals Ice damage to one enemy").setUnlocalizedName("iceCrystal");
+
+		Item iceCrystal = new CloneItem(Items.potionitem, "Deals Ice damage to one enemy").setUnlocalizedName("iceCrystal");
 		ItemStack iceCrystalStack = new ItemStack(iceCrystal);
-		GameRegistry.addShapelessRecipe(iceCrystalStack, Block.ice, Item.glassBottle, Item.coal);
+		GameRegistry.addShapelessRecipe(iceCrystalStack, Blocks.ice, Items.glass_bottle, Items.coal);
 		LanguageRegistry.addName(iceCrystal, "Ice Crystal");
-		
-		Item lightningRod = new CloneItem(5017, Item.potion, "Deals Lightning damage to one enemy").setUnlocalizedName("lightningRod");
+
+		Item lightningRod = new CloneItem(Items.potionitem, "Deals Lightning damage to one enemy").setUnlocalizedName("lightningRod");
 		ItemStack lightningRodStack = new ItemStack(lightningRod);
-		GameRegistry.addShapelessRecipe(lightningRodStack, Item.stick, Item.ingotIron, Item.coal);
+		GameRegistry.addShapelessRecipe(lightningRodStack, Items.stick, Items.iron_ingot, Items.coal);
 		LanguageRegistry.addName(lightningRod, "Lightning Rod");
+	}
+
+	public void keyDown(InputEvent.KeyInputEvent evt)
+	{
+		if(wasKeyPressed && openTBCGui.getIsKeyPressed())
+		{
+			return;
+		}
+		
+		if(!openTBCGui.getIsKeyPressed())
+		{
+			wasKeyPressed = true;
+			return;
+		}
+
+		wasKeyPressed = true;
+		Minecraft mc = Minecraft.getMinecraft();
+		if(mc.thePlayer != null)
+		{
+			if(mc.currentScreen instanceof StatsGui)
+			{
+				mc.thePlayer.closeScreen();
+				mc.displayGuiScreen((GuiScreen)null);
+				return;
+			}
+
+			EntityPlayer player = mc.thePlayer;
+			player.openGui(this, 1, player.worldObj, player.serverPosX, player.serverPosY, player.serverPosZ);
+		}
+	}
+
+	public void onItemTooltip(ItemTooltipEvent evt) 
+	{
+		String name = evt.itemStack.getItem().getUnlocalizedName().replace("item.", "");
+        if(EquippedItemManager.Instance.lookup.containsKey(name))
+        {
+        	String displayString = EquippedItemManager.Instance.lookup.get(name).GetDisplayString();
+        	if(displayString != null && displayString.length() > 0)
+        	{
+        		evt.toolTip.add(displayString);
+        	}
+        }
 	}
 	
 //	@ForgeSubscribe
@@ -692,15 +752,15 @@ public class MainMod
 //	public void onSoundFX(PlaySoundEffectSourceEvent sfx)
 //	{
 //		float masterVolume = 1F;
-//		try 
+//		try
 //		{
 //			Field options = sfx.manager.getClass().getDeclaredField("options");
 //			options.setAccessible(true);
 //			masterVolume = ((GameSettings)options.get(sfx.manager)).soundVolume;
-//		} 
+//		}
 //		catch (Exception e) {}
-//		
-//		
+//
+//
 //		float volume = sfx.manager.sndSystem.getVolume(sfx.name);
 //		if(volume != 0 && volume < (masterVolume * .25F))
 //		{

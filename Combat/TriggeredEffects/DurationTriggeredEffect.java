@@ -7,44 +7,44 @@ public abstract class DurationTriggeredEffect extends BaseTriggeredEffect implem
 {
 	protected int durationInTurns;
 	protected int durationInTicks;
-	
+
 	public DurationTriggeredEffect(int durationInTurns, int durationInTicks)
 	{
 		this.durationInTurns = durationInTurns;
 		this.durationInTicks = durationInTicks;
 	}
-	
-	public Boolean IsExpiredOnNextTurn() 
+
+	public Boolean IsExpiredOnNextTurn()
 	{
 		if(this.durationInTurns == -1)
 		{
 			return false;
 		}
-		
+
 		this.durationInTurns--;
 		if(this.durationInTurns < 1)
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
 
-	public Boolean IsExpiredOnNextTick() 
+	public Boolean IsExpiredOnNextTick()
 	{
 		if(this.durationInTicks == -1)
 		{
 			return false;
 		}
-		
+
 		this.durationInTicks--;
 		if(this.durationInTicks < 1)
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	public abstract Object CreateEffect(CombatEntity user, CombatEntity target);
 }

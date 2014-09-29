@@ -6,21 +6,23 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import TBC.StringMessage;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet250CustomPayload;
-import cpw.mods.fml.common.network.IPacketHandler;
-import cpw.mods.fml.common.network.Player;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
-public class EntityDataResponseHandler implements IPacketHandler 
+public class EntityDataResponseHandler implements IMessageHandler<StringMessage, IMessage>
 {
-	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) 
+	@Override
+	public IMessage onMessage(StringMessage message, MessageContext ctx) 
 	{
-		String data = new String(packet.data);
+		String data = new String(message.Data);
 		String[] params = data.split(",");
 		Integer entityId = new Integer(params[0]);
 		if(params.length == 3)
@@ -31,5 +33,7 @@ public class EntityDataResponseHandler implements IPacketHandler
 				e.getEntityData().setString(params[1], params[2]);
 			}
 		}
+		
+		return null;
 	}
 }

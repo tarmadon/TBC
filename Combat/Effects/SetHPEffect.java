@@ -8,23 +8,23 @@ public class SetHPEffect implements IOneTimeEffect, IDamageEffect
 {
 	private Integer newValue = null;
 	private Float multiplier = null;
-	
+
 	public SetHPEffect(int newValue)
 	{
 		this.newValue = newValue;
 	}
-	
+
 	public SetHPEffect(float multiplier)
 	{
 		this.multiplier = multiplier;
 	}
-	
-	public int GetDamageType() 
+
+	public int GetDamageType()
 	{
 		return 0;
 	}
-	
-	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target) 
+
+	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target)
 	{
 		int calculatedNewValue = 0;
 		if(this.newValue != null)
@@ -35,7 +35,7 @@ public class SetHPEffect implements IOneTimeEffect, IDamageEffect
 		{
 			calculatedNewValue = (int)Math.ceil(target.currentHp * this.multiplier);
 		}
-		
+
 		int damage = target.currentHp - calculatedNewValue;
 		engine.DoDamage(user, target, this, damage);
 	}

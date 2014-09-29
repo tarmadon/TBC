@@ -3,15 +3,16 @@ package TBC.Combat;
 import TBC.ZoneGeneration.ZoneHandler;
 import TBC.ZoneGeneration.ZoneChunkData;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
 
-public class AreaBasedLevelScaling implements ILevelScale 
+public class AreaBasedLevelScaling implements ILevelScale
 {
-	public int GetCurrentLevel(EntityLiving entity)
+	public int GetCurrentLevel(EntityLivingBase entity)
 	{
 		int areaLevel = 0;
 		if(ZoneHandler.ClientInstance.GetRegionDataForAllBiomes(new ChunkCoordIntPair((int)entity.posX >> 4, (int)entity.posZ >> 4)) != null)
@@ -25,7 +26,7 @@ public class AreaBasedLevelScaling implements ILevelScale
 				areaLevel = data.AreaLevel;
 			}
 		}
-		
+
 		return areaLevel;
 	}
 }

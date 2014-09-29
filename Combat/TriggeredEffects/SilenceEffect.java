@@ -10,12 +10,12 @@ import TBC.Combat.Effects.INonStackingEffect;
 
 public class SilenceEffect extends BaseTriggeredEffect implements INonStackingEffect
 {
-	public String GetEffectName() 
+	public String GetEffectName()
 	{
 		return "Silence";
 	}
-	
-	public ArrayList<ICombatAbility> OnGetAbilities(CombatEngine combatEngine, CombatEntity entity, ArrayList<ICombatAbility> allowed) 
+
+	public ArrayList<ICombatAbility> OnGetAbilities(CombatEngine combatEngine, CombatEntity entity, ArrayList<ICombatAbility> allowed)
 	{
 		ArrayList<ICombatAbility> nonSilenced = new ArrayList<ICombatAbility>();
 		for(ICombatAbility ability : allowed)
@@ -25,7 +25,7 @@ public class SilenceEffect extends BaseTriggeredEffect implements INonStackingEf
 				nonSilenced.add(ability);
 			}
 		}
-		
+
 		return nonSilenced;
 	}
 }

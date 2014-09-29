@@ -13,7 +13,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemArmor;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.Icon;
+import net.minecraft.util.IIcon;
 
 public class ContainerForStatsGui extends Container
 {
@@ -41,32 +41,32 @@ public class ContainerForStatsGui extends Container
 		}
 
 		@SideOnly(Side.CLIENT)
-		public Icon getBackgroundIconIndex()
+		public IIcon getBackgroundIconIndex()
 		{
 			return ItemArmor.func_94602_b(this.armorType);
 		}
 	}
-	
+
 	public class DummySlot extends Slot
 	{
-		public DummySlot(IInventory par1iInventory) 
+		public DummySlot(IInventory par1iInventory)
 		{
 			super(par1iInventory, 0, -50, -50);
 		}
-		
-		public ItemStack getStack() 
+
+		public ItemStack getStack()
 		{
 			return null;
 		}
-		
-		public void putStack(ItemStack par1ItemStack) 
+
+		public void putStack(ItemStack par1ItemStack)
 		{
 		}
 	}
-	
+
 	public SlotChar CharSlot;
 	private IInventory separateInv;
-	
+
 	public ContainerForStatsGui(InventoryPlayer par1InventoryPlayer)
 	{
 		this.separateInv = new InventoryBasic("TempInv", true, 1);
@@ -78,12 +78,12 @@ public class ContainerForStatsGui extends Container
 
         CharSlot = new SlotChar(separateInv, 0, 46, 5);
         this.addSlotToContainer(CharSlot);
-        
+
         for (i = 0; i < 4; ++i)
         {
             this.addSlotToContainer(new SlotArmor2(this, par1InventoryPlayer, par1InventoryPlayer.getSizeInventory() - 1 - i, 176, 118 + i * 18, i));
         }
-        
+
         for (i = 0; i < 3; ++i)
         {
             for (int j = 0; j < 9; ++j)
@@ -97,13 +97,13 @@ public class ContainerForStatsGui extends Container
             this.addSlotToContainer(new Slot(par1InventoryPlayer, i, 8 + i * 18, 176));
         }
 	}
-	
-	public boolean canInteractWith(EntityPlayer entityplayer) 
+
+	public boolean canInteractWith(EntityPlayer entityplayer)
 	{
 		return true;
 	}
-	
-	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int par2) 
+
+	public ItemStack transferStackInSlot(EntityPlayer par1EntityPlayer, int par2)
 	{
 		return null;
 	}

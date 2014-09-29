@@ -4,21 +4,21 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet250CustomPayload;
-import cpw.mods.fml.common.network.IPacketHandler;
-import cpw.mods.fml.common.network.Player;
+import cpw.mods.fml.common.network.simpleimpl.IMessage;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
-public class SetItemDataHandler implements IPacketHandler 
+public class SetItemDataHandler implements IMessageHandler<StringMessage, IMessage>
 {
-	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) 
+	@Override
+	public IMessage onMessage(StringMessage message, MessageContext ctx) 
 	{
-		String s = new String(packet.data);
+		String s = message.Data;
 		String[] s2 = s.split(",");
 		int asSlot = new Integer(s2[0]);
 		int asDamage = new Integer(s2[1]);
 		int asMp = new Integer(s2[2]);
-		EntityPlayer entityPlayer = (EntityPlayer)player;
+		EntityPlayer entityPlayer = ctx.getServerHandler().playerEntity;
 		ItemStack stack;
 		if(asSlot == -1)
 		{
@@ -28,15 +28,16 @@ public class SetItemDataHandler implements IPacketHandler
 		{
 			stack = entityPlayer.inventory.mainInventory[asSlot];
 		}
-		
+
 		stack.setItemDamage(asDamage);
 		NBTTagCompound existingTag = stack.getTagCompound();
 		if(existingTag == null)
 		{
 			existingTag = new NBTTagCompound();
 		}
-		
+
 		existingTag.setInteger("HenchMP", asMp);
 		stack.setTagCompound(existingTag);
+		return null;
 	}
 }

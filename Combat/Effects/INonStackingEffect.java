@@ -1,6 +1,6 @@
 package TBC.Combat.Effects;
 
-public interface INonStackingEffect 
+public interface INonStackingEffect
 {
 	String GetEffectName();
 }

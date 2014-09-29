@@ -1,6 +1,6 @@
 package TBC.Combat.Effects;
 
-public interface IDamageEffect 
+public interface IDamageEffect
 {
 	int GetDamageType();
 }

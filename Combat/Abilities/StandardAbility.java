@@ -12,13 +12,13 @@ import TBC.CombatScreen.TurnState;
 
 public class StandardAbility implements ICombatAbility
 {
-	private int cost; 
+	private int cost;
 	private int targetType;
 	private String name;
 	private IOneTimeEffect[] effects;
 	private Boolean usableOutOfCombat;
 	private Boolean isSpell;
-	
+
 	public StandardAbility(IOneTimeEffect[] effects, String name, int targetType, int cost, Boolean usableOutOfCombat, Boolean isSpell)
 	{
 		this.cost = cost;
@@ -28,38 +28,38 @@ public class StandardAbility implements ICombatAbility
 		this.usableOutOfCombat = usableOutOfCombat;
 		this.isSpell = isSpell;
 	}
-	
-	public int GetMpCost() 
+
+	public int GetMpCost()
 	{
 		return this.cost;
 	}
 
-	public String GetAbilityName() 
+	public String GetAbilityName()
 	{
 		return this.name;
 	}
 
-	public int GetAbilityTarget() 
+	public int GetAbilityTarget()
 	{
 		return this.targetType;
 	}
 
-	public IOneTimeEffect[] GetEffects(CombatEngine engine, CombatEntity user, ArrayList<CombatEntity> targets, ArrayList<String> messages) 
+	public IOneTimeEffect[] GetEffects(CombatEngine engine, CombatEntity user, ArrayList<CombatEntity> targets, ArrayList<String> messages)
 	{
 		if(!this.GetAbilityName().isEmpty() && messages != null)
 		{
 			messages.add(this.GetAbilityName());
 		}
-		
+
 		return this.effects;
 	}
 
-	public Boolean IsUsableOutOfCombat() 
+	public Boolean IsUsableOutOfCombat()
 	{
 		return this.usableOutOfCombat;
 	}
 
-	public Boolean IsSpell() 
+	public Boolean IsSpell()
 	{
 		return this.isSpell;
 	}
@@ -68,12 +68,12 @@ public class StandardAbility implements ICombatAbility
 			BattleScreenDrawer display,
 			HashMap<CombatEntity, Pair<Integer, Integer>> positionLookup,
 			TurnState state,
-			CombatEntity entity, 
-			boolean isAlly, 
+			CombatEntity entity,
+			boolean isAlly,
 			boolean isTarget,
-			int startXPos, 
-			int startYPos, 
-			int startRotation) 
+			int startXPos,
+			int startYPos,
+			int startRotation)
 	{
 		if(isAlly)
 		{
@@ -86,10 +86,10 @@ public class StandardAbility implements ICombatAbility
 	}
 
 	public void DrawTarget(
-			BattleScreenDrawer display, 
+			BattleScreenDrawer display,
 			TurnState state,
-			CombatEntity entity, 
-			boolean isAlly, 
+			CombatEntity entity,
+			boolean isAlly,
 			int startXPos,
 			int startYPos,
 			int startRotation)
@@ -97,7 +97,7 @@ public class StandardAbility implements ICombatAbility
 		display.DrawCombatEntity(entity, startXPos, startYPos, startRotation, state.GetElapsedTime(), true);
 	}
 
-	public int GetAnimationTime() 
+	public int GetAnimationTime()
 	{
 		return 600;
 	}

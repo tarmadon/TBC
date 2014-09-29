@@ -1,6 +1,6 @@
 package TBC;
 
-public class Pair<T1, T2> 
+public class Pair<T1, T2>
 {
 	public final T1 item1;
 	public final T2 item2;

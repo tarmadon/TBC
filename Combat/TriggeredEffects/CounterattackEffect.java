@@ -17,18 +17,18 @@ import TBC.Combat.Effects.IDamageEffect;
 import TBC.Combat.Effects.IOneTimeEffect;
 import TBC.Combat.Effects.PhysicalDamageEffect;
 
-public class CounterattackEffect extends BaseTriggeredEffect 
+public class CounterattackEffect extends BaseTriggeredEffect
 {
 	private int chanceOutOf100;
 	private ICombatAbility counterAttack;
-	
+
 	public CounterattackEffect(int chanceOutOf100, ICombatAbility counterAttack)
 	{
 		this.chanceOutOf100 = chanceOutOf100;
 		this.counterAttack = counterAttack;
 	}
-	
-	public int OnDamage(CombatEngine engine, CombatEntity attacker, CombatEntity defender, IDamageEffect source, int damage, Boolean effectFromAttacker) 
+
+	public int OnDamage(CombatEngine engine, CombatEntity attacker, CombatEntity defender, IDamageEffect source, int damage, Boolean effectFromAttacker)
 	{
 		if(!effectFromAttacker && ((source.GetDamageType() & DamageType.Uncounterable) != DamageType.Uncounterable))
 		{
@@ -38,7 +38,7 @@ public class CounterattackEffect extends BaseTriggeredEffect
 				{
 					defender.ongoingEffects = new ArrayList();
 				}
-				
+
 				new DelayTurnEffect(-100).ApplyToEntity(engine, defender, defender);
 				int target = counterAttack.GetAbilityTarget();
 				if(target == AbilityTargetType.OneEnemy)
@@ -73,7 +73,7 @@ public class CounterattackEffect extends BaseTriggeredEffect
 				}
 			}
 		}
-		
+
 		return super.OnDamage(engine, attacker, defender, source, damage, effectFromAttacker);
 	}
 }

@@ -32,79 +32,79 @@ import TBC.Combat.TriggeredEffects.PoisonStatusEffect;
 import TBC.Combat.TriggeredEffects.ResistanceTriggeredEffect;
 import TBC.Combat.TriggeredEffects.SilenceEffect;
 
-public class AbilityLookup 
+public class AbilityLookup
 {
 	public static AbilityLookup Instance = new AbilityLookup();
-	
+
 	public Hashtable<String, ICombatAbility> lookup = new Hashtable<String, ICombatAbility>();
-	
+
 	public void Initialize()
 	{
 		lookup.put("BasicCounter", this.BuildStandardAbility("", AbilityTargetType.OneEnemy, 0, false, new PhysicalDamageEffect(0, 1.0F, 0, 1.0F, DamageType.Uncounterable)));
-		
+
 		lookup.put("Default", new DefaultAttackAbility());
 		lookup.put("Bleed", this.BuildStandardAbility("Bleed", AbilityTargetType.OneEnemy, 0, false, new ApplyStatusEffect(new DamageOverTimeEffect(10, DamageType.Physical, 5, -1))));
 		lookup.put("Lifesteal", this.BuildConstantAbility("Lifesteal", new LifeStealConstantEffect(DamageType.Physical, 1)));
-		
-//		lookup.put("FillParty", this.BuildStandardAbility("FillParty", AbilityTargetType.Self, 0, true, 
-//				new SummonEffect("Spiderling", "Spider"), 
+
+//		lookup.put("FillParty", this.BuildStandardAbility("FillParty", AbilityTargetType.Self, 0, true,
+//				new SummonEffect("Spiderling", "Spider"),
 //				new SummonEffect("Spiderling", "Spider"),
 //				new SummonEffect("Spiderling", "Spider")));
 //		lookup.put("KillAlly", this.BuildStandardAbility("KillAlly", AbilityTargetType.OneAlly, 0, false, new SetHPEffect(0)));
-		
+
 		lookup.put("PhysResist", this.BuildConstantAbility("PhysResist", new ResistanceTriggeredEffect(DamageType.Physical, .5F, 0)));
 		lookup.put("PhysImmune", this.BuildConstantAbility("PhysImmune", new ResistanceTriggeredEffect(DamageType.Physical, 0F, 0)));
 		lookup.put("MagResist", this.BuildConstantAbility("MagResist", new ResistanceTriggeredEffect(DamageType.Magical, .5F, 0)));
 		lookup.put("MagImmune", this.BuildConstantAbility("MagImmune", new ResistanceTriggeredEffect(DamageType.Magical, 0F, 0)));
 		lookup.put("Regen10", this.BuildConstantAbility("Regen10", new DamageOverTimeEffect(-10, 0, -1, -1)));
-		
+
 		lookup.put("PoisonImmunity", this.BuildConstantAbility("PoisonImmunity", new PoisonImmunityEffect()));
 		lookup.put("Flame Cloak", this.BuildConstantAbility("Flame Cloak", new DamageReturnEffect(DamageType.Physical | DamageType.Magical, 1, .5F)));
 		lookup.put("Bloodlust", this.BuildConstantAbility("Bloodlust", new LifeStealConstantEffect(DamageType.Physical, 1F)));
-		
+
 		lookup.put("Barrage", this.BuildStandardAbility("Barrage", AbilityTargetType.AllEnemies, 1, false, new PhysicalDamageEffect(0)));
 		lookup.put("Smite", this.BuildStandardAbility("Smite", AbilityTargetType.OneEnemy, 1, false, new PhysicalDamageEffect(3, 1.2F, 0, 1.0F)));
 		lookup.put("Gnaw", this.BuildStandardAbility("Gnaw", AbilityTargetType.OneEnemy, 0, false, new LifeStealEffect(0,  0,  0.7F, 0F, 0.7F)));
 		lookup.put("Poison Bite", this.BuildStandardAbility("Poison Bite", AbilityTargetType.OneEnemy, 0, false,
-				new PhysicalDamageEffect(0), 
+				new PhysicalDamageEffect(0),
 				new ApplyStatusEffect(new PoisonStatusEffect(), .3F)));
-		
+
 		lookup.put("Explosion", new SacrificeAbility(
-				new IOneTimeEffect[]{ new FlatDamageEffect(1000)}, 
-				new IOneTimeEffect[]{ new MagicDamageEffect(0, 3F)}, 
+				new IOneTimeEffect[]{ new FlatDamageEffect(1000)},
+				new IOneTimeEffect[]{ new MagicDamageEffect(0, 3F)},
 				"Explosion", AbilityTargetType.AllEnemies, 0, false, true));
-		
+
 		lookup.put("MiniNuke", new SacrificeAbility(
 				new IOneTimeEffect[]{ new FlatDamageEffect(15)},
-				new IOneTimeEffect[]{ new MagicDamageEffect(0, 2F)}, 
+				new IOneTimeEffect[]{ new MagicDamageEffect(0, 2F)},
 				"MiniNuke", AbilityTargetType.OneEnemy, 0, false, true));
 
 		lookup.put("Swift", new SacrificeAbility(
-				new IOneTimeEffect[]{ new ApplyStatusEffect(new StatChangeStatus("Swift", StatChangeStatus.SpeedChange, 200, 3F, 1, -1)) }, 
-				new IOneTimeEffect[]{ new PhysicalDamageEffect(0)}, 
+				new IOneTimeEffect[]{ new ApplyStatusEffect(new StatChangeStatus("Swift", StatChangeStatus.SpeedChange, 200, 3F, 1, -1)) },
+				new IOneTimeEffect[]{ new PhysicalDamageEffect(0)},
 				"Swift", AbilityTargetType.OneEnemy, 0, false, false));
-		
+
 		lookup.put("Backstab", this.BuildStandardAbility("Backstab", AbilityTargetType.OneEnemy, 0, false, new PhysicalDamageEffect(0, 0.8F, 0, 0.0F)));
 		lookup.put("Fireball", this.BuildStandardAbility("Fireball", AbilityTargetType.OneEnemy, 0, true, new MagicDamageEffect(0, 1F)));
 		lookup.put("Inferno", this.BuildStandardAbility("Inferno", AbilityTargetType.AllEnemies, 3, true, new MagicDamageEffect(0, .75F)));
-		lookup.put("Web", this.BuildStandardAbility("Web", AbilityTargetType.OneEnemy, 0, false, 
-					new PhysicalDamageEffect(0), 
+		lookup.put("Web", this.BuildStandardAbility("Web", AbilityTargetType.OneEnemy, 0, false,
+					new PhysicalDamageEffect(0),
 					new ApplyStatusEffect(new StatChangeStatus("Web", StatChangeStatus.SpeedChange, -25, .75F, 3, -1))));
-		
+
 		lookup.put("Rend", this.BuildStandardAbility("Rend", AbilityTargetType.OneEnemy, 0, false,
 				new LifeStealEffect(0, 0, .7F, 0F, .5F),
 				new ApplyStatusEffect(new StatChangeStatus("Rend", StatChangeStatus.SpeedChange, -25, .75F, 3, -1))));
-	
+
 		lookup.put("Corrosive Acid", this.BuildStandardAbility("Corrosive Acid", AbilityTargetType.OneEnemy, 0, false,
 				new PhysicalDamageEffect(0, 1F, 0, 1F),
 				new ApplyStatusEffect(new StatChangeStatus("Corrosive Acid", StatChangeStatus.AttackChange, 0, .5F, 3, -1)),
 				new ApplyStatusEffect(new StatChangeStatus("Corrosive Acid", StatChangeStatus.DefenseChange, 0, .5F, 3, -1))));
-		
+
 		lookup.put("Drain", this.BuildStandardAbility("Drain", AbilityTargetType.OneEnemy, 1, true, new LifeStealEffect(0, 0, 1F, 0F, 1F)));
 		lookup.put("Absorb", this.BuildStandardAbility("Absorb", AbilityTargetType.OneEnemy, 1, true, new ManaStealEffect(0, 0, 0F, .25F)));
 		lookup.put("Heal", this.BuildStandardAbility("Heal", AbilityTargetType.OneAlly, 1, true, true, new HealEffect(20, 0.5F)));
 		lookup.put("Mass Heal", this.BuildStandardAbility("Mass Heal", AbilityTargetType.AllAllies, 3, true, true, new HealEffect(20, 0.5F)));
-		
+
 		lookup.put("Poison", this.BuildStandardAbility("Poison", AbilityTargetType.OneEnemy, 0, true,
 				new ApplyStatusEffect(new PoisonStatusEffect(), 1F)));
 		lookup.put("Paralyze", this.BuildStandardAbility("Paralyze", AbilityTargetType.OneEnemy, 0, true,
@@ -119,7 +119,7 @@ public class AbilityLookup
 				new ApplyStatusEffect(new BlindTriggeredEffect(DamageType.Physical), 1F)));
 		lookup.put("Death", this.BuildStandardAbility("Death", AbilityTargetType.OneEnemy, 0, true, new DeathEffect(.3F)));
 		lookup.put("Mass Death", this.BuildStandardAbility("Mass Death", AbilityTargetType.AllEnemies, 0, true, new DeathEffect(.3F)));
-		
+
 		lookup.put("Weakness", this.BuildStandardAbility("Weakness", AbilityTargetType.OneEnemy, 1, true,
 				new ApplyStatusEffect(new StatChangeStatus("Weakness", StatChangeStatus.AttackChange, 0, .5F, -1, 1000))));
 		lookup.put("Guardbreak", this.BuildStandardAbility("Guardbreak", AbilityTargetType.OneEnemy, 1, true,
@@ -141,24 +141,24 @@ public class AbilityLookup
 				new ApplyStatusEffect(new StatChangeStatus("Shield", StatChangeStatus.DefenseChange, 0, 1.5F, -1, 1000))));
 		lookup.put("Mass Shield", this.BuildStandardAbility("Mass Shield", AbilityTargetType.AllAllies, 1, true,
 				new ApplyStatusEffect(new StatChangeStatus("Shield", StatChangeStatus.DefenseChange, 0, 1.5F, -1, 1000))));
-		lookup.put("Concentrate", this.BuildStandardAbility("Concentrate", AbilityTargetType.OneAlly, 1, true, 
+		lookup.put("Concentrate", this.BuildStandardAbility("Concentrate", AbilityTargetType.OneAlly, 1, true,
 				new ApplyStatusEffect(new StatChangeStatus("Concentrate", StatChangeStatus.MagicChange, 0, 1.5F, -1, 1000))));
 		lookup.put("Resistance", this.BuildStandardAbility("Resistance", AbilityTargetType.OneAlly, 1, true,
 				new ApplyStatusEffect(new StatChangeStatus("Resistance", StatChangeStatus.MagicDefenseChange, 0, 1.5F, -1, 1000))));
-		lookup.put("Mass Resistance", this.BuildStandardAbility("Mass Resistance", AbilityTargetType.AllAllies, 1, true,  
+		lookup.put("Mass Resistance", this.BuildStandardAbility("Mass Resistance", AbilityTargetType.AllAllies, 1, true,
 				new ApplyStatusEffect(new StatChangeStatus("Resistance", StatChangeStatus.MagicDefenseChange, 0, 1.5F, -1, 1000))));
-		lookup.put("Haste", this.BuildStandardAbility("Haste", AbilityTargetType.OneAlly, 0, true, 
+		lookup.put("Haste", this.BuildStandardAbility("Haste", AbilityTargetType.OneAlly, 0, true,
 				new ApplyStatusEffect(new StatChangeStatus("Haste", StatChangeStatus.SpeedChange, 100, 2F, -1, 1000))));
-		lookup.put("Mass Haste", this.BuildStandardAbility("Mass Haste", AbilityTargetType.AllAllies, 1, true, 
+		lookup.put("Mass Haste", this.BuildStandardAbility("Mass Haste", AbilityTargetType.AllAllies, 1, true,
 				new ApplyStatusEffect(new StatChangeStatus("Haste", StatChangeStatus.SpeedChange, 100, 2F, -1, 1000))));
 
-		lookup.put("Spawn Broodlings", this.BuildStandardAbility("Spawn Broodlings", AbilityTargetType.OneEnemy, 0, false, 
+		lookup.put("Spawn Broodlings", this.BuildStandardAbility("Spawn Broodlings", AbilityTargetType.OneEnemy, 0, false,
 				new PhysicalDamageEffect(0),
 				new SummonEffect("Spiderling", "Spider")));
-		
+
 		lookup.put("Trip", this.BuildStandardAbility("Trip", AbilityTargetType.OneAlly, 1, false, new PhysicalDamageEffect(0), new DelayTurnEffect(25)));
 		lookup.put("Snipe", new DelayedAbility(
-				this.BuildStandardAbility("Snipe", AbilityTargetType.OneEnemy, 0, false, new PhysicalDamageEffect(0, 2F, 0, 1F)), 
+				this.BuildStandardAbility("Snipe", AbilityTargetType.OneEnemy, 0, false, new PhysicalDamageEffect(0, 2F, 0, 1F)),
 				"Snipe", AbilityTargetType.OneEnemy, 0, false, false));
 		lookup.put("Blade Frenzy", new DelayedAbility(
 				new IOneTimeEffect[]{ new DelayTurnEffect(-100) },
@@ -171,17 +171,17 @@ public class AbilityLookup
 								new IOneTimeEffect[] { new PhysicalDamageEffect(0) },
 								this.BuildStandardAbility("", AbilityTargetType.OneEnemy, 0, false, false, new PhysicalDamageEffect(0)),
 								"", AbilityTargetType.OneEnemy, 0, false, false),
-						"", AbilityTargetType.OneEnemy, 0, false, false), 
+						"", AbilityTargetType.OneEnemy, 0, false, false),
 				"Blade Frenzy", AbilityTargetType.OneEnemy, 0, false, false));
-		
-		lookup.put("Paralysis Claw", this.BuildStandardAbility("Paralysis Claw", AbilityTargetType.OneEnemy, 0, false, 
+
+		lookup.put("Paralysis Claw", this.BuildStandardAbility("Paralysis Claw", AbilityTargetType.OneEnemy, 0, false,
 				new PhysicalDamageEffect(0, .8F, 0, 1F),
 				new ApplyStatusEffect(new StatChangeStatus("Paralyze", StatChangeStatus.SpeedChange, -1000, 0, -1, -1), .2F)));
 		lookup.put("Assassinate", new DefaultAttackAbility());
 		lookup.put("Wraithstrike", new DefaultAttackAbility());
 		lookup.put("Energy Drain", new DefaultAttackAbility());
 		lookup.put("Soul Drain", new DefaultAttackAbility());
-		
+
 		lookup.put("smallPotion", this.BuildStandardAbility("", AbilityTargetType.OneAlly, 0, true, false, new FlatDamageEffect(-20)));
 		lookup.put("medPotion", this.BuildStandardAbility("", AbilityTargetType.OneAlly, 0, true, false, new FlatDamageEffect(-50)));
 		lookup.put("highPotion", this.BuildStandardAbility("", AbilityTargetType.OneAlly, 0, true, false, new FlatDamageEffect(-1000)));
@@ -200,25 +200,25 @@ public class AbilityLookup
 		lookup.put("earthGem", this.BuildStandardAbility("", AbilityTargetType.OneEnemy, 0, false, new MagicDamageEffect(30, 0, DamageType.Earth)));
 		lookup.put("iceCrystal", this.BuildStandardAbility("", AbilityTargetType.OneEnemy, 0, false, new MagicDamageEffect(30, 0, DamageType.Ice)));
 		lookup.put("lightningRod", this.BuildStandardAbility("", AbilityTargetType.OneEnemy, 0, false, new MagicDamageEffect(30, 0, DamageType.Lightning)));
-		
+
 		lookup.put("Counter", this.BuildConstantAbility("Counter", new CounterattackEffect(50, lookup.get("BasicCounter"))));
 	}
-	
+
 	public ICombatAbility GetAbilityWithName(String abilityName)
 	{
 		return lookup.get(abilityName);
 	}
-	
+
 	public ICombatAbility BuildStandardAbility(String abilityName, int targetType, int mpCost, Boolean isSpell, IOneTimeEffect... effects)
 	{
 		return BuildStandardAbility(abilityName, targetType, mpCost, false, isSpell, effects);
 	}
-	
+
 	public ICombatAbility BuildStandardAbility(String abilityName, int targetType, int mpCost, Boolean usableOutOfCombat, Boolean isSpell, IOneTimeEffect... effects)
 	{
 		return new StandardAbility(effects, abilityName, targetType, mpCost, usableOutOfCombat, isSpell);
 	}
-	
+
 	public ICombatAbility BuildConstantAbility(String abilityName, ITriggeredEffect... effects)
 	{
 		List effectList = new ArrayList();
@@ -226,7 +226,7 @@ public class AbilityLookup
 		{
 			effectList.add(effect);
 		}
-		
+
 		return new ConstantAbility(abilityName, effectList);
 	}
 }

@@ -15,8 +15,8 @@ public class ConfusionEffect extends DurationTriggeredEffect implements INonStac
 	{
 		super(durationInTurns, durationInTicks);
 	}
-	
-	public Pair<ICombatAbility, ArrayList<CombatEntity>> OnTurnStart(CombatEngine combatEngine, CombatEntity user, ArrayList<CombatEntity> allies, ArrayList<CombatEntity> enemies) 
+
+	public Pair<ICombatAbility, ArrayList<CombatEntity>> OnTurnStart(CombatEngine combatEngine, CombatEntity user, ArrayList<CombatEntity> allies, ArrayList<CombatEntity> enemies)
 	{
 		ArrayList<CombatEntity> allLive = new ArrayList<CombatEntity>();
 		for(CombatEntity ally : allies)
@@ -26,7 +26,7 @@ public class ConfusionEffect extends DurationTriggeredEffect implements INonStac
 				allLive.add(ally);
 			}
 		}
-		
+
 		for(CombatEntity enemy : enemies)
 		{
 			if(enemy.currentHp > 0)
@@ -34,19 +34,19 @@ public class ConfusionEffect extends DurationTriggeredEffect implements INonStac
 				allLive.add(enemy);
 			}
 		}
-		
+
 		int randomTarget = CombatRandom.GetRandom().nextInt(allLive.size());
 		ArrayList<CombatEntity> chosen = new ArrayList<CombatEntity>();
 		chosen.add(allLive.get(randomTarget));
 		return new Pair<ICombatAbility, ArrayList<CombatEntity>>(user.GetAbilities()[0].item2, chosen);
 	}
 
-	public String GetEffectName() 
+	public String GetEffectName()
 	{
 		return "Confusion";
 	}
 
-	public Object CreateEffect(CombatEntity user, CombatEntity target) 
+	public Object CreateEffect(CombatEntity user, CombatEntity target)
 	{
 		return new ConfusionEffect(this.durationInTurns, this.durationInTicks);
 	}

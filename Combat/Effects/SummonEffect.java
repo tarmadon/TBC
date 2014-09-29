@@ -17,8 +17,8 @@ public class SummonEffect implements IOneTimeEffect
 		this.entityName = entityName;
 		this.renderName = renderName;
 	}
-	
-	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target) 
+
+	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target)
 	{
 		EntityLiving enemy = (EntityLiving) EntityList.createEntityByName(renderName, Minecraft.getMinecraft().theWorld);
 		enemy.getEntityData().setString("TBCEntityName", entityName);

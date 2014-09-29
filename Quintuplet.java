@@ -1,6 +1,6 @@
 package TBC;
 
-public class Quintuplet<T1, T2, T3, T4> 
+public class Quintuplet<T1, T2, T3, T4>
 {
 	public final T1 item1;
 	public final T2 item2;

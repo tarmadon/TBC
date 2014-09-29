@@ -9,20 +9,20 @@ public class HealEffect implements IOneTimeEffect, IDamageEffect
 {
 	private int flatMagicStrength;
 	private float magicMultiplier;
-	
+
 	public HealEffect(int flatMagicStrength, float magicMultiplier)
 	{
 		this.flatMagicStrength = flatMagicStrength;
 		this.magicMultiplier = magicMultiplier;
 	}
 
-	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target) 
+	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target)
 	{
 		int strength = this.flatMagicStrength + Math.round(user.GetMagic() * magicMultiplier);
 		engine.DoDamage(user, target, this, -strength);
 	}
 
-	public int GetDamageType() 
+	public int GetDamageType()
 	{
 		return DamageType.Light;
 	}

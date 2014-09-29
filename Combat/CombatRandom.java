@@ -4,10 +4,10 @@ import java.util.Random;
 
 import net.minecraft.client.Minecraft;
 
-public class CombatRandom 
+public class CombatRandom
 {
 	private static Random random;
-	
+
 	public static Random GetRandom()
 	{
 		if(Minecraft.getMinecraft().thePlayer != null)
@@ -18,7 +18,7 @@ public class CombatRandom
 		{
 			random = new Random();
 		}
-		
+
 		return random;
 	}
 }

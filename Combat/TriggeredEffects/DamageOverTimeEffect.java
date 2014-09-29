@@ -10,12 +10,12 @@ public class DamageOverTimeEffect extends DurationTriggeredEffect implements IDa
 	private int damage;
 	private int damageType;
 	private CombatEntity user;
-	
+
 	public DamageOverTimeEffect(int damage, int damageType, int durationInTurns, int durationInTicks)
 	{
 		this(damage, damageType, durationInTurns, durationInTicks, null);
 	}
-	
+
 	public DamageOverTimeEffect(int damage, int damageType, int durationInTurns, int durationInTicks, CombatEntity user)
 	{
 		super(durationInTurns, durationInTicks);
@@ -23,8 +23,8 @@ public class DamageOverTimeEffect extends DurationTriggeredEffect implements IDa
 		this.damageType = damageType;
 		this.user = user;
 	}
-	
-	public boolean EndOfTurn(CombatEngine engine, CombatEntity entity) 
+
+	public boolean EndOfTurn(CombatEngine engine, CombatEntity entity)
 	{
 		int damage = this.damage;
 		engine.DoDamage(this.user, entity, this, damage);
@@ -32,16 +32,16 @@ public class DamageOverTimeEffect extends DurationTriggeredEffect implements IDa
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
 
-	public int GetDamageType() 
+	public int GetDamageType()
 	{
 		return this.damageType;
 	}
 
-	public Object CreateEffect(CombatEntity user, CombatEntity target) 
+	public Object CreateEffect(CombatEntity user, CombatEntity target)
 	{
 		return new DamageOverTimeEffect(this.damage, this.damageType, this.durationInTurns, this.durationInTicks, user);
 	}

@@ -6,10 +6,10 @@ import java.util.ArrayList;
 import TBC.Pair;
 import TBC.Combat.Abilities.ICombatAbility;
 
-public class CombatEntityTemplate 
+public class CombatEntityTemplate
 {
 	public String name;
-	
+
 	public int maxHp;
 	public int maxMp;
 	public int attack;
@@ -19,6 +19,6 @@ public class CombatEntityTemplate
 	public int speed;
 	public int xpValue;
 	public int apValue;
-	
+
 	public Pair<Integer, ICombatAbility>[] abilities;
 }

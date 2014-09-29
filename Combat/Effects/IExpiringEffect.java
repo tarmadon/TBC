@@ -1,6 +1,6 @@
 package TBC.Combat.Effects;
 
-public interface IExpiringEffect 
+public interface IExpiringEffect
 {
 	Boolean IsExpiredOnNextTick();
 	Boolean IsExpiredOnNextTurn();

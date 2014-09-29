@@ -12,7 +12,7 @@ public class ManaStealEffect implements IOneTimeEffect
 	private int flatMagicalStrength;
 	private float physMultiplier;
 	private float magMultiplier;
-	
+
 	public ManaStealEffect(int flatPhysicalStrength, int flatMagicalStrength, float physMultiplier, float magMultiplier)
 	{
 		this.flatPhysicalStrength = flatPhysicalStrength;
@@ -20,8 +20,8 @@ public class ManaStealEffect implements IOneTimeEffect
 		this.physMultiplier = physMultiplier;
 		this.magMultiplier = physMultiplier;
 	}
-	
-	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target) 
+
+	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target)
 	{
 		int physicalStrength = this.flatPhysicalStrength + Math.round(user.GetAttack() * this.physMultiplier);
 		int magicalStrength = this.flatMagicalStrength + Math.round(user.GetMagic() * this.magMultiplier);

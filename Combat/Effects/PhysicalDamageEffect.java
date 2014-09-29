@@ -17,12 +17,12 @@ public class PhysicalDamageEffect implements IOneTimeEffect, IDamageEffect
 	private int flatDefenseReduction;
 	private float defenseMultiplier;
 	private int additionalDamageTypes;
-	
+
 	public PhysicalDamageEffect(int flatStrength)
 	{
 		this(flatStrength, 1.0F, 0, 1.0F);
 	}
-	
+
 	public PhysicalDamageEffect(int flatStrength, float physMultiplier, int flatDefenseReduction, float defenseMultiplier)
 	{
 		this(flatStrength, physMultiplier, flatDefenseReduction, defenseMultiplier, 0);
@@ -36,8 +36,8 @@ public class PhysicalDamageEffect implements IOneTimeEffect, IDamageEffect
 		this.defenseMultiplier = defenseMultiplier;
 		this.additionalDamageTypes = additionalDamageTypes;
 	}
-	
-	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target) 
+
+	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target)
 	{
 		int strength = this.flatStrength + Math.round(user.GetAttack() * physMultiplier);
 		int defense = Math.round(target.GetDefense() * this.defenseMultiplier) - this.flatDefenseReduction;
@@ -45,7 +45,7 @@ public class PhysicalDamageEffect implements IOneTimeEffect, IDamageEffect
 		engine.DoDamage(user, target, this, damage);
 	}
 
-	public int GetDamageType() 
+	public int GetDamageType()
 	{
 		return DamageType.Physical | this.additionalDamageTypes;
 	}

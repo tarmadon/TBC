@@ -1,8 +1,8 @@
 package TBC.Combat;
 
-import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 
-public interface ILevelScale 
+public interface ILevelScale
 {
-	int GetCurrentLevel(EntityLiving entity);
+	int GetCurrentLevel(EntityLivingBase entity);
 }

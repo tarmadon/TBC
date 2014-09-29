@@ -6,16 +6,16 @@ import java.util.List;
 import TBC.Combat.CombatEngine;
 import TBC.Combat.CombatEntity;
 
-public class PurgeEffect implements IOneTimeEffect 
+public class PurgeEffect implements IOneTimeEffect
 {
 	private String effectName;
-	
+
 	public PurgeEffect(String effectName)
 	{
 		this.effectName = effectName;
 	}
-	
-	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target) 
+
+	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target)
 	{
 		List itemsToRemove = new ArrayList();
 		for(Object effect : target.ongoingEffects)
@@ -25,7 +25,7 @@ public class PurgeEffect implements IOneTimeEffect
 				itemsToRemove.add(effect);
 			}
 		}
-		
+
 		for(Object toRemove : itemsToRemove)
 		{
 			target.ongoingEffects.remove(toRemove);

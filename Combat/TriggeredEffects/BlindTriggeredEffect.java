@@ -9,23 +9,23 @@ import TBC.Combat.Effects.INonStackingEffect;
 public class BlindTriggeredEffect extends BaseTriggeredEffect implements INonStackingEffect
 {
 	private int damageType;
-	
+
 	public BlindTriggeredEffect(int damageType)
 	{
 		this.damageType = damageType;
 	}
-	
-	public int OnDamage(CombatEngine engine, CombatEntity attacker, CombatEntity defender, IDamageEffect source, int damage, Boolean effectFromAttacker) 
+
+	public int OnDamage(CombatEngine engine, CombatEntity attacker, CombatEntity defender, IDamageEffect source, int damage, Boolean effectFromAttacker)
 	{
 		if(effectFromAttacker && ((source.GetDamageType() & this.damageType) == this.damageType) && CombatRandom.GetRandom().nextFloat() <= .8F)
 		{
 			return 0;
 		}
-		
+
 		return damage;
 	}
 
-	public String GetEffectName() 
+	public String GetEffectName()
 	{
 		return "Blind";
 	}

@@ -12,7 +12,7 @@ public class StatChangeStatus implements IStatusChange, IEffectFactory
 	public static final int SpeedChange = 5;
 	public static final int HpChange = 6;
 	public static final int MpChange = 7;
-	
+
 	public int changeType;
 	private int flatStrength;
 	private float strengthMultiplier;
@@ -20,7 +20,7 @@ public class StatChangeStatus implements IStatusChange, IEffectFactory
 	private int numTicksToLive;
 	private String abilityCategory;
 	private CombatEntity user;
-	
+
 	public StatChangeStatus(String abilityCategory, int changeType, int flatStrength, float strengthModifier, int numTurnsToLive, int numTicksToLive)
 	{
 		this.changeType = changeType;
@@ -30,7 +30,7 @@ public class StatChangeStatus implements IStatusChange, IEffectFactory
 		this.numTicksToLive = numTicksToLive;
 		this.abilityCategory = abilityCategory;
 	}
-	
+
 	public StatChangeStatus(String abilityCategory, int changeType, int flatStrength, float strengthModifier, int numTurnsToLive, int numTicksToLive, CombatEntity user)
 	{
 		this.changeType = changeType;
@@ -41,25 +41,25 @@ public class StatChangeStatus implements IStatusChange, IEffectFactory
 		this.abilityCategory = abilityCategory;
 		this.user = user;
 	}
-	
-	public Boolean ApplyToEntity(CombatEntity entity) 
+
+	public Boolean ApplyToEntity(CombatEntity entity)
 	{
 		return false;
 	}
 
-	public Boolean IsExpiredOnNextTurn() 
+	public Boolean IsExpiredOnNextTurn()
 	{
 		if(numTurnsToLive == -1)
 		{
 			return false;
 		}
-		
+
 		numTurnsToLive--;
 		if(numTurnsToLive < 1)
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
 
@@ -68,28 +68,28 @@ public class StatChangeStatus implements IStatusChange, IEffectFactory
 		return flatStrength + Math.round(existingStat * strengthMultiplier);
 	}
 
-	public String GetEffectName() 
+	public String GetEffectName()
 	{
 		return this.abilityCategory;
 	}
 
-	public Boolean IsExpiredOnNextTick() 
+	public Boolean IsExpiredOnNextTick()
 	{
 		if(numTicksToLive == -1)
 		{
 			return false;
 		}
-		
+
 		numTicksToLive--;
 		if(numTicksToLive < 1)
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
 
-	public Object CreateEffect(CombatEntity user, CombatEntity target) 
+	public Object CreateEffect(CombatEntity user, CombatEntity target)
 	{
 		return new StatChangeStatus(this.abilityCategory, this.changeType, this.flatStrength, this.strengthMultiplier, this.numTurnsToLive, this.numTicksToLive, user);
 	}

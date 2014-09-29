@@ -12,38 +12,39 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.util.ResourceLocation;
 
-public class RenderWithName extends Render 
+public class RenderWithName extends Render
 {
 	private Render internalRender;
-	
+
 	public RenderWithName(Render internalRender)
 	{
 		this.renderManager = RenderManager.instance;
 		this.internalRender = internalRender;
 	}
-	
-	public void doRender(Entity entity, double d0, double d1, double d2, float f, float f1) 
+
+	public void doRender(Entity entity, double d0, double d1, double d2, float f, float f1)
 	{
 		if(entity instanceof EntityLiving)
 		{
 			RenderEntityName((EntityLiving)entity, d0, d1, d2, entity.getEntityData().getString("TBCEntityName"));
 		}
-		
+
 		this.internalRender.doRender(entity, d0, d1, d2, f, f1);
 	}
-	
-	public void doRenderShadowAndFire(Entity par1Entity, double par2, double par4, double par6, float par8, float par9) 
+
+	public void doRenderShadowAndFire(Entity par1Entity, double par2, double par4, double par6, float par8, float par9)
 	{
 		this.internalRender.doRenderShadowAndFire(par1Entity, par2, par4, par6, par8, par9);
 	}
-	
+
 	private void RenderEntityName(EntityLiving par1EntityLiving, double par3, double par5, double par7, String par2Str)
 	{
         float f = 1.6F;
         float f1 = 0.016666668F * f;
         FontRenderer fontrenderer = this.renderManager.getFontRenderer();
-        
+
         GL11.glPushMatrix();
         GL11.glTranslatef((float)par3 + 0.0F, (float)par5 + par1EntityLiving.height + 0.5F, (float)par7);
         GL11.glNormal3f(0.0F, 1.0F, 0.0F);
@@ -73,5 +74,11 @@ public class RenderWithName extends Render
         GL11.glDisable(GL11.GL_BLEND);
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
         GL11.glPopMatrix();
+	}
+
+	@Override
+	protected ResourceLocation getEntityTexture(Entity p_110775_1_) 
+	{
+		return null;
 	}
 }

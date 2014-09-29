@@ -15,8 +15,8 @@ import net.minecraft.item.ItemStack;
 public class DefaultAttackAbility extends StandardAbility
 {
 	private static IOneTimeEffect[] effect = new IOneTimeEffect[] { new PhysicalDamageEffect(0) };
-	
-	public DefaultAttackAbility() 
+
+	public DefaultAttackAbility()
 	{
 		super(effect, "", AbilityTargetType.OneEnemy, 0, false, false);
 	}

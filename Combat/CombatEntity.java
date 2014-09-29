@@ -11,31 +11,32 @@ import TBC.Combat.Effects.StatChangeStatus;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class CombatEntity 
+public class CombatEntity
 {
-	public EntityLiving innerEntity;
+	public EntityLivingBase innerEntity;
 
 	public int currentHp;
 	public int currentMp;
 	public Integer lastDamageTaken = null;
 	public String name;
-	
+
 	public List ongoingEffects;
 	private CombatEntityTemplate baseStats;
-	
-	public CombatEntity(CombatEntityTemplate baseStats, EntityLiving realEntity)
+
+	public CombatEntity(CombatEntityTemplate baseStats, EntityLivingBase realEntity)
 	{
 		this.baseStats = baseStats;
 		this.innerEntity = realEntity;
 		PopulateWithBaseStats();
 	}
-	
-	public static CombatEntity GetCombatEntity(EntityLiving entity, String enemyName, int enemyNumber)
+
+	public static CombatEntity GetCombatEntity(EntityLivingBase entity, String enemyName, int enemyNumber)
 	{
 		CombatEntity lookup;
 		lookup = CombatEntityLookup.Instance.GetCombatEntity(entity, enemyName);
@@ -60,13 +61,13 @@ public class CombatEntity
 		{
 			lookup.name += " E";
 		}
-		
+
 		float currentHpPercentage = (float)entity.getHealth() / entity.getMaxHealth();
 		lookup.currentHp = Math.round(currentHpPercentage * lookup.baseStats.maxHp);
 		return lookup;
 	}
-	
-	public static CombatEntity GetCombatEntity(EntityLiving entity, int enemyNumber)
+
+	public static CombatEntity GetCombatEntity(EntityLivingBase entity, int enemyNumber)
 	{
 		CombatEntity lookup;
 		lookup = CombatEntitySpawnLookup.Instance.GetCombatEntity(entity);
@@ -91,7 +92,7 @@ public class CombatEntity
 		{
 			lookup.name += " E";
 		}
-		
+
 		float currentHpPercentage = (float)entity.getHealth() / entity.getMaxHealth();
 		lookup.currentHp = Math.round(currentHpPercentage * lookup.baseStats.maxHp);
 		return lookup;
@@ -102,7 +103,7 @@ public class CombatEntity
 		CombatEntity lookup;
 		lookup = CombatEntityLookup.Instance.GetCombatEntityForPlayer((EntityPlayer)entity);
 		lookup.name = lookup.baseStats.name;
-		
+
 		float currentHpPercentage = (float)entity.getHealth() / entity.getMaxHealth();
 		lookup.currentHp = Math.round(currentHpPercentage * lookup.baseStats.maxHp);
 		NBTTagCompound tag = entity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
@@ -110,10 +111,10 @@ public class CombatEntity
 		{
 			lookup.currentMp = tag.getInteger("TBCPlayerMP");
 		}
-		
+
 		return lookup;
 	}
-	
+
 	public int GetMaxHp()
 	{
 		return GetEffectiveStat(this.baseStats.maxHp, StatChangeStatus.HpChange);
@@ -123,37 +124,37 @@ public class CombatEntity
 	{
 		return GetEffectiveStat(this.baseStats.maxMp, StatChangeStatus.MpChange);
 	}
-	
+
 	public int GetAttack()
 	{
 		return GetEffectiveStat(this.baseStats.attack, StatChangeStatus.AttackChange);
 	}
-	
+
 	public int GetDefense()
 	{
 		return GetEffectiveStat(this.baseStats.defense, StatChangeStatus.DefenseChange);
 	}
-	
+
 	public int GetMagic()
 	{
 		return GetEffectiveStat(this.baseStats.mAttack, StatChangeStatus.MagicChange);
 	}
-	
+
 	public int GetMagicDefense()
 	{
 		return GetEffectiveStat(this.baseStats.mDefense, StatChangeStatus.MagicDefenseChange);
 	}
-	
+
 	public int GetSpeed()
 	{
 		return GetEffectiveStat(this.baseStats.speed, StatChangeStatus.SpeedChange);
 	}
-	
+
 	public String GetName()
 	{
 		return this.name;
 	}
-	
+
 	public int GetEffectiveStat(int currentStat, int statType)
 	{
 		int effectiveStat = EquippedItemManager.Instance.GetEffectiveStat(this, statType, currentStat);
@@ -177,15 +178,15 @@ public class CombatEntity
 				}
 			}
 		}
-		
+
 		return effectiveStat;
 	}
-	
+
 	public Pair<Integer, ICombatAbility>[] GetAbilities()
 	{
 		return this.baseStats.abilities;
 	}
-	
+
 	public int GetXpValue()
 	{
 		return this.baseStats.xpValue;
@@ -195,10 +196,10 @@ public class CombatEntity
 	{
 		return this.baseStats.apValue;
 	}
-	
+
 	public void ApplyLevelUp(
-			int gainedHp, 
-			int gainedMp, 
+			int gainedHp,
+			int gainedMp,
 			int gainedAttack,
 			int gainedDefense,
 			int gainedMAttack,
@@ -214,7 +215,7 @@ public class CombatEntity
 		this.baseStats.speed += gainedSpeed;
 		this.PopulateWithBaseStats();
 	}
-	
+
 	public void ApplySkillLevelUp(ICombatAbility newSkill)
 	{
 		Pair<Integer, ICombatAbility>[] newArray = new Pair[this.baseStats.abilities.length + 1];
@@ -222,16 +223,16 @@ public class CombatEntity
 		{
 			newArray[i] = this.baseStats.abilities[i];
 		}
-		
+
 		newArray[newArray.length - 1] = new Pair<Integer, ICombatAbility>(1, newSkill);
 		this.baseStats.abilities = newArray;
 	}
-	
+
 	public CombatEntityTemplate GetBaseStats()
 	{
 		return this.baseStats;
 	}
-	
+
 	public void AddDamageTaken(int damageAmount)
 	{
 		if(this.lastDamageTaken != null)
@@ -243,7 +244,7 @@ public class CombatEntity
 			this.lastDamageTaken = damageAmount;
 		}
 	}
-	
+
 	public void ApplyDamage()
 	{
 		if(this.lastDamageTaken != null)
@@ -252,7 +253,7 @@ public class CombatEntity
 			lastDamageTaken = null;
 		}
 	}
-	
+
 	private void TakeDamage(int damageAmount)
 	{
 		int maxHp = this.GetMaxHp();
@@ -260,19 +261,19 @@ public class CombatEntity
 		{
 			return;
 		}
-		
+
 		this.currentHp = this.currentHp - damageAmount;
 		if(this.currentHp > maxHp)
 		{
 			this.currentHp = maxHp;
 		}
-		
+
 		if(this.currentHp < 0)
 		{
 			this.currentHp = 0;
 		}
 	}
-	
+
 	private void PopulateWithBaseStats()
 	{
 		this.currentHp = this.baseStats.maxHp;

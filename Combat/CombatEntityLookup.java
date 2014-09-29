@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.lang.reflect.Modifier;
 import java.util.AbstractMap.SimpleEntry;
@@ -28,37 +29,36 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.src.ModLoader;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.common.Configuration.UnicodeInputStreamReader;
 
-public class CombatEntityLookup 
+public class CombatEntityLookup
 {
-	public static CombatEntityLookup Instance = new CombatEntityLookup(); 
-	
+	public static CombatEntityLookup Instance = new CombatEntityLookup();
+
 	public Hashtable<String, CombatEntityTemplate> lookupByName = new Hashtable<String, CombatEntityTemplate>();
-	
+
 	public ILevelScale levelScaling;
 	private File file;
-	
+
 	public void Initialize(File file, ILevelScale levelScaling)
 	{
 		this.file = file;
 		this.levelScaling = levelScaling;
 		BufferedReader buffer = null;
-		try 
+		try
 		{
 			String defaultEncoding = "UTF-8";
-			UnicodeInputStreamReader input = new UnicodeInputStreamReader(new FileInputStream(file), defaultEncoding);
+			InputStreamReader input = new InputStreamReader(new FileInputStream(file), defaultEncoding);
 			buffer = new BufferedReader(input);
 			String nextLine;
-			
-			// Get the headers out of the way. 
+
+			// Get the headers out of the way.
 			buffer.readLine();
 			while((nextLine = buffer.readLine()) != null)
 			{
@@ -67,7 +67,7 @@ public class CombatEntityLookup
 				{
 					continue;
 				}
-				
+
 				CombatEntityTemplate baseTemplate = new CombatEntityTemplate();
 				baseTemplate.name = split[0].trim();
 				baseTemplate.maxHp = Integer.parseInt(split[1].trim());
@@ -80,7 +80,7 @@ public class CombatEntityLookup
 				baseTemplate.xpValue = Integer.parseInt(split[8].trim());
 				baseTemplate.apValue = Integer.parseInt(split[9].trim());
 				int abilityStartIndex = 10;
-				
+
 				if(split.length <= abilityStartIndex || split[abilityStartIndex].trim() == "")
 				{
 					baseTemplate.abilities = this.GetDefaultAttacks();
@@ -95,24 +95,24 @@ public class CombatEntityLookup
 						{
 							continue;
 						}
-						
+
 						int weight = Integer.parseInt(abilityAndWeight[0]);
 						ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(abilityAndWeight[1]);
 						abilities.add(new Pair<Integer, ICombatAbility>(weight, ability));
 					}
-					
+
 					Pair<Integer, ICombatAbility>[] abilitiesArray = new Pair[abilities.size()];
 					baseTemplate.abilities = abilities.toArray(abilitiesArray);
 				}
-				
+
 				lookupByName.put(baseTemplate.name, baseTemplate);
 			}
 		}
-		catch (FileNotFoundException e) 
+		catch (FileNotFoundException e)
 		{
 			e.printStackTrace();
-		} 
-		catch (IOException e) 
+		}
+		catch (IOException e)
 		{
 			e.printStackTrace();
 		}
@@ -120,53 +120,53 @@ public class CombatEntityLookup
 		{
 			if(buffer != null)
 			{
-				try 
+				try
 				{
 					buffer.close();
-				} catch (IOException e1) 
+				} catch (IOException e1)
 				{
 					e1.printStackTrace();
 				}
 			}
 		}
 	}
-	
-	public CombatEntity GetCombatEntity(EntityLiving renderEntity, String templateName)
+
+	public CombatEntity GetCombatEntity(EntityLivingBase renderEntity, String templateName)
 	{
 		if(this.lookupByName.containsKey(templateName))
 		{
 			return new CombatEntity(this.lookupByName.get(templateName), renderEntity);
 		}
-		
+
 		FMLLog.severe("Could not find entity for:  " + templateName);
 		return null;
 	}
-	
+
 	public CombatEntity GetCombatEntityForPlayer(EntityPlayer player)
 	{
-		String playerName = player.username;
+		String playerName = player.getDisplayName();
 		String lookupName = "Player" + playerName + Minecraft.getMinecraft().getIntegratedServer().getFolderName();
 		if(this.lookupByName.containsKey(lookupName))
 		{
 			CombatEntityTemplate template = this.lookupByName.get(lookupName);
 			return new CombatEntity(template, player);
 		}
-		
+
 		CombatEntityTemplate playerTemplate = LevelingEngine.Instance.GetPlayerEntityFromSavedData(player, playerName);
 		lookupByName.put(lookupName, playerTemplate);
 		return new CombatEntity(playerTemplate, player);
 	}
-	
+
 	public void ClearCombatEntityForPlayer(EntityPlayer player)
 	{
-		String playerName = player.username;
+		String playerName = player.getDisplayName();
 		String lookupName = "Player" + playerName + Minecraft.getMinecraft().getIntegratedServer().getFolderName();
 		if(this.lookupByName.containsKey(lookupName))
 		{
 			this.lookupByName.remove(lookupName);
 		}
 	}
-	
+
 	private Pair[] GetDefaultAttacks()
 	{
 		return new Pair[]

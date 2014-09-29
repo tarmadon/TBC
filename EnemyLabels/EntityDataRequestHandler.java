@@ -4,34 +4,35 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import TBC.StringMessage;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.network.INetworkManager;
-import net.minecraft.network.packet.Packet250CustomPayload;
-import cpw.mods.fml.common.network.IPacketHandler;
-import cpw.mods.fml.common.network.Player;
+import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
+import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
-public class EntityDataRequestHandler implements IPacketHandler 
+public class EntityDataRequestHandler implements IMessageHandler<StringMessage, StringMessage>
 {
-	public void onPacketData(INetworkManager manager, Packet250CustomPayload packet, Player player) 
+	@Override
+	public StringMessage onMessage(StringMessage message, MessageContext ctx) 
 	{
-		if(player instanceof EntityPlayerMP)
+		String data = new String(message.Data);
+		String[] params = data.split(",");
+		Integer entityId = new Integer(params[0]);
+		String requestedParam = params[1];
+
+		EntityPlayerMP player = ctx.getServerHandler().playerEntity;
+		Entity requestedEntity = player.worldObj.getEntityByID(entityId);
+		if(requestedEntity != null)
 		{
-			String data = new String(packet.data);
-			String[] params = data.split(",");
-			Integer entityId = new Integer(params[0]);
-			String requestedParam = params[1];
-			
-			Entity requestedEntity = ((EntityPlayerMP) player).worldObj.getEntityByID(entityId);
-			if(requestedEntity != null)
-			{
-				String value = requestedEntity.getEntityData().getString(requestedParam);
-				EntityPlayerMP playerEntity = (EntityPlayerMP)player;
-				playerEntity.playerNetServerHandler.sendPacketToPlayer(new Packet250CustomPayload("TBCResEData", (entityId + "," + requestedParam + "," + value).getBytes()));
-			}
+			String value = requestedEntity.getEntityData().getString(requestedParam);
+			EntityPlayerMP playerEntity = player;
+			EnemyLabelMod.syncEnemyDataHandler.sendTo(new StringMessage(entityId + "," + requestedParam + "," + value), player);
 		}
+		
+		return null;
 	}
 }

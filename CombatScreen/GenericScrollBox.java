@@ -7,16 +7,16 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import TBC.Pair;
+import TBC.TBCMod;
 import TBC.Triplet;
 import TBC.Combat.Abilities.ICombatAbility;
-
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.item.ItemSaddle;
 
-public class GenericScrollBox extends GuiButton 
+public class GenericScrollBox extends GuiButton
 {
 	public static final int ySpacing = 10;
 	private int xSpacing = 80;
@@ -27,8 +27,8 @@ public class GenericScrollBox extends GuiButton
 	private int numColumns;
 	private int numRows;
 	private int offset;
-	
-	public GenericScrollBox(int par1, int par2, int par3, int par4, int par5, String par6Str, ArrayList<Triplet<String, String, IGenericAction>> items, ArrayList<Triplet<String, String, IGenericAction>> constantItems, Integer numColumns) 
+
+	public GenericScrollBox(int par1, int par2, int par3, int par4, int par5, String par6Str, ArrayList<Triplet<String, String, IGenericAction>> items, ArrayList<Triplet<String, String, IGenericAction>> constantItems, Integer numColumns)
 	{
 		super(par1, par2, par3, par4, par5, par6Str);
 		this.offset = 0;
@@ -42,21 +42,21 @@ public class GenericScrollBox extends GuiButton
 				maxStringLength = stringLength;
 			}
 		}
-		
+
 		if(maxStringLength > 60)
 		{
 			xSpacing = maxStringLength + 20;
 		}
-		
+
 		if(numColumns != 0)
 		{
 			this.numColumns = numColumns;
 		}
-		else 
+		else
 		{
 			this.numColumns = par4/xSpacing;
 		}
-		
+
 		this.numRows = (par5/ySpacing) - 1;
 		int curCol = 0;
 		int curRow = 0;
@@ -71,7 +71,7 @@ public class GenericScrollBox extends GuiButton
 				curRow++;
 			}
 		}
-		
+
 		curCol = 0;
 		constantPositions = new ArrayList<Triplet<Integer,Integer,Integer>>();
 		for(int i = 0; i < constantItems.size(); i++)
@@ -85,12 +85,12 @@ public class GenericScrollBox extends GuiButton
 			constantPositions.add(new Triplet<Integer, Integer, Integer>(this.width - 4, 2, -1));
 			constantPositions.add(new Triplet<Integer, Integer, Integer>(this.width - 4, (numRows * ySpacing) - (ySpacing/2 + 2), -2));
 		}
-		
+
 		this.enabled = true;
 		this.items = items;
 		this.constantItems = constantItems;
 	}
-	
+
 	public boolean onClick(int x, int y)
 	{
 		int yOffset = this.offset * ySpacing;
@@ -114,7 +114,7 @@ public class GenericScrollBox extends GuiButton
 				}
 			}
 		}
-		
+
 		for(int i = 0; i < constantPositions.size(); i++)
 		{
 			int positionYPos = constantPositions.get(i).item2;
@@ -143,26 +143,27 @@ public class GenericScrollBox extends GuiButton
 					{
 						return false;
 					}
-					
+
 					action.Invoke();
 				}
-				
+
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
-	
+
 	public void drawButton(Minecraft par1Minecraft, int par2, int par3)
     {
-        if (this.drawButton)
+        if (this.visible)
         {
             FontRenderer fontrenderer = par1Minecraft.fontRenderer;
-            par1Minecraft.renderEngine.bindTexture("/gui/gui.png");
+            par1Minecraft.getTextureManager().bindTexture(buttonTextures);
             GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-            this.field_82253_i = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
-            int k = this.getHoverState(this.field_82253_i);
+            this.field_146123_n = par2 >= this.xPosition && par3 >= this.yPosition && par2 < this.xPosition + this.width && par3 < this.yPosition + this.height;
+            int k = this.getHoverState(this.field_146123_n);
+
             this.drawRect(this.xPosition, this.yPosition, this.width, this.height, 0);
             int yOffset = this.offset * ySpacing;
             for(int i = 0; i< positions.size(); i++)
@@ -178,7 +179,7 @@ public class GenericScrollBox extends GuiButton
                 	{
                 		fontColor = 2;
                 	}
-                	
+
                 	fontrenderer.drawString(itemString, this.xPosition + positions.get(i).item1, this.yPosition + modifiedYPos, fontColor);
                 	if(!countString.isEmpty())
                 	{
@@ -186,7 +187,7 @@ public class GenericScrollBox extends GuiButton
                 	}
             	}
             }
-            
+
             for(int i = 0; i< constantPositions.size(); i++)
             {
             	int itemPosition = constantPositions.get(i).item3;
@@ -207,7 +208,7 @@ public class GenericScrollBox extends GuiButton
                 	{
                 		fontColor = 2;
                 	}
-                	
+
                 	fontrenderer.drawString(itemString, this.xPosition + constantPositions.get(i).item1, this.yPosition + constantPositions.get(i).item2, fontColor);
                 	if(!countString.isEmpty())
                 	{

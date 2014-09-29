@@ -8,12 +8,12 @@ public class FlatBonusEquippedItem extends EquippedItem
 	private int itemEffectStrength;
 	private String itemSlot;
 	private Boolean doesRequireWorn;
-	
+
 	public FlatBonusEquippedItem(int effectType, int effectStrength, String slot)
 	{
 		this(effectType, effectStrength, slot, false);
 	}
-	
+
 	public FlatBonusEquippedItem(int effectType, int effectStrength, String slot, Boolean doesRequireWorn)
 	{
 		this.itemEffectType = effectType;
@@ -21,27 +21,27 @@ public class FlatBonusEquippedItem extends EquippedItem
 		this.itemSlot = slot;
 		this.doesRequireWorn = doesRequireWorn;
 	}
-	
-	public Boolean HasEffect(int effectType) 
+
+	public Boolean HasEffect(int effectType)
 	{
 		return this.itemEffectType == effectType;
 	}
-	
-	public int GetModifiedValue(int baseValue) 
+
+	public int GetModifiedValue(int baseValue)
 	{
 		return baseValue + this.itemEffectStrength;
 	}
-	
-	public String GetSlot() 
+
+	public String GetSlot()
 	{
 		return this.itemSlot;
 	}
-	
-	public Boolean DoesRequireWorn() 
+
+	public Boolean DoesRequireWorn()
 	{
 		return this.doesRequireWorn;
 	}
-	
+
 	public String GetDisplayString()
 	{
 		String effectName = "";
@@ -69,7 +69,7 @@ public class FlatBonusEquippedItem extends EquippedItem
 		{
 			effectName = "Speed";
 		}
-		
+
 		if(itemEffectStrength > 0)
 		{
 			return effectName + " +" + this.itemEffectStrength;

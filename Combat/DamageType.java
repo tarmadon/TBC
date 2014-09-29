@@ -1,6 +1,6 @@
 package TBC.Combat;
 
-public class DamageType 
+public class DamageType
 {
 	public static final int Physical = 1;
 	public static final int Magical = 2;

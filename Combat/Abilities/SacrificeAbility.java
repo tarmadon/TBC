@@ -6,17 +6,17 @@ import TBC.Combat.CombatEngine;
 import TBC.Combat.CombatEntity;
 import TBC.Combat.Effects.IOneTimeEffect;
 
-public class SacrificeAbility extends StandardAbility 
+public class SacrificeAbility extends StandardAbility
 {
 	private IOneTimeEffect[] effectsOnUser;
-	
+
 	public SacrificeAbility(IOneTimeEffect[] effectsOnUser, IOneTimeEffect[] effectsOnTarget, String name, int targetType, int cost, Boolean usableOutOfCombat, Boolean isSpell)
 	{
 		super(effectsOnTarget, name, targetType, cost, usableOutOfCombat, isSpell);
 		this.effectsOnUser = effectsOnUser;
 	}
 
-	public IOneTimeEffect[] GetEffects(CombatEngine engine, CombatEntity user, ArrayList<CombatEntity> targets, ArrayList<String> messages) 
+	public IOneTimeEffect[] GetEffects(CombatEngine engine, CombatEntity user, ArrayList<CombatEntity> targets, ArrayList<String> messages)
 	{
 		for(IOneTimeEffect e : this.effectsOnUser)
 		{

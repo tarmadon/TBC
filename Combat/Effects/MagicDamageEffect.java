@@ -12,7 +12,7 @@ public class MagicDamageEffect implements IOneTimeEffect, IDamageEffect
 	private int flatMagicStrength;
 	private float magicMultiplier;
 	private int additionalDamageTypes;
-	
+
 	public MagicDamageEffect(int flatMagicStrength, float magicMultiplier)
 	{
 		this(flatMagicStrength, magicMultiplier, 0);
@@ -24,8 +24,8 @@ public class MagicDamageEffect implements IOneTimeEffect, IDamageEffect
 		this.magicMultiplier = magicMultiplier;
 		this.additionalDamageTypes = additionalDamageTypes;
 	}
-	
-	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target) 
+
+	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target)
 	{
 		int effectiveStrength = this.flatMagicStrength + Math.round(user.GetMagic() * magicMultiplier);
 		int defense = target.GetMagicDefense();
@@ -33,7 +33,7 @@ public class MagicDamageEffect implements IOneTimeEffect, IDamageEffect
 		engine.DoDamage(user, target, this, damage);
 	}
 
-	public int GetDamageType() 
+	public int GetDamageType()
 	{
 		return DamageType.Magical | this.additionalDamageTypes;
 	}

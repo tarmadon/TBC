@@ -35,12 +35,13 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 
 public class StatsGui extends GuiInventory
 {
 	protected int yInventoryOffset = 34;
-    
+
 	private float ySize_lo;
 
 	private float xSize_lo;
@@ -48,15 +49,15 @@ public class StatsGui extends GuiInventory
 	private int stackSize;
 
 	private ArrayList<Object> tempRemoved;
-	
+
 	private Item oldCharItem;
 	private Boolean hasSetCharItem;
-	
+
 	private ContainerForStatsGui asStatContainer;
 	public int mode = 0;
 	private ArrayList<GenericGuiButton> sharedButtons;
-	
-	public StatsGui(EntityPlayer par1EntityPlayer, ContainerForStatsGui container) 
+
+	public StatsGui(EntityPlayer par1EntityPlayer, ContainerForStatsGui container)
 	{
 		super(par1EntityPlayer);
 		this.inventorySlots = container;
@@ -64,8 +65,8 @@ public class StatsGui extends GuiInventory
 		xSize = 206;
 		ySize = 199;
 	}
-	
-	public void initGui() 
+
+	public void initGui()
 	{
 		super.initGui();
 		GenericGuiButton showStatusButton = new GenericGuiButton(300, this.guiLeft + 115, this.guiTop + 2, 20, 20, "S", new ChangeGuiModeFunction(this, null, null, 0));
@@ -80,8 +81,8 @@ public class StatsGui extends GuiInventory
 		oldCharItem = null;
 		hasSetCharItem = false;
 	}
-	
-	public void drawScreen(int par1, int par2, float par3) 
+
+	public void drawScreen(int par1, int par2, float par3)
 	{
         this.xSize_lo = (float)par1;
         this.ySize_lo = (float)par2;
@@ -92,7 +93,7 @@ public class StatsGui extends GuiInventory
             guibutton.drawButton(this.mc, par1, par2);
         }
 	}
-	
+
 	protected void mouseClicked(int par1, int par2, int par3)
 	{
         if (par3 == 0)
@@ -115,52 +116,21 @@ public class StatsGui extends GuiInventory
                 }
             }
         }
-        
+
         super.mouseClicked(par1, par2, par3);
 	}
-	
-	protected void drawItemStackTooltip(ItemStack par1ItemStack, int par2, int par3) 
-	{
-        List list = par1ItemStack.getTooltip(this.mc.thePlayer, this.mc.gameSettings.advancedItemTooltips);
 
-        for (int k = 0; k < list.size(); ++k)
-        {
-            if (k == 0)
-            {
-                list.set(k, "\u00a7" + Integer.toHexString(par1ItemStack.getRarity().rarityColor) + (String)list.get(k));
-            }
-            else
-            {
-                list.set(k, EnumChatFormatting.GRAY + (String)list.get(k));
-            }
-        }
-
-        String name = par1ItemStack.getItem().getUnlocalizedName().replace("item.", "");
-        if(EquippedItemManager.Instance.lookup.containsKey(name))
-        {
-        	String displayString = EquippedItemManager.Instance.lookup.get(name).GetDisplayString();
-        	if(displayString != null && displayString.length() > 0)
-        	{
-        		list.add(displayString);
-        	}
-        }
-        
-        FontRenderer font = par1ItemStack.getItem().getFontRenderer(par1ItemStack);
-        drawHoveringText(list, par2, par3, (font == null ? fontRenderer : font));
-		super.drawItemStackTooltip(par1ItemStack, par2, par3);
-	}
-	
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
 	{
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        this.mc.renderEngine.bindTexture("/TBC/gui/charScreen.png");
+        this.mc.renderEngine.bindTexture(TBCMod.statsGuiBackground);
         int k = this.guiLeft;
         int l = this.guiTop;
         this.drawTexturedModalRect(k, l, 0, 0, this.xSize, this.ySize);
         int playerXPos = k + 172;
         int playerYPos = l + 110;
 	}
-	
+
     protected void drawGuiContainerForegroundLayer(int par1, int par2)
     {
     	CombatEntity player = null;
@@ -175,13 +145,13 @@ public class StatsGui extends GuiInventory
 				EntityLiving renderEntity = (EntityLiving) EntityList.createEntityByName(h.henchmanType, mc.theWorld);
 				renderEntity.getEntityData().setInteger("henchmanIndex", this.mc.thePlayer.inventory.getHotbarSize());
 				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(renderEntity, h.henchmanName);
-				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getItemDamageFromStack(itemStack)/(float)h.getMaxDamage())));
+				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(itemStack)/(float)h.getMaxDamage())));
 				NBTTagCompound itemData = itemStack.getTagCompound();
 				if(itemData != null && itemData.hasKey("HenchMP"))
 				{
 					henchmanEntity.currentMp = itemData.getInteger("HenchMP");
 				}
-    			
+
     			xpData = new PlayerXPWorldSavedData();
     			xpData.PlayerLevel = 1;
     			player = henchmanEntity;
@@ -193,9 +163,9 @@ public class StatsGui extends GuiInventory
     		player = CombatEntity.GetCombatEntity(Minecraft.getMinecraft().thePlayer, 1);
     		xpData = LevelingEngine.Instance.GetXpDataForPlayer((EntityPlayer)player.innerEntity);
     	}
-    	
-    	this.fontRenderer.drawString(xpData.PlayerLevel + "", 102, 9, 2);
-    	
+
+    	this.fontRendererObj.drawString(xpData.PlayerLevel + "", 102, 9, 2);
+
     	// Check to see if the user has changed, if it has return to stats page
     	ItemStack chosen = this.asStatContainer.CharSlot.getStack();
     	if ((chosen == null && oldCharItem != null) || (chosen != null && (chosen.getItem() != oldCharItem)))
@@ -210,7 +180,7 @@ public class StatsGui extends GuiInventory
     			oldCharItem = chosen.getItem();
     		}
     	}
-    	
+
     	if(this.mode == 0)
     	{
     		drawStatus(player, xpData);
@@ -225,23 +195,23 @@ public class StatsGui extends GuiInventory
     	}
     	else if(this.mode == 3)
     	{
-    		this.fontRenderer.drawString("On Who?", 8, 25, 2);
+    		this.fontRendererObj.drawString("On Who?", 8, 25, 2);
     	}
     }
 
     private void drawItems(CombatEntity user)
     {
-    	this.fontRenderer.drawString("Items:", 8, 25, 2);
+    	this.fontRendererObj.drawString("Items:", 8, 25, 2);
     	if(!hasSetCharItem)
     	{
     		this.ChangeMode(user, null, 2);
     		this.hasSetCharItem = true;
     	}
     }
-    
+
     private void drawAbilities(CombatEntity player)
     {
-    	this.fontRenderer.drawString("Abilities:", 8, 25, 2);
+    	this.fontRendererObj.drawString("Abilities:", 8, 25, 2);
     	ItemStack chosen = this.asStatContainer.CharSlot.getStack();
     	if(!hasSetCharItem)
     	{
@@ -249,7 +219,7 @@ public class StatsGui extends GuiInventory
     		this.hasSetCharItem = true;
     	}
     }
-    
+
     public void ChangeMode(CombatEntity player, ICombatAbility abilityToUse, int newMode)
     {
     	hasSetCharItem = false;
@@ -267,11 +237,11 @@ public class StatsGui extends GuiInventory
 		{
 			SetupTargetSelection(player, abilityToUse);
 		}
-		
+
 		this.mode = newMode;
     }
 
-	private void SetupTargetSelection(CombatEntity player, ICombatAbility abilityToUse) 
+	private void SetupTargetSelection(CombatEntity player, ICombatAbility abilityToUse)
 	{
 		EntityPlayer actualPlayer = Minecraft.getMinecraft().thePlayer;
 		ArrayList<Triplet<String, String, IGenericAction>> displayItems = new ArrayList<Triplet<String,String,IGenericAction>>();
@@ -280,7 +250,7 @@ public class StatsGui extends GuiInventory
     	{
     		henchmenItems[actualPlayer.inventory.getHotbarSize()] = this.asStatContainer.CharSlot.getStack();
     	}
-		
+
 		ArrayList<CombatEntity> otherPartyMembers = GetOtherPartyMembers(actualPlayer, henchmenItems);
 		if(abilityToUse.GetAbilityTarget() == AbilityTargetType.AllAllies)
 		{
@@ -305,14 +275,14 @@ public class StatsGui extends GuiInventory
 				displayItems.add(new Triplet(otherPartyMembers.get(i).GetName(), "", new UseAbilityFromStatsGuiAction(this, this.mode, player, abilityToUse, henchTarget, henchmenItems)));
 			}
 		}
-		
+
 		ArrayList<Triplet<String, String, IGenericAction>> cancelButton = new ArrayList<Triplet<String,String,IGenericAction>>();
 		cancelButton.add(new Triplet<String, String, IGenericAction>("Cancel", "", new ChangeGuiModeFunction(this, null, null, this.mode)));
 		GenericScrollBox scrollBox = new GenericScrollBox(307, this.guiLeft + 10, this.guiTop + 37, 175, 63, "Target", displayItems, cancelButton, 0);
 		this.buttonList.add(scrollBox);
 	}
 
-	private void SetupItemsTab(CombatEntity player) 
+	private void SetupItemsTab(CombatEntity player)
 	{
 		ArrayList<Triplet<String, String, IGenericAction>> displayItems = new ArrayList<Triplet<String,String,IGenericAction>>();
 		ArrayList<Quintuplet<Item, EquippedItem, ICombatAbility, Integer>> items = EquippedItemManager.Instance.GetAllKnownItemsForPlayer(Minecraft.getMinecraft(), Minecraft.getMinecraft().thePlayer);
@@ -328,22 +298,22 @@ public class StatsGui extends GuiInventory
 			}
 			else
 			{
-				itemName = items.get(i).item1.getItemDisplayName(new ItemStack(items.get(i).item1));
+				itemName = items.get(i).item1.getItemStackDisplayName(new ItemStack(items.get(i).item1));
 			}
-			
+
 			displayItems.add(new Triplet(itemName, items.get(i).item4 + "", action));
 		}
-		
+
 		if(displayItems.size() == 0)
 		{
 			displayItems.add(new Triplet("You have no items.", "", null));
 		}
-		
+
 		GenericScrollBox scrollBox = new GenericScrollBox(307, this.guiLeft + 10, this.guiTop + 37, 175, 63, "Items", displayItems, new ArrayList<Triplet<String,String,IGenericAction>>(), 0);
 		this.buttonList.add(scrollBox);
 	}
 
-	private void SetupAbilitiesTab(CombatEntity player) 
+	private void SetupAbilitiesTab(CombatEntity player)
 	{
 		ArrayList<Triplet<String, String, IGenericAction>> displayAbilities = new ArrayList<Triplet<String,String,IGenericAction>>();
 		Pair<Integer, ICombatAbility>[] abilities = player.GetAbilities();
@@ -355,7 +325,7 @@ public class StatsGui extends GuiInventory
 			{
 				action = new ChangeGuiModeFunction(this, player, ability, 3);
 			}
-			
+
 			if(!ability.GetAbilityName().isEmpty())
 			{
 				String mpDisplay = ability.GetMpCost() + "";
@@ -363,20 +333,20 @@ public class StatsGui extends GuiInventory
 				{
 					mpDisplay = "";
 				}
-				
+
 				displayAbilities.add(new Triplet(ability.GetAbilityName(), mpDisplay, action));
 			}
 		}
-		
+
 		if(displayAbilities.size() == 0)
 		{
 			displayAbilities.add(new Triplet("You have no abilities.", "", null));
 		}
-		
+
 		GenericScrollBox scrollBox = new GenericScrollBox(304, this.guiLeft + 10, this.guiTop + 37, 175, 63, "Abilities", displayAbilities, new ArrayList<Triplet<String,String,IGenericAction>>(), 0);
 		this.buttonList.add(scrollBox);
 	}
-    
+
     private ArrayList<CombatEntity> GetOtherPartyMembers(EntityPlayer actualPlayer, ItemStack[] henchmenItems)
     {
     	ArrayList<CombatEntity> partyMembers = new ArrayList<CombatEntity>();
@@ -388,38 +358,38 @@ public class StatsGui extends GuiInventory
 				EntityLiving renderEntity = (EntityLiving) EntityList.createEntityByName(h.henchmanType, actualPlayer.worldObj);
 				renderEntity.getEntityData().setInteger("henchmanIndex", i);
 				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(renderEntity, h.henchmanName);
-				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getItemDamageFromStack(actualPlayer.inventory.mainInventory[i])/(float)h.getMaxDamage())));
+				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(actualPlayer.inventory.mainInventory[i])/(float)h.getMaxDamage())));
 				if(henchmanEntity.currentHp < 1)
 				{
 					continue;
 				}
-				
+
 				NBTTagCompound itemData = actualPlayer.inventory.mainInventory[i].getTagCompound();
 				if(itemData != null && itemData.hasKey("HenchMP"))
 				{
 					henchmanEntity.currentMp = itemData.getInteger("HenchMP");
 				}
-				
+
 				henchmenItems[i] = actualPlayer.inventory.mainInventory[i];
 				partyMembers.add(henchmanEntity);
 			}
 		}
-    	
+
     	if(this.asStatContainer.CharSlot.getStack() != null && this.asStatContainer.CharSlot.getStack().getItem() instanceof HenchmanItem)
     	{
     		partyMembers.add(CombatEntityLookup.Instance.GetCombatEntityForPlayer(actualPlayer));
     	}
-    	
+
     	return partyMembers;
     }
-    
-	private void drawStatus(CombatEntity player, PlayerXPWorldSavedData xpData) 
+
+	private void drawStatus(CombatEntity player, PlayerXPWorldSavedData xpData)
 	{
 		int leftLabelXPos = 8;
     	int leftValueXPos = 45;
     	int rightLabelXPos = 102;
     	int rightValueXPos = 139;
-    	
+
     	int firstLineYPos = 25;
     	int secondLineYPos = 37;
     	int thirdLineYPos = 56;
@@ -427,47 +397,47 @@ public class StatsGui extends GuiInventory
     	int fifthLineYPos = 80;
     	int sixthLineYPos = 92;
     	int seventhLineYPos = 104;
-    	    	   	
-    	this.fontRenderer.drawString("HP:", leftLabelXPos, firstLineYPos, 2);
-    	this.fontRenderer.drawString(player.currentHp + " / " + player.GetMaxHp(), leftValueXPos, firstLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("MP:", leftLabelXPos, secondLineYPos, 2);
-    	this.fontRenderer.drawString(player.currentMp + " / " + player.GetMaxMp(), leftValueXPos, secondLineYPos, 2);
-    	    	
-    	this.fontRenderer.drawString("XP:", rightLabelXPos, firstLineYPos, 2);
-    	this.fontRenderer.drawString(xpData.PlayerXp + " / " + LevelingEngine.GetXpRequiredForLevel(xpData.PlayerLevel), rightValueXPos, firstLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("AP:", rightLabelXPos, secondLineYPos, 2);
-    	this.fontRenderer.drawString(xpData.PlayerAp + "", rightValueXPos, secondLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("Att:", leftLabelXPos, thirdLineYPos, 2);
-    	this.fontRenderer.drawString(player.GetAttack() + "", leftValueXPos, thirdLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("Def:", leftLabelXPos, fourthLineYPos, 2);
-    	this.fontRenderer.drawString(player.GetDefense() + "", leftValueXPos, fourthLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("MAtt:", leftLabelXPos, fifthLineYPos, 2);
-    	this.fontRenderer.drawString(player.GetMagic() + "", leftValueXPos, fifthLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("MDef:", leftLabelXPos, sixthLineYPos, 2);
-    	this.fontRenderer.drawString(player.GetMagicDefense() + "", leftValueXPos, sixthLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("Spd:", leftLabelXPos, seventhLineYPos, 2);
-    	this.fontRenderer.drawString(player.GetSpeed() + "", leftValueXPos, seventhLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("Str:", rightLabelXPos, thirdLineYPos, 2);
-    	this.fontRenderer.drawString(0 + "", rightValueXPos, thirdLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("Dex:", rightLabelXPos, fourthLineYPos, 2);
-    	this.fontRenderer.drawString(0 + "", rightValueXPos, fourthLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("Con:", rightLabelXPos, fifthLineYPos, 2);
-    	this.fontRenderer.drawString(0 + "", rightValueXPos, fifthLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("Int:", rightLabelXPos, sixthLineYPos, 2);
-    	this.fontRenderer.drawString(0 + "", rightValueXPos, sixthLineYPos, 2);
-    	
-    	this.fontRenderer.drawString("Will:", rightLabelXPos, seventhLineYPos, 2);
-    	this.fontRenderer.drawString(0 + "", rightValueXPos, seventhLineYPos, 2);
+
+    	this.fontRendererObj.drawString("HP:", leftLabelXPos, firstLineYPos, 2);
+    	this.fontRendererObj.drawString(player.currentHp + " / " + player.GetMaxHp(), leftValueXPos, firstLineYPos, 2);
+
+    	this.fontRendererObj.drawString("MP:", leftLabelXPos, secondLineYPos, 2);
+    	this.fontRendererObj.drawString(player.currentMp + " / " + player.GetMaxMp(), leftValueXPos, secondLineYPos, 2);
+
+    	this.fontRendererObj.drawString("XP:", rightLabelXPos, firstLineYPos, 2);
+    	this.fontRendererObj.drawString(xpData.PlayerXp + " / " + LevelingEngine.GetXpRequiredForLevel(xpData.PlayerLevel), rightValueXPos, firstLineYPos, 2);
+
+    	this.fontRendererObj.drawString("AP:", rightLabelXPos, secondLineYPos, 2);
+    	this.fontRendererObj.drawString(xpData.PlayerAp + "", rightValueXPos, secondLineYPos, 2);
+
+    	this.fontRendererObj.drawString("Att:", leftLabelXPos, thirdLineYPos, 2);
+    	this.fontRendererObj.drawString(player.GetAttack() + "", leftValueXPos, thirdLineYPos, 2);
+
+    	this.fontRendererObj.drawString("Def:", leftLabelXPos, fourthLineYPos, 2);
+    	this.fontRendererObj.drawString(player.GetDefense() + "", leftValueXPos, fourthLineYPos, 2);
+
+    	this.fontRendererObj.drawString("MAtt:", leftLabelXPos, fifthLineYPos, 2);
+    	this.fontRendererObj.drawString(player.GetMagic() + "", leftValueXPos, fifthLineYPos, 2);
+
+    	this.fontRendererObj.drawString("MDef:", leftLabelXPos, sixthLineYPos, 2);
+    	this.fontRendererObj.drawString(player.GetMagicDefense() + "", leftValueXPos, sixthLineYPos, 2);
+
+    	this.fontRendererObj.drawString("Spd:", leftLabelXPos, seventhLineYPos, 2);
+    	this.fontRendererObj.drawString(player.GetSpeed() + "", leftValueXPos, seventhLineYPos, 2);
+
+    	this.fontRendererObj.drawString("Str:", rightLabelXPos, thirdLineYPos, 2);
+    	this.fontRendererObj.drawString(0 + "", rightValueXPos, thirdLineYPos, 2);
+
+    	this.fontRendererObj.drawString("Dex:", rightLabelXPos, fourthLineYPos, 2);
+    	this.fontRendererObj.drawString(0 + "", rightValueXPos, fourthLineYPos, 2);
+
+    	this.fontRendererObj.drawString("Con:", rightLabelXPos, fifthLineYPos, 2);
+    	this.fontRendererObj.drawString(0 + "", rightValueXPos, fifthLineYPos, 2);
+
+    	this.fontRendererObj.drawString("Int:", rightLabelXPos, sixthLineYPos, 2);
+    	this.fontRendererObj.drawString(0 + "", rightValueXPos, sixthLineYPos, 2);
+
+    	this.fontRendererObj.drawString("Will:", rightLabelXPos, seventhLineYPos, 2);
+    	this.fontRendererObj.drawString(0 + "", rightValueXPos, seventhLineYPos, 2);
 	}
 }

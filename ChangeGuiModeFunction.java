@@ -10,7 +10,7 @@ public class ChangeGuiModeFunction implements IGenericAction
 	private int mode;
 	private CombatEntity user;
 	private ICombatAbility abilityToUse;
-	
+
 	public ChangeGuiModeFunction(StatsGui gui, CombatEntity user, ICombatAbility abilityToUse, int mode)
 	{
 		this.gui = gui;
@@ -18,8 +18,8 @@ public class ChangeGuiModeFunction implements IGenericAction
 		this.user = user;
 		this.abilityToUse = abilityToUse;
 	}
-	
-	public void Invoke() 
+
+	public void Invoke()
 	{
 		this.gui.ChangeMode(this.user, this.abilityToUse, this.mode);
 	}

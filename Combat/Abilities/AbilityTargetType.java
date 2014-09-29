@@ -1,6 +1,6 @@
 package TBC.Combat.Abilities;
 
-public class AbilityTargetType 
+public class AbilityTargetType
 {
 	public static final int OneEnemy = 1;
 	public static final int OneAlly = 2;

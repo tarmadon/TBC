@@ -22,22 +22,22 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
-public class CombatEngine 
+public class CombatEngine
 {
 	private static final int maxEntities = 5;
 	public ArrayList<CombatEntity> allies;
 	public ArrayList<CombatEntity> enemies;
 	private Random rng;
 	private int turnCounter;
-	
+
 	private Hashtable<CombatEntity, Float> turnTimings = new Hashtable<CombatEntity, Float>();
-	
+
 	public CombatEngine(ArrayList<CombatEntity> allies, ArrayList<CombatEntity> enemies, Boolean isAttacker)
 	{
 		this.allies = allies;
 		this.enemies = enemies;
 		this.rng = this.allies.get(0).innerEntity.getRNG();
-		
+
 		float allyStartTime = 50F;
 		float enemyStartTime = 50F;
 		if(isAttacker && rng.nextInt(101) > 90)
@@ -48,7 +48,7 @@ public class CombatEngine
 		{
 			enemyStartTime = 100F;
 		}
-		
+
 		for(int i = 0; i<this.allies.size(); i++)
 		{
 			List constantEffects = new ArrayList();
@@ -60,7 +60,7 @@ public class CombatEngine
 					constantEffects.addAll(((ConstantAbility)ability.item2).GetConstantEffects());
 				}
 			}
-			
+
 			if(ally.innerEntity instanceof EntityPlayer)
 			{
 				ArrayList<ICombatAbility> equipmentAbilities = EquippedItemManager.Instance.GetAbilitiesFromEquippedItems(Minecraft.getMinecraft(), (EntityPlayer)ally.innerEntity);
@@ -72,11 +72,11 @@ public class CombatEngine
 					}
 				}
 			}
-			
+
 			ally.ongoingEffects = constantEffects;
 			turnTimings.put(this.allies.get(i), allyStartTime);
 		}
-		
+
 		for(int i = 0; i<this.enemies.size(); i++)
 		{
 			List constantEffects = new ArrayList();
@@ -88,35 +88,35 @@ public class CombatEngine
 					constantEffects.addAll(((ConstantAbility)ability.item2).GetConstantEffects());
 				}
 			}
-			
+
 			enemy.ongoingEffects = constantEffects;
 			turnTimings.put(this.enemies.get(i), enemyStartTime);
 		}
 	}
-	
+
 	public Boolean CanEscape()
 	{
 		int allySpeed = this.GetAverageSpeed(this.allies);
 		int enemySpeed = this.GetAverageSpeed(this.enemies);
-		
+
 		int chanceToRun = 50 + 5 * (allySpeed - enemySpeed);
-		
+
 		if(rng.nextInt(101) < chanceToRun)
 		{
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	public Pair<ICombatAbility, ArrayList<CombatEntity>> Attack(CombatEntity attacker, ArrayList<String> messages)
 	{
 		ICombatAbility abilityToUse = this.ChooseAbilityForEnemy(attacker);
-		ArrayList<CombatEntity> targets = this.ChooseTargetForEnemy(attacker, abilityToUse); 
+		ArrayList<CombatEntity> targets = this.ChooseTargetForEnemy(attacker, abilityToUse);
 		this.Attack(attacker, targets, abilityToUse, messages);
 		return new Pair<ICombatAbility, ArrayList<CombatEntity>>(abilityToUse, targets);
 	}
-	
+
 	public boolean Attack(CombatEntity attacker, ArrayList<CombatEntity> targets, ICombatAbility ability, ArrayList<String> messages)
 	{
 		attacker.currentMp = attacker.currentMp - ability.GetMpCost();
@@ -128,10 +128,10 @@ public class CombatEngine
 				attackEffects[j].ApplyToEntity(this, attacker, targets.get(i));
 			}
 		}
-		
+
 		return true;
 	}
-	
+
 	public Boolean EndTurn(CombatEntity entity)
 	{
 		Boolean needsDisplay = false;
@@ -145,24 +145,24 @@ public class CombatEngine
 				{
 					needsDisplay |= ((ITriggeredEffect)effect).EndOfTurn(this, entity);
 				}
-				
+
 				if(effect instanceof IExpiringEffect && ((IExpiringEffect)effect).IsExpiredOnNextTurn())
 				{
 					effectsToRemove.add(effect);
 				}
 			}
-			
+
 			for(Object effectToRemove : effectsToRemove)
 			{
 				entity.ongoingEffects.remove(effectToRemove);
 			}
 		}
-		
+
 		return needsDisplay;
 	}
-	
+
 	public CombatEntity GetNextTurn()
-	{ 
+	{
 		Set<CombatEntity> keys = this.turnTimings.keySet();
 		Iterator<CombatEntity> iterator = keys.iterator();
 		float fastest = 0;
@@ -170,7 +170,7 @@ public class CombatEngine
 		while(iterator.hasNext())
 		{
 			CombatEntity entity = iterator.next();
-			float currentTiming = this.turnTimings.get(entity); 
+			float currentTiming = this.turnTimings.get(entity);
 			if(currentTiming > 100 && currentTiming > fastest && entity.currentHp > 0)
 			{
 				fastest = currentTiming;
@@ -195,12 +195,12 @@ public class CombatEngine
 						}
 					}
 				}
-				
+
 				for(Object removeItem : toRemove)
 				{
 					entity.ongoingEffects.remove(removeItem);
 				}
-				
+
 				if(entity.currentHp > 0 && entity.GetSpeed() > -100)
 				{
 					float nextValue = (entity.GetSpeed() + 100)/100F;
@@ -219,7 +219,7 @@ public class CombatEngine
 		this.turnTimings.put(fastestEntity, fastest - 100);
 		return fastestEntity;
 	}
-	
+
 	public SimpleEntry<Integer, Integer> GetXpAndApReward(ArrayList<CombatEntity> enemies)
 	{
 		int xp = 0;
@@ -232,10 +232,10 @@ public class CombatEngine
 				ap += enemies.get(i).GetApValue();
 			}
 		}
-		
+
 		return new SimpleEntry<Integer, Integer>(xp, ap);
 	}
-	
+
 	public ArrayList<ICombatAbility> GetChoosableAbilitiesForEntity(CombatEntity entity)
 	{
 		Pair<Integer, ICombatAbility>[] abilities = entity.GetAbilities();
@@ -244,7 +244,7 @@ public class CombatEngine
 		{
 			allowed.add(ability.item2);
 		}
-		
+
 		for(Object ongoing : entity.ongoingEffects)
 		{
 			if(ongoing instanceof ITriggeredEffect)
@@ -252,10 +252,10 @@ public class CombatEngine
 				allowed = ((ITriggeredEffect)ongoing).OnGetAbilities(this, entity, allowed);
 			}
 		}
-		
+
 		return allowed;
 	}
-	
+
 	public void DoDamage(CombatEntity user, CombatEntity target, IDamageEffect source, int damage)
 	{
 		for(int i = 0; i< user.ongoingEffects.size(); i++)
@@ -266,7 +266,7 @@ public class CombatEngine
 				damage = ((ITriggeredEffect)attackerEffect).OnDamage(this, user, target, source, damage, true);
 			}
 		}
-		
+
 		for(int i = 0; i<target.ongoingEffects.size(); i++)
 		{
 			Object defenderEffect = target.ongoingEffects.get(i);
@@ -275,10 +275,10 @@ public class CombatEngine
 				damage = ((ITriggeredEffect)defenderEffect).OnDamage(this, user, target, source, damage, false);
 			}
 		}
-		
+
 		target.AddDamageTaken(damage);
 	}
-	
+
 	private int GetAverageSpeed(ArrayList<CombatEntity> entities)
 	{
 		int totalSpeed = 0;
@@ -287,10 +287,10 @@ public class CombatEngine
 		{
 			totalSpeed += entities.get(i).GetSpeed();
 		}
-		
+
 		return totalSpeed / partyMemberCount;
 	}
-	
+
 	private ICombatAbility ChooseAbilityForEnemy(CombatEntity enemy)
 	{
 		int totalWeight = 0;
@@ -302,12 +302,12 @@ public class CombatEngine
 				usableAbilities.add(enemy.GetAbilities()[i]);
 			}
 		}
-		
+
 		for(int i = 0; i<usableAbilities.size(); i++)
 		{
 			totalWeight += usableAbilities.get(i).item1;
 		}
-		
+
 		ICombatAbility ability = usableAbilities.get(0).item2;
 		int rand = CombatRandom.GetRandom().nextInt(totalWeight);
 		int weightTilNow = 0;
@@ -320,10 +320,10 @@ public class CombatEngine
 				break;
 			}
 		}
-		
+
 		return ability;
 	}
-	
+
 	public void AddEntityToCombat(CombatEntity user, CombatEntity toAdd)
 	{
 		boolean isAlly = false;
@@ -334,7 +334,7 @@ public class CombatEngine
 				isAlly = true;
 			}
 		}
-		
+
 		if(isAlly && this.allies.size() < maxEntities)
 		{
 			this.allies.add(toAdd);
@@ -343,7 +343,7 @@ public class CombatEngine
 		{
 			this.enemies.add(toAdd);
 		}
-		
+
 		List constantEffects = new ArrayList();
 		for(Pair<Integer, ICombatAbility> ability : toAdd.GetAbilities())
 		{
@@ -352,11 +352,11 @@ public class CombatEngine
 				constantEffects.addAll(((ConstantAbility)ability.item2).GetConstantEffects());
 			}
 		}
-		
+
 		toAdd.ongoingEffects = constantEffects;
 		this.turnTimings.put(toAdd, 0F);
 	}
-	
+
 	private ArrayList<CombatEntity> ChooseTargetForEnemy(CombatEntity enemy, ICombatAbility ability)
 	{
 		ArrayList<ArrayList<CombatEntity>> targets = GetValidTargets(enemy, ability.GetAbilityTarget());
@@ -365,7 +365,7 @@ public class CombatEngine
 		return targets.get(picked);
 	}
 
-	public ArrayList<ArrayList<CombatEntity>> GetValidTargets(CombatEntity entityForCurrentTurn, int abilityTargetType) 
+	public ArrayList<ArrayList<CombatEntity>> GetValidTargets(CombatEntity entityForCurrentTurn, int abilityTargetType)
 	{
 		boolean isAlly = false;
 		ArrayList<ArrayList<CombatEntity>> targets = new ArrayList<ArrayList<CombatEntity>>();
@@ -376,7 +376,7 @@ public class CombatEngine
 				isAlly = true;
 			}
 		}
-		
+
 		if(abilityTargetType == AbilityTargetType.AllAllies || abilityTargetType == AbilityTargetType.AllEnemies)
 		{
 			if((isAlly && abilityTargetType == AbilityTargetType.AllAllies) || (!isAlly && abilityTargetType == AbilityTargetType.AllEnemies ))
@@ -389,7 +389,7 @@ public class CombatEngine
 						liveAllies.add(ally);
 					}
 				}
-				
+
 				targets.add(liveAllies);
 			}
 			else
@@ -402,7 +402,7 @@ public class CombatEngine
 						liveEnemies.add(enemy);
 					}
 				}
-				
+
 				targets.add(liveEnemies);
 			}
 		}
@@ -474,7 +474,7 @@ public class CombatEngine
 				targets = ((ITriggeredEffect)attackerEffect).OnChooseTarget(this, entityForCurrentTurn, abilityTargetType, targets, true);
 			}
 		}
-		
+
 		for(ArrayList<CombatEntity> targetList : targets)
 		{
 			for(CombatEntity target : targetList)
@@ -488,10 +488,10 @@ public class CombatEngine
 				}
 			}
 		}
-		
+
 		return targets;
 	}
-	
+
 	public void DelayTurnForEntity(CombatEntity toDelay, int delayAmount)
 	{
 		if(this.turnTimings.containsKey(toDelay))
@@ -501,8 +501,7 @@ public class CombatEngine
 		}
 	}
 
-	
-	public Pair<ICombatAbility, ArrayList<CombatEntity>> GetQueuedAbility(CombatEntity next) 
+	public Pair<ICombatAbility, ArrayList<CombatEntity>> GetQueuedAbility(CombatEntity next)
 	{
 		for(Object ongoing : next.ongoingEffects)
 		{
@@ -516,7 +515,7 @@ public class CombatEngine
 				}
 			}
 		}
-		
+
 		return null;
 	}
 }
