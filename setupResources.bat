@@ -1,0 +1,1 @@
+xcopy gui\* ..\..\resources\assets\tbc\textures\gui /Y /I
