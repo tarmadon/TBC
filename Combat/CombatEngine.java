@@ -258,21 +258,27 @@ public class CombatEngine
 
 	public void DoDamage(CombatEntity user, CombatEntity target, IDamageEffect source, int damage)
 	{
-		for(int i = 0; i< user.ongoingEffects.size(); i++)
+		if(user.ongoingEffects != null)
 		{
-			Object attackerEffect = user.ongoingEffects.get(i);
-			if(attackerEffect instanceof ITriggeredEffect)
+			for(int i = 0; i< user.ongoingEffects.size(); i++)
 			{
-				damage = ((ITriggeredEffect)attackerEffect).OnDamage(this, user, target, source, damage, true);
+				Object attackerEffect = user.ongoingEffects.get(i);
+				if(attackerEffect instanceof ITriggeredEffect)
+				{
+					damage = ((ITriggeredEffect)attackerEffect).OnDamage(this, user, target, source, damage, true);
+				}
 			}
 		}
 
-		for(int i = 0; i<target.ongoingEffects.size(); i++)
+		if(target.ongoingEffects != null)
 		{
-			Object defenderEffect = target.ongoingEffects.get(i);
-			if(defenderEffect instanceof ITriggeredEffect)
+			for(int i = 0; i<target.ongoingEffects.size(); i++)
 			{
-				damage = ((ITriggeredEffect)defenderEffect).OnDamage(this, user, target, source, damage, false);
+				Object defenderEffect = target.ongoingEffects.get(i);
+				if(defenderEffect instanceof ITriggeredEffect)
+				{
+					damage = ((ITriggeredEffect)defenderEffect).OnDamage(this, user, target, source, damage, false);
+				}
 			}
 		}
 

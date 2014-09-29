@@ -53,7 +53,7 @@ public class UseAbilityFromStatsGuiAction implements IGenericAction
 		}
 
 		CombatEngine engine = new CombatEngine(allies, new ArrayList<CombatEntity>(), true);
-		engine.Attack(user, targets, ability, null);
+		engine.Attack(user, targets, ability, new ArrayList<String>());
 		user.ApplyDamage();
 		for(CombatEntity target : targets)
 		{

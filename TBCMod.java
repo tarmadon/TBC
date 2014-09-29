@@ -1,5 +1,15 @@
 package TBC;
 
+import java.awt.image.BufferedImage;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Set;
+
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.resources.IResourcePack;
+import net.minecraft.client.resources.ResourcePackRepository;
+import net.minecraft.client.resources.data.IMetadataSection;
+import net.minecraft.client.resources.data.IMetadataSerializer;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.common.MinecraftForge;
@@ -13,6 +23,7 @@ import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
 import TBC.EnemyLabels.EnemyLabelMod;
 import TBC.ZoneGeneration.ZoneGenerationMod;
+import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.Mod;
 import cpw.mods.fml.common.Mod.EventHandler;
 import cpw.mods.fml.common.Mod.Instance;
@@ -24,22 +35,22 @@ import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
-@Mod(modid = "TBC", name = "TBC", version = "1.0.0")
+@Mod(modid = "tbc", name = "tbc", version = "1.0.0")
 public class TBCMod
 {
 	public static MainMod MainModInstance = new MainMod();
 	public static EnemyLabelMod EnemyLabelModInstance = new EnemyLabelMod();
 	public static ZoneGenerationMod ZoneGenerationModInstance = new ZoneGenerationMod();
 
-	public static ResourceLocation statsGuiBackground = new ResourceLocation("TBC/gui/charScreen.png");
-	public static ResourceLocation battleScreenCharWindow = new ResourceLocation("TBC/gui/charWindow.png");
-	public static ResourceLocation battleScreenDivider = new ResourceLocation("TBC/gui/divider.png");
-	public static ResourceLocation statusEffects = new ResourceLocation("TBC/gui/statusEffects.png");
-	public static ResourceLocation combatDecals = new ResourceLocation("TBC/gui/combatDecals.png");
+	public static ResourceLocation statsGuiBackground = new ResourceLocation("tbc", "textures/gui/charScreen.png");
+	public static ResourceLocation battleScreenCharWindow = new ResourceLocation("tbc", "textures/gui/charWindow.png");
+	public static ResourceLocation battleScreenDivider = new ResourceLocation("tbc", "textures/gui/divider.png");
+	public static ResourceLocation statusEffects = new ResourceLocation("tbc", "textures/gui/statusEffects.png");
+	public static ResourceLocation combatDecals = new ResourceLocation("tbc", "textures/gui/combatDecals.png");
 		
 	public static ResourceLocation vanillaGui = new ResourceLocation("textures/gui/widgets.png");
 	
-	@Instance ("TBC")
+	@Instance ("tbc")
 	public static TBCMod instance;
 
 	@EventHandler
@@ -51,6 +62,7 @@ public class TBCMod
 	@EventHandler
 	public void init(FMLInitializationEvent evt)
 	{
+		FMLCommonHandler.instance().bus().register(this);
 		MinecraftForge.EVENT_BUS.register(this);
 		MainModInstance.load(evt);
 		EnemyLabelModInstance.Init(evt);

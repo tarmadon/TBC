@@ -108,12 +108,15 @@ public class ItemReplacementLookup
 
 			Item entityHench = new HenchmanItem(baseEntityName, entityName).setUnlocalizedName(entityName.replace(" ",  "") + "Hench");
 			Item entityItem = new CloneItem(baseItem, null).setUnlocalizedName(entityName.replace(" ",  "") + "Drop");
+			GameRegistry.registerItem(entityHench, entityHench.getUnlocalizedName(), "tbc");
+			GameRegistry.registerItem(entityItem, entityItem.getUnlocalizedName(), "tbc");
 			data.ReplacementItem = entityItem;
 			GameRegistry.addShapedRecipe(new ItemStack(entityHench), " y ","xxx"," x ", 'x',entityItem, 'y', recipeHeadItem);
 			GameRegistry.addShapelessRecipe(new ItemStack(baseItem), entityItem);
 			if(itemToEnchant != null)
 			{
 				Item enchantedItem = new CloneItem(itemToEnchant, null).setUnlocalizedName(data.EnchantedItemName.replace(" ", ""));
+				//GameRegistry.registerItem(enchantedItem, enchantedItem.getUnlocalizedName(), "tbc");
 				GameRegistry.addShapedRecipe(new ItemStack(enchantedItem), "xxx", "xyx", "xxx", 'x', entityItem, 'y', itemToEnchant);
 				LanguageRegistry.addName(enchantedItem, data.EnchantedItemName);
 			}

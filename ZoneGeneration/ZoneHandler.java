@@ -16,7 +16,7 @@ public class ZoneHandler
 	{
 		ChunkCoordIntPair regionPair = GetRegionCoordinates(chunkCoordinates);
 		HashMap<Integer, ZoneChunkData> perBiome = LoadedData.get(regionPair);
-		if(perBiome != null)
+		if(perBiome != null && biome != null)
 		{
 			return perBiome.get(biome.biomeID);
 		}

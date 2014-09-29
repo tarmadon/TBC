@@ -269,10 +269,10 @@ public class MainMod
 			long systemTime = Minecraft.getSystemTime();
 			if(lastAttemptedSync < systemTime + 10000)
 			{
-				//lastAttackTime = systemTime;
-				//StringMessage zoneDataRequest = new StringMessage();
-				//zoneDataRequest.Data = c.xPosition + "," + c.zPosition;
-				//ZoneGenerationMod.zoneDataHandler.sendToServer(zoneDataRequest);
+				lastAttackTime = systemTime;
+				StringMessage zoneDataRequest = new StringMessage();
+				zoneDataRequest.Data = c.xPosition + "," + c.zPosition;
+				ZoneGenerationMod.zoneDataHandler.sendToServer(zoneDataRequest);
 			}
 		}
 
@@ -613,93 +613,93 @@ public class MainMod
 
 	public void SetupStaticItems()
 	{
-		Item smallHealthPotion = new CloneItem(Items.potionitem, "Restores 20 HP").setUnlocalizedName("smallPotion");
+		Item smallHealthPotion = createItemCopy(Items.potionitem, "smallPotion", "Restores 20 HP");
 		ItemStack smallHealthPotionStack = new ItemStack(smallHealthPotion);
 		GameRegistry.addShapelessRecipe(smallHealthPotionStack, Items.apple);
 		LanguageRegistry.addName(smallHealthPotion, "S.Pot");
 
-		Item medHealthPotion = new CloneItem(Items.potionitem, "Restores 50 HP").setUnlocalizedName("medPotion");
+		Item medHealthPotion = createItemCopy(Items.potionitem, "medPotion", "Restores 50 HP");
 		ItemStack medHealthPotionStack = new ItemStack(medHealthPotion);
 		GameRegistry.addShapelessRecipe(medHealthPotionStack, smallHealthPotion, smallHealthPotion, Items.bread);
 		LanguageRegistry.addName(medHealthPotion, "M.Pot");
 
-		Item highHealthPotion = new CloneItem(Items.potionitem, "Restores all HP").setUnlocalizedName("highPotion");
+		Item highHealthPotion = createItemCopy(Items.potionitem, "highPotion", "Restores all HP");
 		ItemStack highHealthPotionStack = new ItemStack(highHealthPotion);
 		GameRegistry.addShapelessRecipe(highHealthPotionStack, medHealthPotion, medHealthPotion, Items.redstone);
 		LanguageRegistry.addName(highHealthPotion, "H.Pot");
 
-		Item smallManaPotion = new CloneItem(Items.potionitem, "Restores 10 MP").setUnlocalizedName("smallManaPotion");
+		Item smallManaPotion = createItemCopy(Items.potionitem, "smallManaPotion", "Restores 10 MP");
 		ItemStack smallManaPotionStack = new ItemStack(smallManaPotion);
 		GameRegistry.addShapelessRecipe(smallManaPotionStack, Items.fish);
 		GameRegistry.addShapelessRecipe(smallManaPotionStack, Items.cooked_fished);
 		LanguageRegistry.addName(smallManaPotion, "S.Mana Pot");
 
-		Item highManaPotion = new CloneItem(Items.potionitem, "Restores 100 MP").setUnlocalizedName("highManaPotion");
+		Item highManaPotion = createItemCopy(Items.potionitem, "highManaPotion", "Restores 100 MP");
 		ItemStack highManaPotionStack = new ItemStack(highManaPotion);
 		GameRegistry.addShapelessRecipe(highManaPotionStack, smallManaPotion, smallManaPotion, Items.redstone);
 		LanguageRegistry.addName(highManaPotion, "H.Mana Pot");
 
-		Item elixir = new CloneItem(Items.potionitem, "Restores all HP and MP").setUnlocalizedName("elixir");
+		Item elixir = createItemCopy(Items.potionitem, "elixir", "Restores all HP and MP");
 		ItemStack elixirStack = new ItemStack(elixir);
 		GameRegistry.addShapelessRecipe(elixirStack, highManaPotion, highHealthPotion, Items.emerald);
 		LanguageRegistry.addName(elixir, "Elixir");
 
-		Item megalixir = new CloneItem(Items.potionitem, "Restores entire party HP and MP").setUnlocalizedName("megalixir");
+		Item megalixir = createItemCopy(Items.potionitem, "megalixir", "Restores entire party HP and MP");
 		ItemStack megalixirStack = new ItemStack(megalixir);
 		GameRegistry.addShapelessRecipe(megalixirStack, elixir, elixir, Items.dye);
 		LanguageRegistry.addName(megalixir, "Megalixir");
 
-		Item antidote = new CloneItem(Items.potionitem, "Cures Poison").setUnlocalizedName("antidote");
+		Item antidote = createItemCopy(Items.potionitem, "antidote", "Cures Poison");
 		ItemStack antidoteStack = new ItemStack(antidote);
 		GameRegistry.addShapelessRecipe(antidoteStack, Blocks.yellow_flower, Blocks.red_mushroom);
 		LanguageRegistry.addName(antidote, "Antidote");
 
-		Item echoScreen = new CloneItem(Items.potionitem, "Cures Silence").setUnlocalizedName("echoScreen");
+		Item echoScreen = createItemCopy(Items.potionitem, "echoScreen", "Cures Silence");
 		ItemStack echoScreenStack = new ItemStack(echoScreen);
 		GameRegistry.addShapelessRecipe(echoScreenStack, Items.feather, Blocks.red_flower);
 		LanguageRegistry.addName(echoScreen, "Echo Screen");
 
-		Item parlyzHeal = new CloneItem(Items.potionitem, "Cures Paralysis").setUnlocalizedName("parlyzHeal");
+		Item parlyzHeal = createItemCopy(Items.potionitem, "parlyzHeal", "Cures Paralysis");
 		ItemStack parlyzHealStack = new ItemStack(parlyzHeal);
 		GameRegistry.addShapelessRecipe(parlyzHealStack, Items.egg, Blocks.brown_mushroom);
 		LanguageRegistry.addName(parlyzHeal, "Parlyz Heal");
 
-		Item pinwheel = new CloneItem(Items.potionitem, "Cures Confusion").setUnlocalizedName("pinwheel");
+		Item pinwheel = createItemCopy(Items.potionitem, "pinwheel", "Cures Confusion");
 		ItemStack pinwheelStack = new ItemStack(pinwheel);
 		GameRegistry.addShapelessRecipe(pinwheelStack, Items.feather, Items.paper);
 		LanguageRegistry.addName(pinwheel, "Pinwheel");
 
-		Item eyeDrops = new CloneItem(Items.potionitem, "Cures Blindness").setUnlocalizedName("eyeDrops");
+		Item eyeDrops = createItemCopy(Items.potionitem, "eyeDrops", "Cures Blindness");
 		ItemStack eyeDropsStack = new ItemStack(eyeDrops);
 		GameRegistry.addShapelessRecipe(eyeDropsStack, Blocks.yellow_flower, Blocks.red_flower, Items.glass_bottle);
 		LanguageRegistry.addName(eyeDrops, "Eye Drops");
 
-		Item panacea = new CloneItem(Items.potionitem, "Recovers status").setUnlocalizedName("panacea");
+		Item panacea = createItemCopy(Items.potionitem, "panacea", "Recovers status");
 		ItemStack panaceaStack = new ItemStack(panacea);
 		GameRegistry.addShapelessRecipe(panaceaStack, Blocks.yellow_flower, Blocks.red_flower, Blocks.brown_mushroom, Blocks.red_mushroom, Items.dye);
 		LanguageRegistry.addName(panacea, "Panacea");
-
-		Item pheonixDown = new CloneItem(Items.potionitem, "Revives ally").setUnlocalizedName("pheonixDown");
+		
+		Item pheonixDown = createItemCopy(Items.potionitem, "pheonixDown", "Revives ally");
 		ItemStack pheonixDownStack = new ItemStack(pheonixDown);
 		GameRegistry.addShapelessRecipe(pheonixDownStack, Items.feather, Items.lava_bucket);
 		LanguageRegistry.addName(pheonixDown, "Pheonix Down");
 
-		Item fireBomb = new CloneItem(Items.potionitem, "Deals Fire damage to one enemy").setUnlocalizedName("fireBomb");
+		Item fireBomb = createItemCopy(Items.potionitem, "fireBomb", "Deals Fire damage to one enemy");
 		ItemStack fireBombStack = new ItemStack(fireBomb);
 		GameRegistry.addShapelessRecipe(fireBombStack, Items.paper, Items.flint, Items.gunpowder);
 		LanguageRegistry.addName(fireBomb, "Fire Bomb");
 
-		Item earthGem = new CloneItem(Items.potionitem, "Deals Earth damage to one enemy").setUnlocalizedName("earthGem");
+		Item earthGem = createItemCopy(Items.potionitem, "earthGem", "Deals Earth damage to one enemy");
 		ItemStack earthGemStack = new ItemStack(earthGem);
 		GameRegistry.addShapelessRecipe(earthGemStack, Blocks.dirt, Items.flint, Blocks.clay);
 		LanguageRegistry.addName(earthGem, "Earth Gem");
 
-		Item iceCrystal = new CloneItem(Items.potionitem, "Deals Ice damage to one enemy").setUnlocalizedName("iceCrystal");
+		Item iceCrystal = createItemCopy(Items.potionitem, "iceCrystal", "Deals Ice damage to one enemy");
 		ItemStack iceCrystalStack = new ItemStack(iceCrystal);
 		GameRegistry.addShapelessRecipe(iceCrystalStack, Blocks.ice, Items.glass_bottle, Items.coal);
 		LanguageRegistry.addName(iceCrystal, "Ice Crystal");
 
-		Item lightningRod = new CloneItem(Items.potionitem, "Deals Lightning damage to one enemy").setUnlocalizedName("lightningRod");
+		Item lightningRod = createItemCopy(Items.potionitem, "lightningRod", "Deals Lightning damage to one enemy");
 		ItemStack lightningRodStack = new ItemStack(lightningRod);
 		GameRegistry.addShapelessRecipe(lightningRodStack, Items.stick, Items.iron_ingot, Items.coal);
 		LanguageRegistry.addName(lightningRod, "Lightning Rod");
@@ -714,7 +714,7 @@ public class MainMod
 		
 		if(!openTBCGui.getIsKeyPressed())
 		{
-			wasKeyPressed = true;
+			wasKeyPressed = false;
 			return;
 		}
 
@@ -730,7 +730,7 @@ public class MainMod
 			}
 
 			EntityPlayer player = mc.thePlayer;
-			player.openGui(this, 1, player.worldObj, player.serverPosX, player.serverPosY, player.serverPosZ);
+			player.openGui(TBCMod.instance, 1, player.worldObj, player.serverPosX, player.serverPosY, player.serverPosZ);
 		}
 	}
 
@@ -745,6 +745,13 @@ public class MainMod
         		evt.toolTip.add(displayString);
         	}
         }
+	}
+	
+	private Item createItemCopy(Item itemToCopy, String name, String description)
+	{
+		Item newItem = new CloneItem(itemToCopy, description).setUnlocalizedName(name);
+		GameRegistry.registerItem(newItem, name, "tbc");
+		return newItem;
 	}
 	
 //	@ForgeSubscribe

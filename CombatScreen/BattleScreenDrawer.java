@@ -493,8 +493,6 @@ public class BattleScreenDrawer
         el.limbSwing = 0;
         el.prevLimbSwingAmount = 0;
         el.limbSwingAmount = 0;
-        el.rotationYaw = 0;
-        el.prevRotationYaw = 0;
         el.prevRotationYawHead = el.prevRenderYawOffset;
         el.rotationYawHead = el.prevRenderYawOffset;
         el.rotationPitch = 0;
