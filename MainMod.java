@@ -736,14 +736,37 @@ public class MainMod
 
 	public void onItemTooltip(ItemTooltipEvent evt) 
 	{
+		int attackIndex = -1;
+		for(int i = 0; i < evt.toolTip.size(); i++)
+		{
+			if(evt.toolTip.get(i).contains("Attack Damage"))
+			{
+				attackIndex = i;
+				break;
+			}
+		}
+				
 		String name = evt.itemStack.getItem().getUnlocalizedName().replace("item.", "");
         if(EquippedItemManager.Instance.lookup.containsKey(name))
         {
         	String displayString = EquippedItemManager.Instance.lookup.get(name).GetDisplayString();
         	if(displayString != null && displayString.length() > 0)
         	{
-        		evt.toolTip.add(displayString);
+        		if(attackIndex != -1)
+        		{
+        			evt.toolTip.set(attackIndex, displayString);
+        			evt.toolTip.remove(attackIndex - 1);
+        		}
+        		else
+        		{
+        			evt.toolTip.add(displayString);
+        		}
         	}
+        }
+        else if(attackIndex != -1)
+        {
+        	evt.toolTip.remove(attackIndex);
+        	evt.toolTip.remove(attackIndex - 1);
         }
 	}
 	

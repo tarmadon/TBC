@@ -98,6 +98,7 @@ public class ItemReplacementLookup
 
 	public void SetupItems()
 	{
+		HashMap<String, Item> createdItems = new HashMap<String, Item>();
 		for(ItemReplacementData data : this.lookup.values())
 		{
 			String baseEntityName = data.BaseEntityName;
@@ -115,14 +116,25 @@ public class ItemReplacementLookup
 			GameRegistry.addShapelessRecipe(new ItemStack(baseItem), entityItem);
 			if(itemToEnchant != null)
 			{
-				Item enchantedItem = new CloneItem(itemToEnchant, null).setUnlocalizedName(data.EnchantedItemName.replace(" ", ""));
-				//GameRegistry.registerItem(enchantedItem, enchantedItem.getUnlocalizedName(), "tbc");
+				String enchantedItemName = data.EnchantedItemName.replace(" ", "");
+				Item enchantedItem;
+				if(!createdItems.containsKey(enchantedItemName))
+				{
+					enchantedItem = new CloneItem(itemToEnchant, null).setUnlocalizedName(data.EnchantedItemName.replace(" ", ""));
+					GameRegistry.registerItem(enchantedItem, enchantedItem.getUnlocalizedName(), "tbc");
+					createdItems.put(enchantedItemName, enchantedItem);
+				}
+				else
+				{
+					enchantedItem = createdItems.get(enchantedItemName);
+				}
+				
 				GameRegistry.addShapedRecipe(new ItemStack(enchantedItem), "xxx", "xyx", "xxx", 'x', entityItem, 'y', itemToEnchant);
 				LanguageRegistry.addName(enchantedItem, data.EnchantedItemName);
 			}
 
 			LanguageRegistry.addName(entityHench, entityName + " Link");
-			LanguageRegistry.addName(entityItem, entityName + " " + Item.itemRegistry.getNameForObject(baseItem));
+			LanguageRegistry.addName(entityItem, entityName + " " + new ItemStack(baseItem).getDisplayName());
 		}
 	}
 
