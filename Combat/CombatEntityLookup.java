@@ -15,6 +15,8 @@ import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
 
+import org.apache.logging.log4j.Level;
+
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -98,7 +100,14 @@ public class CombatEntityLookup
 
 						int weight = Integer.parseInt(abilityAndWeight[0]);
 						ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(abilityAndWeight[1]);
-						abilities.add(new Pair<Integer, ICombatAbility>(weight, ability));
+						if(ability != null)
+						{
+							abilities.add(new Pair<Integer, ICombatAbility>(weight, ability));
+						}
+						else
+						{
+							FMLLog.log(Level.ERROR, "Could not find ability: " + abilityAndWeight[1] + " for entity: " + baseTemplate.name);
+						}
 					}
 
 					Pair<Integer, ICombatAbility>[] abilitiesArray = new Pair[abilities.size()];

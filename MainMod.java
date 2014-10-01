@@ -95,6 +95,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagInt;
 import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.AxisAlignedBB;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.EnumDifficulty;
@@ -201,8 +202,8 @@ public class MainMod
 		if(!configFile.exists())
 		{
 			FMLLog.info("Config file was not found at: %s, attempting to copy.", configFile.getPath());
-			InputStream resource = getClass().getResourceAsStream(fileName);
 			try {
+				InputStream resource = Minecraft.getMinecraft().getResourceManager().getResource(new ResourceLocation("tbc", "files/" + fileName)).getInputStream();
 				Files.copy(new InputStreamSupplier(resource), configFile);
 			} catch (IOException e) {
 				FMLLog.severe("Unable to copy default config file. %s", e.toString());

@@ -69,7 +69,7 @@ Blaze,120,6,1,40,70,60,20,30,2,1/Fireball,1/Inferno,,,,,
 Magma Cube,50,0,60,200,1,20,1,30,2,,,,,,,
 Ender Dragon,500,50,100,100,100,100,50,200,10,0/Default,2/Gnaw,2/Inferno,1/Default,,,
 Wither,200,10,70,70,1,70,15,50,3,1/Default,2/Poison Bite,1/Backstab,,,,
-Witch,50,20,1,10,30,100,1,5,1,0/Default,2/Fireball,1/Slow,1/Weakness,1/Guardbreaker,1/Disjunction,1/Curse
+Witch,50,20,1,10,30,100,1,5,1,0/Default,2/Fireball,1/Slow,1/Weakness,1/Guardbreak,1/Disjunction,1/Curse
 Bat,5,0,1,1,1,1,1,1,0,,,,,,,
 Pig,10,0,1,1,1,1,1,1,0,,,,,,,
 Sheep,10,0,1,1,1,1,1,1,0,,,,,,,
