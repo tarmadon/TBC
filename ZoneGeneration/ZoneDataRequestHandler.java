@@ -37,7 +37,7 @@ public class ZoneDataRequestHandler implements IMessageHandler<StringMessage, Zo
 
 		Integer xCoord = new Integer(params[0]);
 		Integer zCoord = new Integer(params[1]);
-		HashMap<Integer, ZoneChunkData> zoneData = ZoneHandler.ServerInstance.GetRegionDataForAllBiomes(new ChunkCoordIntPair(xCoord, zCoord));
+		HashMap<Integer, ZoneChunkData> zoneData = ZoneHandler.Instance.GetRegionDataForAllBiomes(new ChunkCoordIntPair(xCoord, zCoord));
 		if(zoneData != null)
 		{
 			ZoneResponseData responseData = new ZoneResponseData();

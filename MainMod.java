@@ -123,6 +123,7 @@ import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -151,13 +152,13 @@ public class MainMod
 
 	public static boolean playerDataInit = false;
 	public static ArrayList<Pair<EntityLiving, String>> setEnemies = null;
-	public static EntityLivingBase enemy;
+	public static EntityLivingBase enemy = null;
 	public static boolean isPlayerAttacker;
 	public static float lastAttackTime = 0;
 	private ILevelScale levelScaling;
 	private boolean wasKeyPressed = false;
 	public DistanceBasedLevelScaling distanceScaling;
-
+	
 	public static SimpleNetworkWrapper setItemDataHandler;
 	public static SimpleNetworkWrapper syncPlayerDataHandler;
 	public static SimpleNetworkWrapper setHealthHandler;
@@ -255,7 +256,7 @@ public class MainMod
 		Minecraft mc = Minecraft.getMinecraft();
 		Chunk c = mc.theWorld.getChunkFromBlockCoords((int)mc.thePlayer.posX, (int)mc.thePlayer.posZ);
 		BiomeGenBase biome = c.getBiomeGenForWorldCoords((int)mc.thePlayer.posX & 15, (int)mc.thePlayer.posZ & 15, mc.theWorld.getWorldChunkManager());
-		ZoneChunkData data = ZoneHandler.ClientInstance.GetRegionData(c.getChunkCoordIntPair(), biome);
+		ZoneChunkData data = ZoneHandler.Instance.GetRegionData(c.getChunkCoordIntPair(), biome);
 		if(data != null)
 		{
 			String areaName = data.AreaName;
@@ -270,7 +271,7 @@ public class MainMod
 			long systemTime = Minecraft.getSystemTime();
 			if(lastAttemptedSync < systemTime + 10000)
 			{
-				lastAttackTime = systemTime;
+				lastAttemptedSync = systemTime;
 				StringMessage zoneDataRequest = new StringMessage();
 				zoneDataRequest.Data = c.xPosition + "," + c.zPosition;
 				ZoneGenerationMod.zoneDataHandler.sendToServer(zoneDataRequest);
@@ -598,18 +599,16 @@ public class MainMod
 		}
 	}
 
-	public void onPlayerJoin(EntityJoinWorldEvent evt)
+	public void onWorldUnload(WorldEvent.Unload evt)
 	{
-		if(evt.entity instanceof EntityPlayer)
-		{
-			CombatEntityLookup.Instance.ClearCombatEntityForPlayer((EntityPlayer)evt.entity);
-			this.questProgress = 0;
-			this.loadedProgress = false;
-			this.lastAttackTime = 0;
-			this.enemy = null;
-			this.setEnemies = null;
-			this.playerDataInit = false;
-		}
+		CombatEntityLookup.Instance.ClearCombatEntitiesForPlayers();
+		//ZoneHandler.Instance.ClearData();
+		this.questProgress = 0;
+		this.loadedProgress = false;
+		this.lastAttackTime = 0;
+		this.enemy = null;
+		this.setEnemies = null;
+		this.playerDataInit = false;
 	}
 
 	public void SetupStaticItems()

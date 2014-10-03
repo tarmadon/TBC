@@ -1,16 +1,17 @@
 package TBC.ZoneGeneration;
 
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 import net.minecraft.world.ChunkCoordIntPair;
 import net.minecraft.world.biome.BiomeGenBase;
 
 public class ZoneHandler
 {
-	public static ZoneHandler ServerInstance = new ZoneHandler();
-	public static ZoneHandler ClientInstance = new ZoneHandler();
-
-	private HashMap<ChunkCoordIntPair, HashMap<Integer, ZoneChunkData>> LoadedData = new HashMap<ChunkCoordIntPair, HashMap<Integer, ZoneChunkData>>();
+	public static Object lockObj = new Object();
+	public static ZoneHandler Instance = new ZoneHandler();
+	
+	private ConcurrentHashMap<ChunkCoordIntPair, HashMap<Integer, ZoneChunkData>> LoadedData = new ConcurrentHashMap<ChunkCoordIntPair, HashMap<Integer, ZoneChunkData>>();
 
 	public ZoneChunkData GetRegionData(ChunkCoordIntPair chunkCoordinates, BiomeGenBase biome)
 	{
@@ -41,37 +42,31 @@ public class ZoneHandler
 		return LoadedData.get(regionPair);
 	}
 
-	public void SetRegionData(ChunkCoordIntPair chunkCoordinates, BiomeGenBase biome, ZoneChunkData chunkData)
-	{
-		ChunkCoordIntPair regionPair = GetRegionCoordinates(chunkCoordinates);
-		HashMap<Integer, ZoneChunkData> perBiome = LoadedData.get(regionPair);
-		if(perBiome == null)
-		{
-			perBiome = new HashMap<Integer, ZoneChunkData>();
-			LoadedData.put(regionPair, perBiome);
-		}
-
-		perBiome.put(biome.biomeID, chunkData);
-	}
-
 	public void SetRegionDataForAllBiomes(ChunkCoordIntPair chunkCoordinates, HashMap<Integer, ZoneChunkData> data)
 	{
+		int x = chunkCoordinates.chunkXPos;
+		int z = chunkCoordinates.chunkZPos;
 		ChunkCoordIntPair regionPair = GetRegionCoordinates(chunkCoordinates);
+		LoadedData.putIfAbsent(regionPair, new HashMap<Integer, ZoneChunkData>());
 		HashMap<Integer, ZoneChunkData> perBiome = LoadedData.get(regionPair);
-		if(perBiome == null)
+		for(Integer key : data.keySet())
 		{
-			perBiome = data;
-			LoadedData.put(regionPair, perBiome);
-		}
-		else
-		{
-			for(Integer key : data.keySet())
-			{
-				perBiome.put(key, data.get(key));
-			}
+			perBiome.put(key, data.get(key));
 		}
 	}
 
+	public void ClearData()
+	{
+		LoadedData.clear();
+	}
+
+	public void ClearDataForRegion(ChunkCoordIntPair regionCoordinates)
+	{
+		int x = regionCoordinates.chunkXPos;
+		int z = regionCoordinates.chunkZPos;
+		LoadedData.remove(regionCoordinates);
+	}
+	
 	public static ChunkCoordIntPair GetRegionCoordinates(ChunkCoordIntPair chunkCoordinates)
 	{
 		return new ChunkCoordIntPair(FlattenChunkCoord(chunkCoordinates.chunkXPos), FlattenChunkCoord(chunkCoordinates.chunkZPos));
@@ -84,22 +79,11 @@ public class ZoneHandler
 
 	public static int FlattenChunkCoord(int chunkCoord)
 	{
-		if(chunkCoord < 0)
-		{
-			return (chunkCoord / 8) - 1;
-		}
-
-		return chunkCoord / 8;
+		return chunkCoord;
 	}
-
+	
 	public static int HydrateRegionCoord(int regionCoord)
 	{
-		int chunkCoord = regionCoord * 8;
-		if(chunkCoord < 0)
-		{
-			chunkCoord = chunkCoord + 8;
-		}
-
-		return chunkCoord;
+		return regionCoord;
 	}
 }

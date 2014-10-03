@@ -15,12 +15,12 @@ public class AreaBasedLevelScaling implements ILevelScale
 	public int GetCurrentLevel(EntityLivingBase entity)
 	{
 		int areaLevel = 0;
-		if(ZoneHandler.ClientInstance.GetRegionDataForAllBiomes(new ChunkCoordIntPair((int)entity.posX >> 4, (int)entity.posZ >> 4)) != null)
+		if(ZoneHandler.Instance.GetRegionDataForAllBiomes(new ChunkCoordIntPair((int)entity.posX >> 4, (int)entity.posZ >> 4)) != null)
 		{
 			World world = entity.worldObj;
 			Chunk c = entity.worldObj.getChunkFromBlockCoords((int)entity.posX, (int)entity.posZ);
 			BiomeGenBase biome = c.getBiomeGenForWorldCoords((int)entity.posX & 15, (int)entity.posZ & 15, world.getWorldChunkManager());
-			ZoneChunkData data = ZoneHandler.ClientInstance.GetRegionData(c.getChunkCoordIntPair(), biome);
+			ZoneChunkData data = ZoneHandler.Instance.GetRegionData(c.getChunkCoordIntPair(), biome);
 			if(data != null)
 			{
 				areaLevel = data.AreaLevel;

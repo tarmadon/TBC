@@ -19,8 +19,10 @@ import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
+import net.minecraftforge.event.terraingen.PopulateChunkEvent;
 import net.minecraftforge.event.world.ChunkDataEvent;
 import net.minecraftforge.event.world.ChunkEvent;
+import net.minecraftforge.event.world.WorldEvent;
 import TBC.EnemyLabels.EnemyLabelMod;
 import TBC.ZoneGeneration.ZoneGenerationMod;
 import cpw.mods.fml.common.FMLCommonHandler;
@@ -57,6 +59,7 @@ public class TBCMod
 	public void onPreInit(FMLPreInitializationEvent evt)
 	{
 		MainModInstance.preInit(evt);
+		ZoneGenerationModInstance.preInit(evt);
 	}
 
 	@EventHandler
@@ -115,6 +118,12 @@ public class TBCMod
 	}
 
 	@SubscribeEvent(receiveCanceled = false)
+	public void onChunkUnload(ChunkEvent.Unload evt)
+	{
+		ZoneGenerationModInstance.onChunkUnload(evt);
+	}
+	
+	@SubscribeEvent(receiveCanceled = false)
 	public void onChunkDataSave(ChunkDataEvent.Save evt)
 	{
 		ZoneGenerationModInstance.onChunkSave(evt);
@@ -127,15 +136,21 @@ public class TBCMod
 	}
 
 	@SubscribeEvent(receiveCanceled = false)
+	public void afterPopulate(PopulateChunkEvent.Post evt)
+	{
+		ZoneGenerationModInstance.onChunkPopulate(evt);
+	}
+	
+	@SubscribeEvent(receiveCanceled = false)
 	public void onMobDrops(LivingDropsEvent evt)
 	{
 		MainModInstance.onMobDrops(evt);
 	}
 
 	@SubscribeEvent(receiveCanceled = false)
-	public void onEntityJoinWorld(EntityJoinWorldEvent evt)
+	public void onWorldUnLoad(WorldEvent.Unload evt)
 	{
-		MainModInstance.onPlayerJoin(evt);
+		MainModInstance.onWorldUnload(evt);
 	}
 	
 	@SubscribeEvent(receiveCanceled = false)

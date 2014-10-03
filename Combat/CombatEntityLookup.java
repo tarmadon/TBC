@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.logging.log4j.Level;
 
@@ -166,13 +167,20 @@ public class CombatEntityLookup
 		return new CombatEntity(playerTemplate, player);
 	}
 
-	public void ClearCombatEntityForPlayer(EntityPlayer player)
+	public void ClearCombatEntitiesForPlayers()
 	{
-		String playerName = player.getDisplayName();
-		String lookupName = "Player" + playerName + Minecraft.getMinecraft().getIntegratedServer().getFolderName();
-		if(this.lookupByName.containsKey(lookupName))
+		ArrayList<String> keys = new ArrayList<String>();
+		for(String lookupKey : this.lookupByName.keySet())
 		{
-			this.lookupByName.remove(lookupName);
+			keys.add(lookupKey);
+		}
+		
+		for(String lookupKey : keys)
+		{
+			if(lookupKey.startsWith("Player"))
+			{
+				this.lookupByName.remove(lookupKey);
+			}
 		}
 	}
 

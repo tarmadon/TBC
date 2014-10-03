@@ -30,7 +30,7 @@ public class ZoneDataResponseHandler implements IMessageHandler<ZoneDataMessage,
 	{
 		if(message.Data != null)
 		{
-			ZoneHandler.ClientInstance.SetRegionDataForAllBiomes(new ChunkCoordIntPair(message.Data.ChunkXPos,  message.Data.ChunkZPos), message.Data.ZoneData);
+			ZoneHandler.Instance.SetRegionDataForAllBiomes(new ChunkCoordIntPair(message.Data.ChunkXPos,  message.Data.ChunkZPos), message.Data.ZoneData);
 		}
 		
 		return null;
