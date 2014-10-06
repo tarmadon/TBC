@@ -49,7 +49,7 @@ public class TBCMod
 	public static ResourceLocation battleScreenDivider = new ResourceLocation("tbc", "textures/gui/divider.png");
 	public static ResourceLocation statusEffects = new ResourceLocation("tbc", "textures/gui/statusEffects.png");
 	public static ResourceLocation combatDecals = new ResourceLocation("tbc", "textures/gui/combatDecals.png");
-		
+	
 	public static ResourceLocation vanillaGui = new ResourceLocation("textures/gui/widgets.png");
 	
 	@Instance ("tbc")

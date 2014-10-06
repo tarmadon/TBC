@@ -9,7 +9,9 @@ import java.util.HashMap;
 import org.apache.logging.log4j.Level;
 
 import com.ibm.icu.impl.ZoneMeta;
-import TBC.StringMessage;
+
+import TBC.Messages.StringMessage;
+import TBC.Messages.ZoneDataMessage;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.player.EntityPlayer;

@@ -1,5 +1,6 @@
 package TBC.Combat.Abilities;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -11,7 +12,7 @@ import TBC.CombatScreen.BattleScreenDrawer;
 import TBC.CombatScreen.TurnState;
 import net.minecraft.entity.EntityLiving;
 
-public interface ICombatAbility
+public interface ICombatAbility extends Serializable
 {
 	Boolean IsSpell();
 	Boolean IsUsableOutOfCombat();

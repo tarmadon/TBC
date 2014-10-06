@@ -7,11 +7,12 @@ import java.util.Set;
 
 import org.apache.logging.log4j.Level;
 
-import TBC.StringMessage;
 import TBC.TBCMod;
 import TBC.MainMod;
 import TBC.EnemyLabels.EntityDataRequestHandler;
 import TBC.EnemyLabels.EntityDataResponseHandler;
+import TBC.Messages.StringMessage;
+import TBC.Messages.ZoneDataMessage;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.WorldClient;

@@ -2,9 +2,9 @@ package TBC.CombatScreen;
 
 public class CancelAttackCommandFunction implements IGenericAction
 {
-	private BattleScreen sc;
+	private BattleScreenClient sc;
 
-	public CancelAttackCommandFunction(BattleScreen sc)
+	public CancelAttackCommandFunction(BattleScreenClient sc)
 	{
 		this.sc = sc;
 	}

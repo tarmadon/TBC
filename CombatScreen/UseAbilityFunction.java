@@ -4,10 +4,10 @@ import TBC.Combat.Abilities.ICombatAbility;
 
 public class UseAbilityFunction implements IGenericAction
 {
-	private BattleScreen sc;
+	private BattleScreenClient sc;
 	private ICombatAbility ability;
 
-	public UseAbilityFunction(BattleScreen sc, ICombatAbility ability)
+	public UseAbilityFunction(BattleScreenClient sc, ICombatAbility ability)
 	{
 		this.sc = sc;
 		this.ability = ability;

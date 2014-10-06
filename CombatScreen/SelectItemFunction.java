@@ -2,9 +2,9 @@ package TBC.CombatScreen;
 
 class SelectItemFunction implements IGenericAction
 {
-	private BattleScreen sc;
+	private BattleScreenClient sc;
 
-	public SelectItemFunction(BattleScreen sc)
+	public SelectItemFunction(BattleScreenClient sc)
 	{
 		this.sc = sc;
 	}

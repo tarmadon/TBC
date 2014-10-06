@@ -1,5 +1,6 @@
 package TBC;
 
+import TBC.Messages.StringMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;

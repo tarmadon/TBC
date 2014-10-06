@@ -7,10 +7,10 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.Map.Entry;
 import java.util.logging.Level;
 
-import TBC.StringMessage;
 import TBC.Combat.CombatEntity;
 import TBC.Combat.CombatEntityLookup;
 import TBC.Combat.CombatEntitySpawnLookup;
+import TBC.Messages.StringMessage;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
@@ -81,7 +81,7 @@ public class EnemyLabelMod
 			{
 				if(!buildingEntity.entity.getEntityData().hasKey("TBCEntityName"))
 				{
-					CombatEntity entity = CombatEntitySpawnLookup.Instance.GetCombatEntity((EntityLiving)buildingEntity.entity);
+					CombatEntity entity = CombatEntitySpawnLookup.Instance.GetCombatEntity(0, (EntityLiving)buildingEntity.entity);
 					if(entity != null)
 					{
 						buildingEntity.entity.getEntityData().setString("TBCEntityName", entity.name);

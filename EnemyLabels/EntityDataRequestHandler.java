@@ -4,7 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import TBC.StringMessage;
+import TBC.Messages.StringMessage;
 
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;

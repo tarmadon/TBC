@@ -1,169 +1,124 @@
 package TBC;
 
-import java.awt.event.KeyEvent;
-import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.net.URL;
-import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Hashtable;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.logging.Level;
-import java.util.Random;
 
-import javax.swing.text.html.parser.Entity;
+import javax.print.attribute.HashAttributeSet;
 
-import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GL11;
-
-import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
-
-import TBC.Combat.AreaBasedLevelScaling;
-import TBC.Combat.CombatEngine;
-import TBC.Combat.CombatEntity;
-import TBC.Combat.CombatEntityLookup;
-import TBC.Combat.CombatEntitySpawnLookup;
-import TBC.Combat.CombatEntityTemplate;
-import TBC.Combat.CompositeLevelScaling;
-import TBC.Combat.DepthBasedLevelScaling;
-import TBC.Combat.DistanceBasedLevelScaling;
-import TBC.Combat.EquippedItem;
-import TBC.Combat.EquippedItemManager;
-import TBC.Combat.FlatBonusEquippedItem;
-import TBC.Combat.ILevelScale;
-import TBC.Combat.ItemReplacementLookup;
-import TBC.Combat.LevelingEngine;
-import TBC.Combat.TimeBasedLevelScaling;
-import TBC.Combat.Abilities.AbilityLookup;
-import TBC.Combat.ItemReplacementLookup.ItemReplacementData;
-import TBC.ZoneGeneration.ZoneGenerationMod;
-import TBC.ZoneGeneration.ZoneHandler;
-import TBC.ZoneGeneration.ZoneChunkData;
-
-import cpw.mods.fml.client.registry.ClientRegistry;
-import cpw.mods.fml.client.registry.RenderingRegistry;
-import cpw.mods.fml.common.FMLCommonHandler;
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.common.Mod;
-import cpw.mods.fml.common.ModContainer;
-import cpw.mods.fml.common.network.NetworkRegistry;
-import cpw.mods.fml.common.network.simpleimpl.IMessage;
-import cpw.mods.fml.common.network.simpleimpl.SimpleIndexedCodec;
-import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
-import cpw.mods.fml.common.Loader;
-import cpw.mods.fml.common.Mod.Instance;
-import cpw.mods.fml.common.event.FMLInitializationEvent;
-import cpw.mods.fml.common.event.FMLPostInitializationEvent;
-import cpw.mods.fml.common.event.FMLPreInitializationEvent;
-import cpw.mods.fml.common.gameevent.InputEvent;
-import cpw.mods.fml.common.SidedProxy;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
+import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityMob;
-import net.minecraft.entity.monster.EntitySkeleton;
-import net.minecraft.entity.monster.EntityZombie;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayer.EnumStatus;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerPlayer;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.nbt.NBTTagInt;
-import net.minecraft.nbt.NBTTagString;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.world.ChunkCoordIntPair;
-import net.minecraft.world.ChunkPosition;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.World;
-import net.minecraft.world.WorldSavedData;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
-import net.minecraft.world.chunk.storage.ChunkLoader;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
-import net.minecraftforge.client.event.sound.PlaySoundEffectSourceEvent;
-import net.minecraftforge.client.event.sound.SoundEvent;
-import net.minecraftforge.client.event.sound.SoundLoadEvent;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.event.entity.EntityEvent.EntityConstructing;
-import net.minecraftforge.event.entity.EntityJoinWorldEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.ItemTooltipEvent;
 import net.minecraftforge.event.entity.player.PlayerSleepInBedEvent;
-import net.minecraftforge.event.world.ChunkDataEvent;
-import net.minecraftforge.event.world.ChunkEvent;
 import net.minecraftforge.event.world.WorldEvent;
+
+import org.lwjgl.input.Keyboard;
+
+import TBC.Combat.AreaBasedLevelScaling;
+import TBC.Combat.CombatEntity;
+import TBC.Combat.CombatEntityLookup;
+import TBC.Combat.CombatEntitySpawnLookup;
+import TBC.Combat.CompositeLevelScaling;
+import TBC.Combat.DepthBasedLevelScaling;
+import TBC.Combat.DistanceBasedLevelScaling;
+import TBC.Combat.EquippedItemManager;
+import TBC.Combat.ILevelScale;
+import TBC.Combat.ItemReplacementLookup;
+import TBC.Combat.LevelingEngine;
+import TBC.Combat.TimeBasedLevelScaling;
+import TBC.Combat.Abilities.AbilityLookup;
+import TBC.CombatScreen.Battle;
+import TBC.CombatScreen.BattleScreenClient;
+import TBC.CombatScreen.EndCombatHandler;
+import TBC.CombatScreen.PlayerCommandHandler;
+import TBC.CombatScreen.PlayerControlHandler;
+import TBC.CombatScreen.StartCombatHandler;
+import TBC.CombatScreen.SyncCombatDataHandler;
+import TBC.Messages.CombatCommandMessage;
+import TBC.Messages.CombatEndedMessage;
+import TBC.Messages.CombatPlayerControlMessage;
+import TBC.Messages.CombatStartedMessage;
+import TBC.Messages.CombatSyncDataMessage;
+import TBC.Messages.NBTTagCompoundMessage;
+import TBC.Messages.StringMessage;
+import TBC.ZoneGeneration.ZoneChunkData;
+import TBC.ZoneGeneration.ZoneGenerationMod;
+import TBC.ZoneGeneration.ZoneHandler;
+
+import com.google.common.io.Files;
+
+import cpw.mods.fml.client.registry.ClientRegistry;
+import cpw.mods.fml.common.FMLCommonHandler;
+import cpw.mods.fml.common.FMLLog;
+import cpw.mods.fml.common.Loader;
+import cpw.mods.fml.common.event.FMLInitializationEvent;
+import cpw.mods.fml.common.event.FMLPreInitializationEvent;
+import cpw.mods.fml.common.gameevent.InputEvent;
+import cpw.mods.fml.common.network.NetworkRegistry;
+import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
-import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.EntityClientPlayerMP;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.multiplayer.WorldClient;
-import net.minecraft.client.renderer.RenderGlobal;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderLiving;
-import net.minecraft.client.renderer.entity.RenderManager;
-import net.minecraft.client.renderer.entity.RenderPlayer;
-import net.minecraft.client.settings.GameSettings;
-import net.minecraft.client.settings.KeyBinding;
 
 public class MainMod
 {
+	public static HashMap<Long, Battle> ServerBattles = new HashMap<Long, Battle>(); 
+	public static BattleScreenClient ClientBattle = null;
+	
 	private static boolean loadedProgress = false;
-	private int questProgress = 0;
 
 	public static boolean playerDataInit = false;
-	public static ArrayList<Pair<EntityLiving, String>> setEnemies = null;
+	public static ArrayList<Pair<String, String>> setEnemies = null;
 	public static EntityLivingBase enemy = null;
 	public static boolean isPlayerAttacker;
 	public static float lastAttackTime = 0;
+	
 	private ILevelScale levelScaling;
-	private boolean wasKeyPressed = false;
 	public DistanceBasedLevelScaling distanceScaling;
+	private long lastAttemptedSync = 0;
+	private long startupTime = 0;
+	private int questProgress = 0;
+	private long lastBattleId = 0;
 	
 	public static SimpleNetworkWrapper setItemDataHandler;
 	public static SimpleNetworkWrapper syncPlayerDataHandler;
 	public static SimpleNetworkWrapper setHealthHandler;
 	public static SimpleNetworkWrapper removeItemHandler;
 	public static SimpleNetworkWrapper openGuiHandler;
+	
+	public static SimpleNetworkWrapper combatStartedHandler;
+	public static SimpleNetworkWrapper playerCommandHandler;
+	public static SimpleNetworkWrapper playerControlHandler;
+	public static SimpleNetworkWrapper syncCombatDataHandler;
+	public static SimpleNetworkWrapper combatEndedHandler;
 	
 	public static KeyBinding openTBCGui;
 	
@@ -227,6 +182,18 @@ public class MainMod
 		removeItemHandler.registerMessage(RemoveItemHandler.class, StringMessage.class, 0, Side.SERVER);
 		openGuiHandler = new SimpleNetworkWrapper("TBCOpenGui");
 		openGuiHandler.registerMessage(OpenGuiHandler.class, StringMessage.class, 0, Side.CLIENT);
+		
+		combatStartedHandler = new SimpleNetworkWrapper("TBCCombatStart");
+		combatStartedHandler.registerMessage(StartCombatHandler.class, CombatStartedMessage.class, 0, Side.CLIENT);
+		playerControlHandler = new SimpleNetworkWrapper("TBCPlayerTurn");
+		playerControlHandler.registerMessage(PlayerControlHandler.class, CombatPlayerControlMessage.class, 0, Side.CLIENT);
+		playerCommandHandler = new SimpleNetworkWrapper("TBCCombatCommand");
+		playerCommandHandler.registerMessage(PlayerCommandHandler.class, CombatCommandMessage.class, 0, Side.SERVER);
+		syncCombatDataHandler = new SimpleNetworkWrapper("TBCCombatSync");
+		syncCombatDataHandler.registerMessage(SyncCombatDataHandler.class, CombatSyncDataMessage.class, 0, Side.CLIENT);
+		combatEndedHandler = new SimpleNetworkWrapper("TBCCombatEnd");
+		combatEndedHandler.registerMessage(EndCombatHandler.class, CombatEndedMessage.class, 0, Side.CLIENT);
+		
 		openTBCGui = new KeyBinding("Open Character Screen", Keyboard.KEY_TAB, "TBC Keys");
 		ClientRegistry.registerKeyBinding(openTBCGui);
 	}
@@ -249,8 +216,6 @@ public class MainMod
 		}
 	}
 
-	private long lastAttemptedSync = 0;
-	private long startupTime = 0;
 	public void renderHUD(RenderGameOverlayEvent.Text evt)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
@@ -303,7 +268,7 @@ public class MainMod
 			}
 
 			this.lastAttackTime = currentTime;
-			setEnemies = new ArrayList<Pair<EntityLiving,String>>();
+			setEnemies = new ArrayList<Pair<String,String>>();
 			questProgress = questProgress + 1;
 			PlayerXPWorldSavedData questData = LevelingEngine.Instance.GetXpDataForPlayer(mc.thePlayer);
 			questData.QuestProgress = questProgress;
@@ -326,129 +291,75 @@ public class MainMod
 	{
 		if(questProgress == 2)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Skeleton", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Decrepit Skeleton");
-			setEnemies.add(new Pair(enemy, "Decrepit Skeleton"));
+			setEnemies.add(new Pair("Skeleton", "Decrepit Skeleton"));
 		}
 		else if(questProgress == 3)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Creeper", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Creeper");
-			setEnemies.add(new Pair(enemy, "Creeper"));
+			setEnemies.add(new Pair("Creeper", "Creeper"));
 		}
 		else if(questProgress == 4)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Zombie", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Ghoul");
-			setEnemies.add(new Pair(enemy, "Ghoul"));
+			setEnemies.add(new Pair("Zombie", "Ghoul"));
 		}
 		else if(questProgress == 5)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Slime", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Brown Ooze");
-			setEnemies.add(new Pair(enemy, "Brown Ooze"));
+			setEnemies.add(new Pair("Slime", "Brown Ooze"));
 		}
 		else if(questProgress == 6)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Skeleton", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Skeleton Apprentice");
-			EntityLiving enemy2 = (EntityLiving) EntityList.createEntityByName("Skeleton", mc.theWorld);
-			enemy2.getEntityData().setString("TBCEntityName", "Skeleton Apprentice");
-			setEnemies.add(new Pair(enemy, "Skeleton Apprentice"));
-			setEnemies.add(new Pair(enemy2, "Skeleton Apprentice"));
+			setEnemies.add(new Pair("Skeleton", "Skeleton Apprentice"));
+			setEnemies.add(new Pair("Skeleton", "Skeleton Apprentice"));
 		}
 		else if(questProgress == 7)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Creeper", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Overcharged Creeper");
-			EntityLiving enemy2 = (EntityLiving) EntityList.createEntityByName("Creeper", mc.theWorld);
-			enemy2.getEntityData().setString("TBCEntityName", "Overcharged Creeper");
-			setEnemies.add(new Pair(enemy, "Overcharged Creeper"));
-			setEnemies.add(new Pair(enemy2, "Overcharged Creeper"));
+			setEnemies.add(new Pair("Creeper", "Overcharged Creeper"));
+			setEnemies.add(new Pair("Creeper", "Overcharged Creeper"));
 		}
 		else if(questProgress == 8)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Zombie", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Vampire");
-			EntityLiving enemy2 = (EntityLiving) EntityList.createEntityByName("Zombie", mc.theWorld);
-			enemy2.getEntityData().setString("TBCEntityName", "Vampire");
-			setEnemies.add(new Pair(enemy, "Vampire"));
-			setEnemies.add(new Pair(enemy2, "Vampire"));
+			setEnemies.add(new Pair("Zombie", "Vampire"));
+			setEnemies.add(new Pair("Zombie", "Vampire"));
 		}
 		else if(questProgress == 9)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Spider", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Wraith Spider");
-			EntityLiving enemy2 = (EntityLiving) EntityList.createEntityByName("Spider", mc.theWorld);
-			enemy2.getEntityData().setString("TBCEntityName", "Wraith Spider");
-			EntityLiving enemy3 = (EntityLiving) EntityList.createEntityByName("Spider", mc.theWorld);
-			enemy3.getEntityData().setString("TBCEntityName", "Wraith Spider");
-			EntityLiving enemy4 = (EntityLiving) EntityList.createEntityByName("Spider", mc.theWorld);
-			enemy4.getEntityData().setString("TBCEntityName", "Wraith Spider");
-			setEnemies.add(new Pair(enemy, "Wraith Spider"));
-			setEnemies.add(new Pair(enemy2, "Wraith Spider"));
-			setEnemies.add(new Pair(enemy3, "Wraith Spider"));
-			setEnemies.add(new Pair(enemy4, "Wraith Spider"));
+			setEnemies.add(new Pair("Spider", "Wraith Spider"));
+			setEnemies.add(new Pair("Spider", "Wraith Spider"));
+			setEnemies.add(new Pair("Spider", "Wraith Spider"));
+			setEnemies.add(new Pair("Spider", "Wraith Spider"));
 		}
 		else if(questProgress == 10)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Slime", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Black Pudding");
-			setEnemies.add(new Pair(enemy, "Black Pudding"));
+			setEnemies.add(new Pair("Slime", "Black Pudding"));
 		}
 		else if(questProgress == 11)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Skeleton", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Skeleton King");
-			setEnemies.add(new Pair(enemy, "Skeleton King"));
+			setEnemies.add(new Pair("Skeleton", "Skeleton King"));
 		}
 		else if(questProgress == 12)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Creeper", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Creeper Ancient");
-			EntityLiving enemy2 = (EntityLiving) EntityList.createEntityByName("Creeper", mc.theWorld);
-			enemy2.getEntityData().setString("TBCEntityName", "Creeper Ancient");
-			EntityLiving enemy3 = (EntityLiving) EntityList.createEntityByName("Creeper", mc.theWorld);
-			enemy3.getEntityData().setString("TBCEntityName", "Creeper Ancient");
-			EntityLiving enemy4 = (EntityLiving) EntityList.createEntityByName("Creeper", mc.theWorld);
-			enemy4.getEntityData().setString("TBCEntityName", "Creeper Ancient");
-			setEnemies.add(new Pair(enemy, "Creeper Ancient"));
-			setEnemies.add(new Pair(enemy2, "Creeper Ancient"));
-			setEnemies.add(new Pair(enemy3, "Creeper Ancient"));
-			setEnemies.add(new Pair(enemy4, "Creeper Ancient"));
+			setEnemies.add(new Pair("Creeper", "Creeper Ancient"));
+			setEnemies.add(new Pair("Creeper", "Creeper Ancient"));
+			setEnemies.add(new Pair("Creeper", "Creeper Ancient"));
+			setEnemies.add(new Pair("Creeper", "Creeper Ancient"));
 		}
 		else if(questProgress == 13)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Enderman", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Enderguard");
-			setEnemies.add(new Pair(enemy, "Enderguard"));
+			setEnemies.add(new Pair("Enderman", "Enderguard"));
 		}
 		else if(questProgress == 14)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Zombie", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Revenant");
-			EntityLiving enemy2 = (EntityLiving) EntityList.createEntityByName("Skeleton", mc.theWorld);
-			enemy2.getEntityData().setString("TBCEntityName", "Skeleton King");
-			EntityLiving enemy3 = (EntityLiving) EntityList.createEntityByName("Spider", mc.theWorld);
-			enemy3.getEntityData().setString("TBCEntityName", "Spider Queen");
-			EntityLiving enemy4 = (EntityLiving) EntityList.createEntityByName("Creeper", mc.theWorld);
-			enemy4.getEntityData().setString("TBCEntityName", "Creeper Ancient");
-			setEnemies.add(new Pair(enemy, "Revenant"));
-			setEnemies.add(new Pair(enemy2, "Skeleton King"));
-			setEnemies.add(new Pair(enemy3, "Spider Queen"));
-			setEnemies.add(new Pair(enemy4, "Creeper Ancient"));
+			setEnemies.add(new Pair("Zombie", "Revenant"));
+			setEnemies.add(new Pair("Skeleton", "Skeleton King"));
+			setEnemies.add(new Pair("Spider", "Spider Queen"));
+			setEnemies.add(new Pair("Creeper", "Creeper Ancient"));
 		}
 		else if(questProgress == 15)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("Enderman", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Enderlord");
-			setEnemies.add(new Pair(enemy, "Enderlord"));
+			setEnemies.add(new Pair("Enderman", "Enderlord"));
 		}
 		else if(questProgress == 16)
 		{
-			EntityLiving enemy = (EntityLiving) EntityList.createEntityByName("EnderDragon", mc.theWorld);
-			enemy.getEntityData().setString("TBCEntityName", "Ender Dragon");
-			setEnemies.add(new Pair(enemy, "Ender Dragon"));
+			setEnemies.add(new Pair("EnderDragon", "Ender Dragon"));
 		}
 	}
 
@@ -524,7 +435,7 @@ public class MainMod
 				if(s != null && s.getItem() instanceof HenchmanItem)
 				{
 					HenchmanItem item = (HenchmanItem)s.getItem();
-					CombatEntity hench = CombatEntityLookup.Instance.GetCombatEntity(null, item.henchmanName);
+					CombatEntity hench = CombatEntityLookup.Instance.GetCombatEntity(0, null, item.henchmanName);
 					s.setItemDamage(0);
 					NBTTagCompound tag = s.getTagCompound();
 					if(tag == null)
@@ -549,6 +460,11 @@ public class MainMod
 
 	public void onLivingAttacked(LivingAttackEvent e)
 	{
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+		{
+			return;
+		}
+		
 		// If the damage source isn't a living entity, this isn't a battle.
 		net.minecraft.entity.Entity sourceEntity = e.source.getEntity();
 		if(sourceEntity == null ||
@@ -567,19 +483,19 @@ public class MainMod
 
 		EntityLivingBase enemy = null;
 		Boolean isPlayerAttacker = false;
-		EntityPlayer player = null;
+		EntityPlayerMP player = null;
 
 		if(e.entityLiving instanceof EntityPlayerMP)
 		{
 			enemy = (EntityLiving)sourceEntity;
 			isPlayerAttacker = false;
-			player = (EntityPlayer)e.entityLiving;
+			player = (EntityPlayerMP)e.entityLiving;
 		}
 		else if(sourceEntity instanceof EntityPlayerMP)
 		{
 			enemy = e.entityLiving;
 			isPlayerAttacker = true;
-			player = (EntityPlayer)sourceEntity;
+			player = (EntityPlayerMP)sourceEntity;
 		}
 
 		if(player != null)
@@ -593,9 +509,10 @@ public class MainMod
 			}
 
 			this.lastAttackTime = Minecraft.getSystemTime();
-			this.enemy = enemy;
-			this.isPlayerAttacker = isPlayerAttacker;
-			player.openGui(TBCMod.instance, 0, player.worldObj, player.serverPosX, player.serverPosY, player.serverPosZ);
+			Battle b = new Battle(lastBattleId++, player, enemy, isPlayerAttacker);
+			this.ServerBattles.put(b.id, b);
+			this.combatStartedHandler.sendTo(b.GetBattleStartMessage(), player);
+			b.DoNextTurn();
 		}
 	}
 
@@ -707,18 +624,11 @@ public class MainMod
 
 	public void keyDown(InputEvent.KeyInputEvent evt)
 	{
-		if(wasKeyPressed && openTBCGui.getIsKeyPressed())
-		{
-			return;
-		}
-		
 		if(!openTBCGui.getIsKeyPressed())
 		{
-			wasKeyPressed = false;
 			return;
 		}
 
-		wasKeyPressed = true;
 		Minecraft mc = Minecraft.getMinecraft();
 		if(mc.thePlayer != null)
 		{

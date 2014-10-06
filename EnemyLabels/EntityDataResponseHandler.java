@@ -6,7 +6,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import TBC.StringMessage;
+import TBC.Messages.StringMessage;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;

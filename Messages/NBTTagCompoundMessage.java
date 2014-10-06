@@ -1,4 +1,4 @@
-package TBC;
+package TBC.Messages;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

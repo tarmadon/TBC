@@ -1,6 +1,8 @@
 package TBC.Combat.Effects;
 
-public interface INonStackingEffect
+import java.io.Serializable;
+
+public interface INonStackingEffect extends Serializable
 {
 	String GetEffectName();
 }

@@ -1,6 +1,8 @@
 package TBC;
 
-public class Pair<T1, T2>
+import java.io.Serializable;
+
+public class Pair<T1, T2> implements Serializable
 {
 	public final T1 item1;
 	public final T2 item2;

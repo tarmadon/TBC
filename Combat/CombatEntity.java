@@ -1,5 +1,6 @@
 package TBC.Combat;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
@@ -17,10 +18,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
-public class CombatEntity
+public class CombatEntity implements Serializable
 {
-	public EntityLivingBase innerEntity;
-
+	public int id;
+	public String entityType;
 	public int currentHp;
 	public int currentMp;
 	public Integer lastDamageTaken = null;
@@ -29,17 +30,48 @@ public class CombatEntity
 	public List ongoingEffects;
 	private CombatEntityTemplate baseStats;
 
-	public CombatEntity(CombatEntityTemplate baseStats, EntityLivingBase realEntity)
+	public CombatEntity(int id, String entityType, CombatEntityTemplate baseStats)
 	{
+		this.id = id;
+		this.entityType = entityType;
 		this.baseStats = baseStats;
-		this.innerEntity = realEntity;
 		PopulateWithBaseStats();
 	}
 
-	public static CombatEntity GetCombatEntity(EntityLivingBase entity, String enemyName, int enemyNumber)
+	public static CombatEntity GetCombatEntity(int entityId, String entityType, String enemyName, int enemyNumber)
 	{
 		CombatEntity lookup;
-		lookup = CombatEntityLookup.Instance.GetCombatEntity(entity, enemyName);
+		lookup = CombatEntityLookup.Instance.GetCombatEntity(entityId, entityType, enemyName);
+		lookup.name = lookup.baseStats.name;
+		if(enemyNumber == 1)
+		{
+			lookup.name += " A";
+		}
+		else if(enemyNumber == 2)
+		{
+			lookup.name += " B";
+		}
+		else if(enemyNumber == 3)
+		{
+			lookup.name += " C";
+		}
+		else if(enemyNumber == 4)
+		{
+			lookup.name += " D";
+		}
+		else if(enemyNumber == 5)
+		{
+			lookup.name += " E";
+		}
+
+		lookup.currentHp = lookup.baseStats.maxHp;
+		return lookup;
+	}
+
+	public static CombatEntity GetCombatEntity(int entityId, EntityLivingBase entity, int enemyNumber)
+	{
+		CombatEntity lookup;
+		lookup = CombatEntitySpawnLookup.Instance.GetCombatEntity(entityId, entity);
 		lookup.name = lookup.baseStats.name;
 		if(enemyNumber == 1)
 		{
@@ -67,41 +99,10 @@ public class CombatEntity
 		return lookup;
 	}
 
-	public static CombatEntity GetCombatEntity(EntityLivingBase entity, int enemyNumber)
+	public static CombatEntity GetCombatEntity(EntityPlayer entity)
 	{
 		CombatEntity lookup;
-		lookup = CombatEntitySpawnLookup.Instance.GetCombatEntity(entity);
-		lookup.name = lookup.baseStats.name;
-		if(enemyNumber == 1)
-		{
-			lookup.name += " A";
-		}
-		else if(enemyNumber == 2)
-		{
-			lookup.name += " B";
-		}
-		else if(enemyNumber == 3)
-		{
-			lookup.name += " C";
-		}
-		else if(enemyNumber == 4)
-		{
-			lookup.name += " D";
-		}
-		else if(enemyNumber == 5)
-		{
-			lookup.name += " E";
-		}
-
-		float currentHpPercentage = (float)entity.getHealth() / entity.getMaxHealth();
-		lookup.currentHp = Math.round(currentHpPercentage * lookup.baseStats.maxHp);
-		return lookup;
-	}
-
-	public static CombatEntity GetCombatEntity(EntityPlayer entity, int enemyNumber)
-	{
-		CombatEntity lookup;
-		lookup = CombatEntityLookup.Instance.GetCombatEntityForPlayer((EntityPlayer)entity);
+		lookup = CombatEntityLookup.Instance.GetCombatEntityForPlayer(entity);
 		lookup.name = lookup.baseStats.name;
 
 		float currentHpPercentage = (float)entity.getHealth() / entity.getMaxHealth();

@@ -1,4 +1,6 @@
-package TBC.ZoneGeneration;
+package TBC.Messages;
+
+import io.netty.buffer.ByteBuf;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -8,15 +10,13 @@ import java.io.ObjectOutputStream;
 
 import org.apache.logging.log4j.Level;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-
-import io.netty.buffer.ByteBuf;
+import TBC.ZoneGeneration.ZoneResponseData;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 
-public class ZoneDataMessage implements IMessage
+public abstract class ObjectMessage implements IMessage
 {
-	public ZoneResponseData Data;
+	public abstract void ReadMessage(Object message);
 	
 	@Override
 	public void fromBytes(ByteBuf buf) 
@@ -31,10 +31,7 @@ public class ZoneDataMessage implements IMessage
 			byteArrayStream = new ByteArrayInputStream(bytes);
 			inputStream = new ObjectInputStream(byteArrayStream);
 			Object obj = inputStream.readObject();
-			if(obj instanceof ZoneResponseData)
-			{
-				Data = (ZoneResponseData)obj;
-			}
+			ReadMessage(obj); 
 		}
 		catch (IOException e) 
 		{
@@ -74,7 +71,7 @@ public class ZoneDataMessage implements IMessage
 		{
 			byteArrayStream = new ByteArrayOutputStream();
 			outputStream = new ObjectOutputStream(byteArrayStream);
-			outputStream.writeObject(Data);
+			outputStream.writeObject(this);
 		} catch (IOException e) {
 			FMLLog.log(Level.ERROR, e.toString());
 		}
@@ -90,5 +87,4 @@ public class ZoneDataMessage implements IMessage
 		
 		buf.writeBytes(byteArrayStream.toByteArray());
 	}
-
 }

@@ -6,7 +6,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 import net.minecraft.world.World;
-import TBC.CombatScreen.BattleScreen;
+import TBC.CombatScreen.BattleScreenClient;
+import TBC.CombatScreen.StartCombatHandler;
+import TBC.Messages.StringMessage;
 
 import com.google.common.primitives.Bytes;
 import com.google.common.primitives.UnsignedBytes;
@@ -59,13 +61,9 @@ public class TBCGuiHandler implements IGuiHandler
 	{
 		if(ID == 0)
 		{
-			if(MainMod.setEnemies != null)
-			{
-				BattleScreen screen = new BattleScreen(player, MainMod.setEnemies, MainMod.isPlayerAttacker);
-				return screen;
-			}
-
-			return new BattleScreen(player, MainMod.enemy, MainMod.isPlayerAttacker);
+			BattleScreenClient screen = new BattleScreenClient(StartCombatHandler.CombatId, StartCombatHandler.Allies, StartCombatHandler.Enemies);
+			MainMod.ClientBattle = screen;
+			return screen;
 		}
 		else
 		{

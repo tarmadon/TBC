@@ -29,14 +29,16 @@ public class CombatEngine
 	public ArrayList<CombatEntity> enemies;
 	private Random rng;
 	private int turnCounter;
-
+	private int currentEntityId;
+	
 	private Hashtable<CombatEntity, Float> turnTimings = new Hashtable<CombatEntity, Float>();
 
-	public CombatEngine(ArrayList<CombatEntity> allies, ArrayList<CombatEntity> enemies, Boolean isAttacker)
+	public CombatEngine(ArrayList<CombatEntity> allies, ArrayList<CombatEntity> enemies, Boolean isAttacker, int currentEntityId)
 	{
+		this.currentEntityId = currentEntityId;
 		this.allies = allies;
 		this.enemies = enemies;
-		this.rng = this.allies.get(0).innerEntity.getRNG();
+		this.rng = CombatRandom.GetRandom();
 
 		float allyStartTime = 50F;
 		float enemyStartTime = 50F;
@@ -61,9 +63,9 @@ public class CombatEngine
 				}
 			}
 
-			if(ally.innerEntity instanceof EntityPlayer)
+			if(ally.entityType == null)
 			{
-				ArrayList<ICombatAbility> equipmentAbilities = EquippedItemManager.Instance.GetAbilitiesFromEquippedItems(Minecraft.getMinecraft(), (EntityPlayer)ally.innerEntity);
+				ArrayList<ICombatAbility> equipmentAbilities = EquippedItemManager.Instance.GetAbilitiesFromEquippedItems(Minecraft.getMinecraft(), (EntityPlayer)Minecraft.getMinecraft().theWorld.getEntityByID(ally.id));
 				for(ICombatAbility equipmentAbility : equipmentAbilities)
 				{
 					if(equipmentAbility instanceof ConstantAbility)
@@ -242,7 +244,10 @@ public class CombatEngine
 		ArrayList<ICombatAbility> allowed = new ArrayList<ICombatAbility>();
 		for(Pair<Integer, ICombatAbility> ability : abilities)
 		{
-			allowed.add(ability.item2);
+			if(!ability.item2.GetAbilityName().isEmpty())
+			{
+				allowed.add(ability.item2);
+			}
 		}
 
 		for(Object ongoing : entity.ongoingEffects)
@@ -507,6 +512,11 @@ public class CombatEngine
 		}
 	}
 
+	public int GetNewEntityId()
+	{
+		return currentEntityId++;
+	}
+	
 	public Pair<ICombatAbility, ArrayList<CombatEntity>> GetQueuedAbility(CombatEntity next)
 	{
 		for(Object ongoing : next.ongoingEffects)

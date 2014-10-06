@@ -2,9 +2,9 @@ package TBC.CombatScreen;
 
 public class AttemptEscapeFunction implements IGenericAction
 {
-	private BattleScreen sc;
+	private BattleScreenClient sc;
 
-	public AttemptEscapeFunction(BattleScreen sc)
+	public AttemptEscapeFunction(BattleScreenClient sc)
 	{
 		this.sc = sc;
 	}

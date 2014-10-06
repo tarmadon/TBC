@@ -46,11 +46,11 @@ public class BattleScreenDrawer
 	private int cutoffLineHeight;
 	private int cutoffLineYPos;
 
-	private BattleScreen canvas;
+	private BattleScreenClient canvas;
 	private List buttonsToSwap;
 	private List commandButtons = new ArrayList<GuiButton>();
 
-	public BattleScreenDrawer(BattleScreen canvas)
+	public BattleScreenDrawer(BattleScreenClient canvas)
 	{
 		xOffsetForStatus.put("Poison", 0);
 		xOffsetForStatus.put("Paralyze", 9);
@@ -80,7 +80,6 @@ public class BattleScreenDrawer
 		List buttons = new ArrayList<GuiButton>();
 		buttons.add(new GenericScrollBox(0, 210, cutoffLineYPos + 7, this.canvas.width - 210, (this.canvas.height - cutoffLineYPos) - 10, "commands", commandActions, new ArrayList<Triplet<String,String,IGenericAction>>(), 1));
 		this.commandButtons = buttons;
-		this.buttonsToSwap = this.commandButtons;
 	}
 
 	public void drawBackground(
@@ -220,18 +219,18 @@ public class BattleScreenDrawer
 		int numberYTiles = (areaHeight / textureSize) + 1;
 
 		int color = 0;
-		if(texture.getIconName() == "grass_top")
-		{
-			for(int i = 0; i<right.size(); i++)
-			{
-				if(right.get(i).innerEntity != null)
-				{
-					EntityLivingBase player = right.get(i).innerEntity;
-					color = Blocks.grass.colorMultiplier(player.worldObj, (int)player.posX, (int)player.posY, (int)player.posZ);
-					break;
-				}
-			}
-		}
+//		if(texture.getIconName() == "grass_top")
+//		{
+//			for(int i = 0; i<right.size(); i++)
+//			{
+//				if(right.get(i).innerEntity != null)
+//				{
+//					EntityLivingBase player = right.get(i).innerEntity;
+//					color = Blocks.grass.colorMultiplier(player.worldObj, (int)player.posX, (int)player.posY, (int)player.posZ);
+//					break;
+//				}
+//			}
+//		}
 
 		for(int i = 0; i<numberXTiles; i++)
 		{
@@ -340,10 +339,6 @@ public class BattleScreenDrawer
 			Pair<Integer, Integer> position = positionLookup.get(player);
 			int playerXPos = position.item1;
 			int playerYPos = position.item2;
-			if(player.innerEntity instanceof EntityPlayer)
-			{
-				playerYPos -= 30;
-			}
 
 			DrawCombatEntity(turnState, positionLookup, player, true, playerXPos, playerYPos, -70);
 		}
@@ -369,15 +364,18 @@ public class BattleScreenDrawer
 		DrawCombatEntity(entity, xPos, yPos, rotation, -1, false);
 	}
 
-	public void DrawCombatEntity(CombatEntity entity, int xPos, int yPos, int rotation, long damageTextTime, boolean showHitIndicator)
+	public void DrawCombatEntity(CombatEntity entity, int xPos, int playerYPos, int rotation, long damageTextTime, boolean showHitIndicator)
 	{
+		Entity found = Minecraft.getMinecraft().theWorld.getEntityByID(entity.id);
+		int yPos = playerYPos;
 		int modelYPos = yPos;
-		if(entity.innerEntity instanceof EntityPlayer)
+		if(found instanceof EntityPlayer)
 		{
-			modelYPos -= 18;
+			yPos -= 30;
+			modelYPos -= 48;
 		}
 
-		drawCombatModel(xPos, modelYPos, entity, rotation);
+		drawCombatModel(found, xPos, modelYPos, entity, rotation);
 		drawStatusEffects(xPos, yPos, entity);
 		if(showHitIndicator)
 		{
@@ -468,20 +466,25 @@ public class BattleScreenDrawer
 		this.canvas.drawTexturedModalRect(xPos + 23, yPos - 25 , 0, 0, 32, 32);
 	}
 
-	private void drawCombatModel(int xPos, int yPos, CombatEntity entity, int rotation)
+	private void drawCombatModel(Entity worldEntity, int xPos, int yPos, CombatEntity entity, int rotation)
 	{
-		EntityLivingBase el = entity.innerEntity;
-		if(!(entity.innerEntity instanceof EntityPlayer))
+		EntityLivingBase el = (EntityLivingBase)worldEntity;
+		if(!(worldEntity instanceof EntityPlayer))
 		{
 			try
 			{
-				el = (EntityLiving)entity.innerEntity.getClass().getConstructor(new Class[] {World.class}).newInstance(new Object[] {entity.innerEntity.worldObj});
+				el = (EntityLivingBase)worldEntity.getClass().getConstructor(new Class[] {World.class}).newInstance(new Object[] {worldEntity.worldObj});
 			}
 			catch (Exception e)
 			{
 			}
 		}
 
+		if(el == null)
+		{
+			return;
+		}
+		
 		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
 		this.canvas.GetMc().entityRenderer.setupOverlayRendering();
         GL11.glTranslatef(xPos + 40, yPos, 0);

@@ -5,12 +5,12 @@ import java.util.HashMap;
 
 import TBC.MainMod;
 import TBC.Pair;
-import TBC.StringMessage;
 import TBC.Combat.CombatEngine;
 import TBC.Combat.CombatEntity;
 import TBC.Combat.Effects.IOneTimeEffect;
 import TBC.CombatScreen.BattleScreenDrawer;
 import TBC.CombatScreen.TurnState;
+import TBC.Messages.StringMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

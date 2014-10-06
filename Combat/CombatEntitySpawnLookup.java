@@ -129,15 +129,20 @@ public class CombatEntitySpawnLookup
 		}
 	}
 
-	public CombatEntity GetCombatEntity(EntityLivingBase innerEntity)
+	public CombatEntity GetCombatEntity(int entityId, EntityLivingBase innerEntity)
 	{
+		String entityName = EntityList.getEntityString(innerEntity);
+		if(entityName == null)
+		{
+			return null;
+		}
+		
 		if(innerEntity.getEntityData().getString("TBCEntityName") != "")
 		{
-			return CombatEntityLookup.Instance.GetCombatEntity(innerEntity, innerEntity.getEntityData().getString("TBCEntityName"));
+			return CombatEntityLookup.Instance.GetCombatEntity(entityId, entityName, innerEntity.getEntityData().getString("TBCEntityName"));
 		}
 
-		String entityName = EntityList.getEntityString(innerEntity);
-		if(this.lookup.containsKey(entityName))
+		if(entityName != null && this.lookup.containsKey(entityName))
 		{
 			ArrayList<TemplateWithLevel> leveledCreatures = this.lookup.get(entityName);
 			int currentLevel = this.levelScaling.GetCurrentLevel(innerEntity);
@@ -182,7 +187,7 @@ public class CombatEntitySpawnLookup
 
 			int totalWeight = nearMatches.size();
 			int value = CombatRandom.GetRandom().nextInt(totalWeight);
-			CombatEntity found = CombatEntityLookup.Instance.GetCombatEntity(innerEntity, nearMatches.get(value).templateName);
+			CombatEntity found = CombatEntityLookup.Instance.GetCombatEntity(entityId, entityName, nearMatches.get(value).templateName);
 			if(found != null)
 			{
 				return found;
@@ -192,12 +197,12 @@ public class CombatEntitySpawnLookup
 			CombatEntityTemplate template = this.BuildDefaultEntityTemplate(innerEntity);
 			template.name = templateName;
 			CombatEntityLookup.Instance.lookupByName.put(templateName, template);
-			return new CombatEntity(template, innerEntity);
+			return new CombatEntity(entityId, entityName, template);
 		}
 
 		CombatEntityTemplate template = this.BuildDefaultEntityTemplate(innerEntity);
 		CombatEntityLookup.Instance.lookupByName.put(entityName, template);
-		return new CombatEntity(template, innerEntity);
+		return new CombatEntity(entityId, entityName, template);
 	}
 
 	public void LogUnknownEntities(World world)
@@ -217,7 +222,7 @@ public class CombatEntitySpawnLookup
 						try
 						{
 							writer = new PrintWriter(new FileWriter(this.file, true));
-							CombatEntity de = GetCombatEntity((EntityLiving)en);
+							CombatEntity de = GetCombatEntity(-1, (EntityLiving)en);
 							StringBuilder sb = new StringBuilder();
 							sb.append(entityName + ",");
 							sb.append(entityName + ",,,All,1,100,,");

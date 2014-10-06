@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.player.EntityPlayer;
@@ -17,6 +18,8 @@ import TBC.Combat.CombatEngine;
 import TBC.Combat.CombatEntity;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.CombatScreen.IGenericAction;
+import TBC.Messages.NBTTagCompoundMessage;
+import TBC.Messages.StringMessage;
 
 public class UseAbilityFromStatsGuiAction implements IGenericAction
 {
@@ -46,13 +49,13 @@ public class UseAbilityFromStatsGuiAction implements IGenericAction
 		// Otherwise, there will be problems syncing with the server.
 		for(int i = 0; i< targets.size(); i++)
 		{
-			if(targets.get(i).innerEntity == this.user.innerEntity)
+			if(targets.get(i).id == this.user.id)
 			{
 				targets.set(i, this.user);
 			}
 		}
 
-		CombatEngine engine = new CombatEngine(allies, new ArrayList<CombatEntity>(), true);
+		CombatEngine engine = new CombatEngine(allies, new ArrayList<CombatEntity>(), true, 0);
 		engine.Attack(user, targets, ability, new ArrayList<String>());
 		user.ApplyDamage();
 		for(CombatEntity target : targets)
@@ -69,7 +72,7 @@ public class UseAbilityFromStatsGuiAction implements IGenericAction
 		for(int i = 0; i < targets.size(); i++)
 		{
 			CombatEntity target = targets.get(i);
-			if(target.innerEntity != user.innerEntity)
+			if(target.id != user.id)
 			{
 				SyncCombatEntityHealth(mc, target);
 			}
@@ -80,25 +83,26 @@ public class UseAbilityFromStatsGuiAction implements IGenericAction
 
 	private void SyncCombatEntityHealth(Minecraft mc, CombatEntity entity)
 	{
-		if(entity.innerEntity != null && entity.innerEntity instanceof EntityPlayer)
+		if(entity.entityType == null)
 		{
-			float maxHealth = entity.innerEntity.getMaxHealth();
+			EntityClientPlayerMP player = mc.thePlayer;
+			float maxHealth = player.getMaxHealth();
 			float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
 			int healthToSet = Math.round((currentHpPercentage * maxHealth) + .499999F);
 			StringMessage setHealth = new StringMessage();
 			setHealth.Data = "" + healthToSet;
 			MainMod.setHealthHandler.sendToServer(setHealth);
 
-			NBTTagCompound tag = entity.innerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+			NBTTagCompound tag = mc.thePlayer.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
 			tag.setInteger("TBCPlayerMP", entity.currentMp);
-			entity.innerEntity.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
-			SyncTagToServer((EntityPlayer)entity.innerEntity);
+			player.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
+			SyncTagToServer(player);
 		}
-		else if(entity.innerEntity.getEntityData().hasKey("henchmanIndex"))
+		else
 		{
 			float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
 			int healthToSet = Math.round((currentHpPercentage * 100) + .499999F);
-			int index = entity.innerEntity.getEntityData().getInteger("henchmanIndex");
+			int index = entity.id;
 			ItemStack h = this.henchmanEntities[index];
 			if(index == 9)
 			{

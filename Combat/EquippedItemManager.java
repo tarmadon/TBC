@@ -235,9 +235,9 @@ public class EquippedItemManager
 	{
 		ArrayList<String> occupiedSlots = new ArrayList<String>();
 		int returnStat = currentStat;
-		if(entity.innerEntity instanceof EntityPlayer)
+		if(entity.entityType == null)
 		{
-			EntityPlayer player = (EntityPlayer)entity.innerEntity;
+			EntityPlayer player = (EntityPlayer)Minecraft.getMinecraft().theWorld.getEntityByID(entity.id);
 			InventoryPlayer inventory = player.inventory;
 			for(int i = 0; i<inventory.armorInventory.length; i++)
 			{

@@ -2,9 +2,9 @@ package TBC.CombatScreen;
 
 class AttackCommandFunction implements IGenericAction
 {
-	private BattleScreen sc;
+	private BattleScreenClient sc;
 
-	public AttackCommandFunction(BattleScreen sc)
+	public AttackCommandFunction(BattleScreenClient sc)
 	{
 		this.sc = sc;
 	}

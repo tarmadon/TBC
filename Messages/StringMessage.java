@@ -1,4 +1,4 @@
-package TBC;
+package TBC.Messages;
 
 import io.netty.buffer.ByteBuf;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;

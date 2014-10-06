@@ -1,5 +1,6 @@
 package TBC;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -10,7 +11,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.IExtendedEntityProperties;
 
-public class PlayerXPWorldSavedData
+public class PlayerXPWorldSavedData implements Serializable
 {
 	public int QuestProgress;
 

@@ -142,9 +142,7 @@ public class StatsGui extends GuiInventory
     		if(item instanceof HenchmanItem)
     		{
 				HenchmanItem h = (HenchmanItem)item;
-				EntityLiving renderEntity = (EntityLiving) EntityList.createEntityByName(h.henchmanType, mc.theWorld);
-				renderEntity.getEntityData().setInteger("henchmanIndex", this.mc.thePlayer.inventory.getHotbarSize());
-				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(renderEntity, h.henchmanName);
+				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(0, h.henchmanType, h.henchmanName);
 				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(itemStack)/(float)h.getMaxDamage())));
 				NBTTagCompound itemData = itemStack.getTagCompound();
 				if(itemData != null && itemData.hasKey("HenchMP"))
@@ -160,8 +158,8 @@ public class StatsGui extends GuiInventory
 
     	if(player == null)
     	{
-    		player = CombatEntity.GetCombatEntity(Minecraft.getMinecraft().thePlayer, 1);
-    		xpData = LevelingEngine.Instance.GetXpDataForPlayer((EntityPlayer)player.innerEntity);
+    		player = CombatEntity.GetCombatEntity(Minecraft.getMinecraft().thePlayer);
+    		xpData = LevelingEngine.Instance.GetXpDataForPlayer(Minecraft.getMinecraft().thePlayer);
     	}
 
     	this.fontRendererObj.drawString(xpData.PlayerLevel + "", 102, 9, 2);
@@ -355,9 +353,7 @@ public class StatsGui extends GuiInventory
 			if(actualPlayer.inventory.mainInventory[i] != null && actualPlayer.inventory.mainInventory[i].getItem() instanceof HenchmanItem)
 			{
 				HenchmanItem h = (HenchmanItem)actualPlayer.inventory.mainInventory[i].getItem();
-				EntityLiving renderEntity = (EntityLiving) EntityList.createEntityByName(h.henchmanType, actualPlayer.worldObj);
-				renderEntity.getEntityData().setInteger("henchmanIndex", i);
-				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(renderEntity, h.henchmanName);
+				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(i, h.henchmanType, h.henchmanName);
 				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(actualPlayer.inventory.mainInventory[i])/(float)h.getMaxDamage())));
 				if(henchmanEntity.currentHp < 1)
 				{

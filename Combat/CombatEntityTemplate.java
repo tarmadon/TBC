@@ -1,12 +1,13 @@
 package TBC.Combat;
 
+import java.io.Serializable;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 
 import TBC.Pair;
 import TBC.Combat.Abilities.ICombatAbility;
 
-public class CombatEntityTemplate
+public class CombatEntityTemplate implements Serializable
 {
 	public String name;
 

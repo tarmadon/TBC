@@ -1,6 +1,7 @@
 package TBC;
 
 import TBC.Combat.Abilities.RemoveItemAbility;
+import TBC.Messages.StringMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

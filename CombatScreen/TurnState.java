@@ -13,7 +13,8 @@ public class TurnState
 	public static final int DisplayingAttack = 3;
 	public static final int DisplayingEndOfTurn = 4;
 	public static final int EndOfCombat = 5;
-
+	public static final int Waiting = 6;
+	
 	private Minecraft mc;
 
 	public TurnState(Minecraft mc)
@@ -27,7 +28,7 @@ public class TurnState
 	public ArrayList<CombatEntity> targetEntities;
 	public ICombatAbility ability;
 
-	public TurnState nextState;
+	public int nextState;
 	public ArrayList<String> messages;
 
 	public void SetState(int phase, CombatEntity activeEntity, ICombatAbility ability, CombatEntity targetEntity)
@@ -44,16 +45,6 @@ public class TurnState
 		this.activeEntity = activeEntity;
 		this.ability = ability;
 		this.targetEntities = targetEntities;
-	}
-
-	public void SetDisplayMessageState(ArrayList<String> messages, TurnState nextState)
-	{
-		this.phase = TurnState.DisplayingMessage;
-		this.nextState = nextState;
-		this.phaseStartTime = this.mc.getSystemTime();
-		this.activeEntity = null;
-		this.targetEntities = null;
-		this.messages = messages;
 	}
 
 	public long GetElapsedTime()

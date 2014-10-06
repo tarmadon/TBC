@@ -1,5 +1,6 @@
 package TBC.Combat.TriggeredEffects;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
 import TBC.Pair;
@@ -9,7 +10,7 @@ import TBC.Combat.IStatusChange;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Effects.IDamageEffect;
 
-public interface ITriggeredEffect
+public interface ITriggeredEffect extends Serializable
 {
 	int OnDamage(CombatEngine engine, CombatEntity attacker, CombatEntity defender, IDamageEffect source, int damage, Boolean effectFromAttacker);
 	boolean EndOfTurn(CombatEngine engine, CombatEntity entity);

@@ -1,6 +1,8 @@
 package TBC.Combat.Effects;
 
-public interface IDamageEffect
+import java.io.Serializable;
+
+public interface IDamageEffect extends Serializable
 {
 	int GetDamageType();
 }

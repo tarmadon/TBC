@@ -93,14 +93,17 @@ public class LevelingEngine
 		}
 	}
 
-	public void GainXP(CombatEntity leveledPlayer, int gainedXp, int gainedAp, ArrayList<String> endOfCombatMessageQueue)
+	public Pair<Boolean, Boolean> GainXP(CombatEntity leveledPlayer, int gainedXp, int gainedAp, ArrayList<String> endOfCombatMessageQueue)
 	{
-		if(!(leveledPlayer.innerEntity instanceof EntityPlayer))
+		if(!(leveledPlayer.entityType == null))
 		{
-			return;
+			return new Pair<Boolean, Boolean>(false, false);
 		}
 
-		PlayerXPWorldSavedData data = this.GetSavedPlayerData((EntityPlayer)leveledPlayer.innerEntity);
+		boolean gainedLevel = false;
+		boolean gainedSkill = false;
+		EntityPlayer player = (EntityPlayer)Minecraft.getMinecraft().theWorld.getEntityByID(leveledPlayer.id);
+		PlayerXPWorldSavedData data = this.GetSavedPlayerData(player);
 		SimpleEntry<Boolean, Integer> returnedXp = this.CheckGainedLevel(leveledPlayer, data.PlayerLevel, data.PlayerXp + gainedXp, endOfCombatMessageQueue);
 		SimpleEntry<Boolean, Integer> returnedAp = this.CheckGainedSkillLevel(leveledPlayer, data.SwordSkillLevel, data.PlayerAp + gainedAp, endOfCombatMessageQueue);
 		data.PlayerXp = returnedXp.getValue();
@@ -116,7 +119,7 @@ public class LevelingEngine
 			data.PlayerMAttack = playerBaseStats.mAttack;
 			data.PlayerMDefense = playerBaseStats.mDefense;
 			data.PlayerSpeed = playerBaseStats.speed;
-			endOfCombatMessageQueue.add(String.format("Level up! %s is now level: %s", leveledPlayer.name, data.PlayerLevel));
+			gainedLevel = true;
 		}
 
 		if(returnedAp.getKey())
@@ -135,10 +138,11 @@ public class LevelingEngine
 			}
 
 			data.PlayerAbilities = playerAbilities;
-			endOfCombatMessageQueue.add(String.format("Skill Level up! %s is now skill level: %s", leveledPlayer.name, data.SwordSkillLevel));
+			gainedSkill = true;
 		}
 
-		SavePlayerData((EntityPlayer)leveledPlayer.innerEntity, data);
+		SavePlayerData(player, data);
+		return new Pair<Boolean, Boolean>(gainedLevel, gainedSkill);
 	}
 
 	public PlayerXPWorldSavedData GetXpDataForPlayer(EntityPlayer entityPlayer)
