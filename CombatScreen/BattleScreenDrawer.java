@@ -346,7 +346,7 @@ public class BattleScreenDrawer
 
 	public void DrawCombatEntity(TurnState turnState, HashMap<CombatEntity, Pair<Integer, Integer>> positionLookup, CombatEntity entity, boolean isAlly, int xPos, int yPos, int rotation)
 	{
-		if(turnState.phase == TurnState.DisplayingAttack)
+		if(turnState.phase == TurnState.DisplayingAttack && turnState.ability != null)
 		{
 			if(turnState.activeEntity == entity)
 			{

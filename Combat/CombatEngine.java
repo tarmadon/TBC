@@ -96,12 +96,12 @@ public class CombatEngine
 		}
 	}
 
-	public Boolean CanEscape()
+	public Boolean CanEscape(ArrayList<CombatEntity> toEscape)
 	{
-		int allySpeed = this.GetAverageSpeed(this.allies);
+		int allySpeed = this.GetAverageSpeed(toEscape);
 		int enemySpeed = this.GetAverageSpeed(this.enemies);
 
-		int chanceToRun = 50 + 5 * (allySpeed - enemySpeed);
+		int chanceToRun = 75 + 2 * (allySpeed - enemySpeed);
 
 		if(rng.nextInt(101) < chanceToRun)
 		{
@@ -111,6 +111,16 @@ public class CombatEngine
 		return false;
 	}
 
+	public void RemoveEntities(ArrayList<CombatEntity> toRemove)
+	{
+		this.allies.removeAll(toRemove);
+		this.enemies.removeAll(toRemove);
+		for(CombatEntity e : toRemove)
+		{
+			this.turnTimings.remove(e);
+		}
+	}
+	
 	public Pair<ICombatAbility, ArrayList<CombatEntity>> Attack(CombatEntity attacker, ArrayList<String> messages)
 	{
 		ICombatAbility abilityToUse = this.ChooseAbilityForEnemy(attacker);

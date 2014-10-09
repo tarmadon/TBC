@@ -81,7 +81,11 @@ public class TBCMod
 	@SubscribeEvent(receiveCanceled = false)
 	public void onEnteringChunk(EntityEvent.EnteringChunk buildingEntity)
 	{
-		MainModInstance.syncPlayerData(buildingEntity);
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+		{
+			MainModInstance.syncPlayerData(buildingEntity);
+		}
+		
 		EnemyLabelModInstance.onEntityAddedToChunk(buildingEntity);
 	}
 
@@ -99,7 +103,6 @@ public class TBCMod
 	}
 
 	@SubscribeEvent(receiveCanceled = true)
-	@SideOnly(Side.CLIENT)
 	public void onLivingAttacked(LivingAttackEvent evt)
 	{
 		MainModInstance.onLivingAttacked(evt);

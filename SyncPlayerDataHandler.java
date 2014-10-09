@@ -28,34 +28,20 @@ public class SyncPlayerDataHandler implements IMessageHandler<NBTTagCompoundMess
 	@Override
 	public NBTTagCompoundMessage onMessage(NBTTagCompoundMessage message, MessageContext ctx) 
 	{
-		if(ctx.side == Side.SERVER)
+		EntityPlayerMP playerEntity = (EntityPlayerMP)ctx.getServerHandler().playerEntity;
+		if(message.tag != null)
 		{
-			EntityPlayerMP playerEntity = (EntityPlayerMP)ctx.getServerHandler().playerEntity;
-			if(message.tag != null)
-			{
-				NBTTagCompound tag = playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
-				MergeTagCompound(message.tag, tag);
-				playerEntity.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
-			}
-
-			NBTTagCompoundMessage replyMessage = new NBTTagCompoundMessage();
-			replyMessage.tag = playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
-			return replyMessage;
-		}
-		else if(message.tag != null)
-		{
-			EntityPlayer playerEntity = Minecraft.getMinecraft().thePlayer;
-			NBTTagCompound c = message.tag;
 			NBTTagCompound tag = playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
-			MergeTagCompound(c, tag);
+			MergeTagCompound(message.tag, tag);
 			playerEntity.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
-			MainMod.playerDataInit = true;
 		}
-		
-		return null;
+
+		NBTTagCompoundMessage replyMessage = new NBTTagCompoundMessage();
+		replyMessage.tag = playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+		return replyMessage;
 	}
 	
-	private void MergeTagCompound(NBTTagCompound newTag, NBTTagCompound existingTag)
+	public static void MergeTagCompound(NBTTagCompound newTag, NBTTagCompound existingTag)
 	{
 		if(newTag.hasKey("TBCPlayerMP"))
 		{

@@ -84,9 +84,11 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
+import cpw.mods.fml.common.registry.EntityRegistry;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.common.registry.LanguageRegistry;
 import cpw.mods.fml.relauncher.Side;
+import cpw.mods.fml.relauncher.SideOnly;
 
 public class MainMod
 {
@@ -150,6 +152,8 @@ public class MainMod
 		CombatEntityLookup.Instance.Initialize(enemyConfigFile, this.levelScaling);
 		CombatEntitySpawnLookup.Instance.Initialize(spawnConfigFile, this.levelScaling);
 		ItemReplacementLookup.Instance.SetupItems();
+
+		CombatEntitySpawnLookup.Instance.LogUnknownEntities();
 	}
 
 	private File loadFileFromJar(String fileName)
@@ -177,27 +181,38 @@ public class MainMod
 		setHealthHandler.registerMessage(SetEntityHealthHandler.class, StringMessage.class, 0, Side.SERVER);
 		syncPlayerDataHandler = new SimpleNetworkWrapper("TBCPlayerData");
 		syncPlayerDataHandler.registerMessage(SyncPlayerDataHandler.class, NBTTagCompoundMessage.class, 0, Side.SERVER);
-		syncPlayerDataHandler.registerMessage(SyncPlayerDataHandler.class, NBTTagCompoundMessage.class, 0, Side.CLIENT);
 		removeItemHandler = new SimpleNetworkWrapper("TBCRemoveItem");
 		removeItemHandler.registerMessage(RemoveItemHandler.class, StringMessage.class, 0, Side.SERVER);
 		openGuiHandler = new SimpleNetworkWrapper("TBCOpenGui");
-		openGuiHandler.registerMessage(OpenGuiHandler.class, StringMessage.class, 0, Side.CLIENT);
 		
 		combatStartedHandler = new SimpleNetworkWrapper("TBCCombatStart");
-		combatStartedHandler.registerMessage(StartCombatHandler.class, CombatStartedMessage.class, 0, Side.CLIENT);
 		playerControlHandler = new SimpleNetworkWrapper("TBCPlayerTurn");
-		playerControlHandler.registerMessage(PlayerControlHandler.class, CombatPlayerControlMessage.class, 0, Side.CLIENT);
 		playerCommandHandler = new SimpleNetworkWrapper("TBCCombatCommand");
 		playerCommandHandler.registerMessage(PlayerCommandHandler.class, CombatCommandMessage.class, 0, Side.SERVER);
 		syncCombatDataHandler = new SimpleNetworkWrapper("TBCCombatSync");
-		syncCombatDataHandler.registerMessage(SyncCombatDataHandler.class, CombatSyncDataMessage.class, 0, Side.CLIENT);
 		combatEndedHandler = new SimpleNetworkWrapper("TBCCombatEnd");
+				
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+		{
+			loadClient(evt);
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public void loadClient(FMLInitializationEvent evt)
+	{
+		syncPlayerDataHandler.registerMessage(SyncPlayerDataHandlerClient.class, NBTTagCompoundMessage.class, 0, Side.CLIENT);
+		openGuiHandler.registerMessage(OpenGuiHandler.class, StringMessage.class, 0, Side.CLIENT);
+		combatStartedHandler.registerMessage(StartCombatHandler.class, CombatStartedMessage.class, 0, Side.CLIENT);
+		playerControlHandler.registerMessage(PlayerControlHandler.class, CombatPlayerControlMessage.class, 0, Side.CLIENT);
+		syncCombatDataHandler.registerMessage(SyncCombatDataHandler.class, CombatSyncDataMessage.class, 0, Side.CLIENT);
 		combatEndedHandler.registerMessage(EndCombatHandler.class, CombatEndedMessage.class, 0, Side.CLIENT);
 		
 		openTBCGui = new KeyBinding("Open Character Screen", Keyboard.KEY_TAB, "TBC Keys");
 		ClientRegistry.registerKeyBinding(openTBCGui);
 	}
-
+	
+	@SideOnly(Side.CLIENT)
 	public void syncPlayerData(EntityEvent.EnteringChunk buildingEntity)
 	{
 		if(buildingEntity.oldChunkX != 0 || buildingEntity.oldChunkZ != 0)
@@ -211,11 +226,11 @@ public class MainMod
 			if(!playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG).hasKey("playerLevel"))
 			{
 				syncPlayerDataHandler.sendToServer(new StringMessage());
-				CombatEntitySpawnLookup.Instance.LogUnknownEntities(playerEntity.worldObj);
 			}
 		}
 	}
 
+	@SideOnly(Side.CLIENT)
 	public void renderHUD(RenderGameOverlayEvent.Text evt)
 	{
 		Minecraft mc = Minecraft.getMinecraft();
@@ -280,6 +295,7 @@ public class MainMod
 		}
 	}
 
+	@SideOnly(Side.CLIENT)
 	private void SyncTagToServer(EntityPlayer playerEntity)
 	{
 		NBTTagCompoundMessage message = new NBTTagCompoundMessage();
@@ -530,6 +546,8 @@ public class MainMod
 
 	public void SetupStaticItems()
 	{
+		EntityRegistry.registerModEntity(BattleEntity.class, "Battle", 1, TBCMod.instance, 40, 1, false);
+		
 		Item smallHealthPotion = createItemCopy(Items.potionitem, "smallPotion", "Restores 20 HP");
 		ItemStack smallHealthPotionStack = new ItemStack(smallHealthPotion);
 		GameRegistry.addShapelessRecipe(smallHealthPotionStack, Items.apple);
@@ -622,6 +640,7 @@ public class MainMod
 		LanguageRegistry.addName(lightningRod, "Lightning Rod");
 	}
 
+	@SideOnly(Side.CLIENT)
 	public void keyDown(InputEvent.KeyInputEvent evt)
 	{
 		if(!openTBCGui.getIsKeyPressed())
@@ -644,6 +663,7 @@ public class MainMod
 		}
 	}
 
+	@SideOnly(Side.CLIENT)
 	public void onItemTooltip(ItemTooltipEvent evt) 
 	{
 		int attackIndex = -1;

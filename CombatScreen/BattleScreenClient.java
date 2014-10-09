@@ -199,22 +199,8 @@ public class BattleScreenClient extends GuiScreen
 
 	public void AttemptEscape()
 	{
-		if(this.combatEngine.CanEscape())
-		{
-			ArrayList<String> messages = new ArrayList<String>();
-			messages.add("Successfully escaped!");
-			TurnState next = new TurnState(mc);
-			next.SetState(TurnState.EndOfCombat, null, null, (CombatEntity)null);
-			//this.turnState.SetDisplayMessageState(messages, next);
-		}
-		else
-		{
-			ArrayList<String> messages = new ArrayList<String>();
-			messages.add("Failed to escape!");
-			TurnState next = new TurnState(mc);
-			next.SetState(TurnState.DisplayingEndOfTurn, null, null, (CombatEntity)null);
-			//this.turnState.SetDisplayMessageState(messages, next);
-		}
+		this.abilityToUse = null;
+		this.TargetCombatEntity(new ArrayList<CombatEntity>());
 	}
 
 	public void TargetCombatEntity(CombatEntity target)
@@ -263,7 +249,11 @@ public class BattleScreenClient extends GuiScreen
 	{
 		boolean wonBattle = this.combatEnded.Won;
 		ArrayList<String> messageQueue = new ArrayList<String>();
-		if(wonBattle)
+		if(this.combatEnded.XPGained == null && wonBattle)
+		{
+			messageQueue.add("Successfully escaped!");
+		}
+		else if(wonBattle)
 		{
 			messageQueue.add("You are victorious!");
 			messageQueue.add(String.format("Gained %s XP, %s AP", this.combatEnded.XPGained, this.combatEnded.APGained));
@@ -369,7 +359,7 @@ public class BattleScreenClient extends GuiScreen
 
         this.skipMessage = false;
         this.display.drawForeground(this.turnState, this.enemies, this.allies);
-        if(this.turnState.phase == TurnState.DisplayingAttack && this.turnState.GetElapsedTime() > this.turnState.ability.GetAnimationTime())
+        if(this.turnState.phase == TurnState.DisplayingAttack && (this.turnState.ability == null || this.turnState.GetElapsedTime() > this.turnState.ability.GetAnimationTime()))
         {
         	this.EndAttack();
         }

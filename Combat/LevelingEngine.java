@@ -12,6 +12,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import TBC.Pair;
 import TBC.PlayerXPWorldSavedData;
@@ -93,7 +94,7 @@ public class LevelingEngine
 		}
 	}
 
-	public Pair<Boolean, Boolean> GainXP(CombatEntity leveledPlayer, int gainedXp, int gainedAp, ArrayList<String> endOfCombatMessageQueue)
+	public Pair<Boolean, Boolean> GainXP(World world, CombatEntity leveledPlayer, int gainedXp, int gainedAp, ArrayList<String> endOfCombatMessageQueue)
 	{
 		if(!(leveledPlayer.entityType == null))
 		{
@@ -102,7 +103,7 @@ public class LevelingEngine
 
 		boolean gainedLevel = false;
 		boolean gainedSkill = false;
-		EntityPlayer player = (EntityPlayer)Minecraft.getMinecraft().theWorld.getEntityByID(leveledPlayer.id);
+		EntityPlayer player = (EntityPlayer)world.getEntityByID(leveledPlayer.id);
 		PlayerXPWorldSavedData data = this.GetSavedPlayerData(player);
 		SimpleEntry<Boolean, Integer> returnedXp = this.CheckGainedLevel(leveledPlayer, data.PlayerLevel, data.PlayerXp + gainedXp, endOfCombatMessageQueue);
 		SimpleEntry<Boolean, Integer> returnedAp = this.CheckGainedSkillLevel(leveledPlayer, data.SwordSkillLevel, data.PlayerAp + gainedAp, endOfCombatMessageQueue);

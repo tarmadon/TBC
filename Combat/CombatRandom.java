@@ -3,22 +3,14 @@ package TBC.Combat;
 import java.util.Random;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.server.MinecraftServer;
 
 public class CombatRandom
 {
-	private static Random random;
+	private static Random random = new Random();
 
 	public static Random GetRandom()
 	{
-		if(Minecraft.getMinecraft().thePlayer != null)
-		{
-			random = Minecraft.getMinecraft().thePlayer.getRNG();
-		}
-		else
-		{
-			random = new Random();
-		}
-
 		return random;
 	}
 }

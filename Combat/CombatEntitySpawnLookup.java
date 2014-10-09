@@ -205,7 +205,7 @@ public class CombatEntitySpawnLookup
 		return new CombatEntity(entityId, entityName, template);
 	}
 
-	public void LogUnknownEntities(World world)
+	public void LogUnknownEntities()
 	{
 		for(Object key : EntityList.classToStringMapping.keySet())
 		{
@@ -214,15 +214,13 @@ public class CombatEntitySpawnLookup
 			{
 				if(EntityLiving.class.isAssignableFrom(asClass) && !asClass.isInterface() && !Modifier.isAbstract(asClass.getModifiers()))
 				{
-					Entity en = EntityList.createEntityByName(EntityList.classToStringMapping.get(key).toString(), world);
-					String entityName = EntityList.getEntityString(en);
+					String entityName = (String)EntityList.classToStringMapping.get(asClass);
 					if(!lookup.containsKey(entityName))
 					{
 						PrintWriter writer = null;
 						try
 						{
 							writer = new PrintWriter(new FileWriter(this.file, true));
-							CombatEntity de = GetCombatEntity(-1, (EntityLiving)en);
 							StringBuilder sb = new StringBuilder();
 							sb.append(entityName + ",");
 							sb.append(entityName + ",,,All,1,100,,");

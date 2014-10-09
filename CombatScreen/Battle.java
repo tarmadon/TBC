@@ -14,6 +14,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.lwjgl.opengl.GL11;
 
@@ -23,6 +24,7 @@ import cpw.mods.fml.common.SidedProxy;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 
+import TBC.BattleEntity;
 import TBC.HenchmanItem;
 import TBC.MainMod;
 import TBC.Pair;
@@ -71,6 +73,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityCreeper;
 import net.minecraft.entity.monster.EntitySkeleton;
 import net.minecraft.entity.monster.EntityWitch;
+import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
@@ -89,6 +92,7 @@ import net.minecraft.world.chunk.Chunk;
 public class Battle
 {
 	public long id;
+	private BattleEntity entityInWorld;
 	private ArrayList<GenericGuiButton> buttonsToSwap;
 
 	private WorldServer world;
@@ -100,26 +104,29 @@ public class Battle
 	private ArrayList<CombatEntity> allies = new ArrayList<CombatEntity>();
 	private CombatEngine combatEngine;
 	private LevelingEngine levelingEngine;
-	private ArrayList<Entity> removedEntities = new ArrayList<Entity>();
+	private HashMap<CombatEntity, Pair<Double, Entity>> removedEntities = new HashMap<CombatEntity, Pair<Double, Entity>>();
 	
+	private DamageSource damageSource;
 	private CombatEntity entityForCurrentTurn;
 	private boolean mainLoopRunning = false;
 	
 	public Battle(long id, EntityPlayerMP player, EntityLivingBase enemyEntity, boolean isAttacker)
 	{
+		this.id = id;
 		this.world = (WorldServer)player.worldObj;
-		this.world.loadedEntityList.remove(player);
-		player.isDead = true;
-		
-		this.world.loadedEntityList.remove(enemyEntity);
-		removedEntities.add(enemyEntity);
-		enemyEntity.isDead = true;
-		
+		this.damageSource = DamageSource.causePlayerDamage(player);
+		this.damageSource.damageType = "bypass";
 		CombatEntity playerEntity = CombatEntity.GetCombatEntity(player);
+		CombatEntity enemyCombatEntity = CombatEntity.GetCombatEntity(enemyEntity.getEntityId(), enemyEntity, 1);
+
+		entityInWorld = new BattleEntity(world, id);
+		entityInWorld.setLocationAndAngles(player.posX, player.posY + 1.25, player.posZ, 0, 0);
+		this.world.spawnEntityInWorld(entityInWorld);
+		
 		players.put(playerEntity, player);
 		owners.put(playerEntity, player);
+		enemies.add(enemyCombatEntity);
 		
-		this.id = id;
 		int currentEntityId = -1;
 		allies.add(playerEntity);
 
@@ -164,8 +171,6 @@ public class Battle
 		List additionalEnemies = enemyEntity.worldObj.getEntitiesWithinAABBExcludingEntity(enemyEntity, boundingBox);
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		map.put(EntityList.getEntityString(enemyEntity), 1);
-		enemies.add(CombatEntity.GetCombatEntity(enemyEntity.getEntityId(), enemyEntity, 1));
-
 		if(additionalEnemies != null && additionalEnemies.size() > 0)
 		{
 			for(int i = 0; i<additionalEnemies.size(); i++)
@@ -188,8 +193,11 @@ public class Battle
 							numOfThisType += existingOfThisType;
 						}
 
-						enemies.add(CombatEntity.GetCombatEntity(additionalLivingEnemy.getEntityId(), additionalLivingEnemy, numOfThisType));
+						CombatEntity additionalEnemyCombatEntity = CombatEntity.GetCombatEntity(additionalLivingEnemy.getEntityId(), additionalLivingEnemy, numOfThisType); 
+						enemies.add(additionalEnemyCombatEntity);
 						map.put(EntityList.getEntityString(additionalLivingEnemy), numOfThisType);
+						RemoveEntityFromGame(additionalEnemyCombatEntity, additionalLivingEnemy);
+						
 						if(enemies.size() >= 5)
 						{
 							break;
@@ -199,73 +207,89 @@ public class Battle
 			}
 		}
 
+		RemoveEntityFromGame(playerEntity, player);
+		RemoveEntityFromGame(enemyCombatEntity, enemyEntity);
 		this.combatEngine = new CombatEngine(this.allies, this.enemies, isAttacker, currentEntityId);
 		this.levelingEngine = new LevelingEngine();
 	}
 
+	private void AddEntityBackToGame(Pair<Double, Entity> toReenable) 
+	{
+		Entity entityToReenable = toReenable.item2;
+		entityToReenable.isDead = false;
+		this.world.loadedEntityList.add(entityToReenable);
+	}
+	
+	private void RemoveEntityFromGame(CombatEntity entity, EntityLivingBase additionalLivingEnemy) 
+	{
+		this.world.loadedEntityList.remove(additionalLivingEnemy);
+		removedEntities.put(entity, new Pair<Double, Entity>(additionalLivingEnemy.posY, additionalLivingEnemy));
+		additionalLivingEnemy.isDead = true;
+	}
+
 	public Battle(long id, EntityPlayerMP player, ArrayList<Pair<String, String>> setEnemies, boolean isAttacker)
 	{
-		player.worldObj.removeEntity(player);
-		
-		CombatEntity playerEntity = CombatEntity.GetCombatEntity(player);
-		players.put(playerEntity, player);
-		
-		this.id = id;
-		int currentEntityId = -1;
-		allies.add(playerEntity);
-		
+//		player.worldObj.removeEntity(player);
+//		
+//		CombatEntity playerEntity = CombatEntity.GetCombatEntity(player);
+//		players.put(playerEntity, player);
+//		
 //		this.id = id;
-//		this.player = player;
-//		int currentEntityId = 0;
-//		allies.add(CombatEntity.GetCombatEntity(player));
-
-		int foundHenchmen = 0;
-		for(int i = 0; i< player.inventory.getHotbarSize(); i++)
-		{
-			if(player.inventory.mainInventory[i] != null && player.inventory.mainInventory[i].getItem() instanceof HenchmanItem)
-			{
-				ItemStack henchmanStack = player.inventory.mainInventory[i];
-				HenchmanItem h = (HenchmanItem)henchmanStack.getItem();
-				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(currentEntityId++, h.henchmanType, h.henchmanName);
-				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(henchmanStack)/(float)h.getMaxDamage())));
-				if(henchmanEntity.currentHp < 1)
-				{
-					continue;
-				}
-
-				NBTTagCompound itemData = henchmanStack.getTagCompound();
-				if(itemData != null && itemData.hasKey("HenchMP"))
-				{
-					henchmanEntity.currentMp = itemData.getInteger("HenchMP");
-				}
-
-				allies.add(henchmanEntity);
-				foundHenchmen++;
-				henchmanLookup.put(henchmanEntity, henchmanStack);
-				if(foundHenchmen >= 3)
-				{
-					break;
-				}
-			}
-		}
-
-		HashMap<String, Integer> map = new HashMap<String, Integer>();
-		for(int i = 0; i< setEnemies.size(); i++)
-		{
-			Integer existingOfThisType = map.get(setEnemies.get(i).item2);
-			int numOfThisType = 1;
-			if(existingOfThisType != null)
-			{
-				numOfThisType += existingOfThisType;
-			}
-
-			enemies.add(CombatEntity.GetCombatEntity(currentEntityId++, setEnemies.get(i).item1, setEnemies.get(i).item2, 1));
-			map.put(setEnemies.get(i).item2, numOfThisType);
-		}
-
-		this.combatEngine = new CombatEngine(this.allies, this.enemies, isAttacker, currentEntityId);
-		this.levelingEngine = new LevelingEngine();
-		MainMod.combatStartedHandler.sendTo(this.GetBattleStartMessage(), player);
+//		int currentEntityId = -1;
+//		allies.add(playerEntity);
+//		
+////		this.id = id;
+////		this.player = player;
+////		int currentEntityId = 0;
+////		allies.add(CombatEntity.GetCombatEntity(player));
+//
+//		int foundHenchmen = 0;
+//		for(int i = 0; i< player.inventory.getHotbarSize(); i++)
+//		{
+//			if(player.inventory.mainInventory[i] != null && player.inventory.mainInventory[i].getItem() instanceof HenchmanItem)
+//			{
+//				ItemStack henchmanStack = player.inventory.mainInventory[i];
+//				HenchmanItem h = (HenchmanItem)henchmanStack.getItem();
+//				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(currentEntityId++, h.henchmanType, h.henchmanName);
+//				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(henchmanStack)/(float)h.getMaxDamage())));
+//				if(henchmanEntity.currentHp < 1)
+//				{
+//					continue;
+//				}
+//
+//				NBTTagCompound itemData = henchmanStack.getTagCompound();
+//				if(itemData != null && itemData.hasKey("HenchMP"))
+//				{
+//					henchmanEntity.currentMp = itemData.getInteger("HenchMP");
+//				}
+//
+//				allies.add(henchmanEntity);
+//				foundHenchmen++;
+//				henchmanLookup.put(henchmanEntity, henchmanStack);
+//				if(foundHenchmen >= 3)
+//				{
+//					break;
+//				}
+//			}
+//		}
+//
+//		HashMap<String, Integer> map = new HashMap<String, Integer>();
+//		for(int i = 0; i< setEnemies.size(); i++)
+//		{
+//			Integer existingOfThisType = map.get(setEnemies.get(i).item2);
+//			int numOfThisType = 1;
+//			if(existingOfThisType != null)
+//			{
+//				numOfThisType += existingOfThisType;
+//			}
+//
+//			enemies.add(CombatEntity.GetCombatEntity(currentEntityId++, setEnemies.get(i).item1, setEnemies.get(i).item2, 1));
+//			map.put(setEnemies.get(i).item2, numOfThisType);
+//		}
+//
+//		this.combatEngine = new CombatEngine(this.allies, this.enemies, isAttacker, currentEntityId);
+//		this.levelingEngine = new LevelingEngine();
+//		MainMod.combatStartedHandler.sendTo(this.GetBattleStartMessage(), player);
 	}
 
 	public void HandlePlayerCommand(CombatCommandMessage message)
@@ -290,6 +314,12 @@ public class Battle
 				user = allies.get(i);
 				break;
 			}
+		}
+
+		if(abilityToUse == null)
+		{
+			AttemptEscape(user);
+			return;
 		}
 		
 		ArrayList<CombatEntity> targets = new ArrayList<CombatEntity>();
@@ -338,23 +368,65 @@ public class Battle
 		return m;
 	}
 
-	public void AttemptEscape()
+	public void AttemptEscape(CombatEntity user)
 	{
-		if(this.combatEngine.CanEscape())
+		ArrayList<CombatEntity> allEscapees = new ArrayList<CombatEntity>();
+		EntityPlayerMP owner = this.owners.get(user);
+		Set<CombatEntity> allEntities = this.owners.keySet();
+		for(CombatEntity e : allEntities)
 		{
-			ArrayList<String> messages = new ArrayList<String>();
+			if(this.owners.get(e) == owner)
+			{
+				allEscapees.add(e);
+			}
+		}
+		
+		ArrayList<String> messages = new ArrayList<String>();
+		if(this.combatEngine.CanEscape(allEscapees))
+		{
 			messages.add("Successfully escaped!");
-//			TurnState next = new TurnState(Minecraft.getMinecraft());
-//			next.SetState(TurnState.EndOfCombat, null, null, (CombatEntity)null);
-//			this.turnState.SetDisplayMessageState(messages, next);
+			for(CombatEntity escaped : allEscapees)
+			{
+				SyncCombatEntityToMinecraftWorld(escaped, DamageSource.causePlayerDamage(owner), true);
+			}
+			
+			Object[] removedEntities = this.removedEntities.keySet().toArray();
+			for(Object obj : removedEntities)
+			{
+				CombatEntity e = (CombatEntity)obj;
+				if(allEscapees.contains(e))
+				{
+					Pair<Double, Entity> toReenable = this.removedEntities.get(e);
+					AddEntityBackToGame(toReenable);
+					this.removedEntities.remove(e);
+				}
+			}
+			
+			this.allies.removeAll(allEscapees);
+			this.enemies.removeAll(allEscapees);
+			for(CombatEntity e : allEscapees)
+			{
+				this.players.remove(e);
+			}
+			
+			this.combatEngine.RemoveEntities(allEscapees);
+			
+			CombatEndedMessage m = new CombatEndedMessage();
+			m.APGained = null;
+			m.XPGained = null;
+			m.GainedLevel = false;
+			m.GainedSkill = false;
+			m.Won = true;
+			MainMod.combatEndedHandler.sendTo(m, owner);
 		}
 		else
 		{
-			ArrayList<String> messages = new ArrayList<String>();
 			messages.add("Failed to escape!");
-//			TurnState next = new TurnState(Minecraft.getMinecraft());
-//			next.SetState(TurnState.DisplayingEndOfTurn, null, null, (CombatEntity)null);
-//			this.turnState.SetDisplayMessageState(messages, next);
+		}
+		
+		if(!this.EndTurn(null, new ArrayList<CombatEntity>(), messages))
+		{
+			this.DoNextTurn();
 		}
 	}
 
@@ -459,20 +531,14 @@ public class Battle
 
 	private void EndCombat()
 	{
-		Object[] playerValues = this.players.values().toArray();
-		List toLoad = new ArrayList();
-		for(int i = 0; i<playerValues.length; i++)
-		{
-			EntityPlayerMP toReenable = (EntityPlayerMP)playerValues[i];
-			toReenable.isDead = false;
-			this.world.loadedEntityList.add(toReenable);
-		}
+		entityInWorld.isDead = true;
 		
-		for(int i = 0; i<this.removedEntities.size(); i++)
+		List toLoad = new ArrayList();
+		Object[] allRemoved = this.removedEntities.values().toArray();
+		for(int i = 0; i<allRemoved.length; i++)
 		{
-			Entity toReenable = this.removedEntities.get(i);
-			toReenable.isDead = false;
-			this.world.loadedEntityList.add(toReenable);
+			Pair<Double, Entity> toReenable = (Pair<Double, Entity>)allRemoved[i];
+			AddEntityBackToGame(toReenable);
 		}
 		
 		boolean wonBattle = false;
@@ -490,7 +556,7 @@ public class Battle
 			SimpleEntry<Integer, Integer> rewards = this.combatEngine.GetXpAndApReward(this.enemies);
 			for(CombatEntity e : this.allies)
 			{
-				Pair<Boolean, Boolean> gainedLevelOrSkill = LevelingEngine.Instance.GainXP(e, rewards.getKey(), rewards.getValue(), messageQueue);
+				Pair<Boolean, Boolean> gainedLevelOrSkill = LevelingEngine.Instance.GainXP(this.world, e, rewards.getKey(), rewards.getValue(), messageQueue);
 				if(this.players.containsKey(e))
 				{
 					EntityPlayerMP player = this.players.get(e);
@@ -509,104 +575,107 @@ public class Battle
 		{
 			CombatEndedMessage m = new CombatEndedMessage();
 			m.Won = false;
+			Object[] playerValues = this.players.values().toArray();
 			for(int i = 0; i<playerValues.length; i++)
 			{
 				MainMod.combatEndedHandler.sendTo(m, (EntityPlayerMP)playerValues[i]);
 			}
 		}
 		
-		EntityPlayerMP firstPlayer = (EntityPlayerMP)playerValues[0];
-		DamageSource source = DamageSource.causePlayerDamage(firstPlayer);
-		source.damageType = "bypass";
 		for(int i = 0; i<this.allies.size(); i++)
 		{
-			CombatEntity entity = this.allies.get(i);
-			if(entity.currentHp < 1)
-			{
-				if(this.players.containsKey(entity))
-				{
-					EntityPlayerMP otherPlayer = this.players.get(entity);
-					if(!wonBattle)
-					{
-						otherPlayer.setHealth(0);
-					}
-					else
-					{
-						otherPlayer.setHealth(1);
-						MainMod.setHealthHandler.sendToServer(new StringMessage("1"));
-						NBTTagCompound tag = otherPlayer.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
-						tag.setInteger("TBCPlayerMP", entity.currentMp);
-						otherPlayer.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
-						// Sync tag to client?
-					}
-				}
-				else if(henchmanLookup.containsKey(entity))
-				{
-					ItemStack h = henchmanLookup.get(entity);
-					int currentMp = entity.currentMp;
-					h.setItemDamage(101);
-					NBTTagCompound existingTag = h.getTagCompound();
-					if(existingTag == null)
-					{
-						existingTag = new NBTTagCompound();
-					}
-
-					existingTag.setInteger("HenchMP", currentMp);
-					h.setTagCompound(existingTag);
-					// Sync tag to client?
-				}
-			}
-			if(this.players.containsKey(entity))
-			{
-				EntityPlayerMP otherPlayer = this.players.get(entity);
-				float maxHealth = otherPlayer.getMaxHealth();
-				float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
-				int healthToSet = Math.round((currentHpPercentage * maxHealth) + .499999F);
-				otherPlayer.setHealth(healthToSet);
-
-				NBTTagCompound tag = otherPlayer.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
-				tag.setInteger("TBCPlayerMP", entity.currentMp);
-				otherPlayer.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
-				// Sync tag to client?
-			}
-			else if(henchmanLookup.containsKey(entity))
-			{
-				float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
-				int healthToSet = Math.round((currentHpPercentage * 100) + .499999F);
-				ItemStack h = this.henchmanLookup.get(entity);
-				
-				h.setItemDamage(100 - healthToSet);
-				NBTTagCompound existingTag = h.getTagCompound();
-				if(existingTag == null)
-				{
-					existingTag = new NBTTagCompound();
-				}
-
-				existingTag.setInteger("HenchMP", entity.currentMp);
-				h.setTagCompound(existingTag);
-				// Sync tag to client?
-			}
+			SyncCombatEntityToMinecraftWorld(this.allies.get(i), this.damageSource, wonBattle);
 		}
 
 		for(int i = 0; i<this.enemies.size(); i++)
 		{
-			CombatEntity entity = this.enemies.get(i);
+			SyncCombatEntityToMinecraftWorld(this.enemies.get(i), this.damageSource, !wonBattle);
+		}
+
+		MainMod.ServerBattles.remove(this.id);
+	}
+
+
+	private void SyncCombatEntityToMinecraftWorld(CombatEntity entity, DamageSource damageSource, boolean wonBattle)
+	{
+		if(this.players.containsKey(entity))
+		{
+			EntityPlayerMP player = this.players.get(entity);
 			if(entity.currentHp < 1)
 			{
-				if(entity.id > 0)
+				if(!wonBattle)
 				{
-					EntityLivingBase deadEntity = (EntityLivingBase) world.getEntityByID(entity.id);
-					
-					// In the case of creepers, the entity is already dead.
-					if(deadEntity != null)
+					player.setHealth(0);
+				}
+				else
+				{
+					player.setHealth(1);
+					NBTTagCompound tag = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+					tag.setInteger("TBCPlayerMP", entity.currentMp);
+					player.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
+				}
+			}
+			else
+			{
+				float maxHealth = player.getMaxHealth();
+				float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
+				//int healthToSet = Math.round((currentHpPercentage * maxHealth) + .499999F);
+				player.setHealth(currentHpPercentage * maxHealth);
+
+				NBTTagCompound tag = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+				tag.setInteger("TBCPlayerMP", entity.currentMp);
+				player.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
+			}
+			
+			NBTTagCompoundMessage playerData = new NBTTagCompoundMessage();
+			playerData.tag = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+			MainMod.syncPlayerDataHandler.sendTo(playerData, player);
+		}
+		else if(henchmanLookup.containsKey(entity))
+		{
+			float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
+			int healthToSet;
+			if(currentHpPercentage > 0)
+			{
+				healthToSet = Math.round((currentHpPercentage * 100) + .499999F);
+			}
+			else
+			{
+				healthToSet = -1;
+			}
+			
+			ItemStack h = this.henchmanLookup.get(entity);
+			
+			h.setItemDamage(100 - healthToSet);
+			NBTTagCompound existingTag = h.getTagCompound();
+			if(existingTag == null)
+			{
+				existingTag = new NBTTagCompound();
+			}
+
+			existingTag.setInteger("HenchMP", entity.currentMp);
+			h.setTagCompound(existingTag);
+			// Sync tag to client?
+		}
+		else
+		{
+			if(entity.id > 0)
+			{
+				EntityLivingBase deadEntity = (EntityLivingBase) world.getEntityByID(entity.id);
+				if(deadEntity != null)
+				{
+					if(entity.currentHp < 1)
 					{
-						deadEntity.setLastAttacker(firstPlayer);
-						deadEntity.attackEntityFrom(source, 1000);
+						deadEntity.setLastAttacker(damageSource.getSourceOfDamage());
+						deadEntity.attackEntityFrom(damageSource, 1000);
+					}
+					else
+					{
+						float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
+						deadEntity.setHealth(currentHpPercentage * deadEntity.getMaxHealth());
 					}
 				}
 			}
 		}
-
-		MainMod.ServerBattles.remove(this.id);
 	}
 }
