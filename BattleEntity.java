@@ -1,22 +1,9 @@
 package TBC;
 
-import java.util.Random;
-
-import org.apache.logging.log4j.Level;
-
-import cpw.mods.fml.common.FMLLog;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 
 public class BattleEntity extends Entity
@@ -64,7 +51,10 @@ public class BattleEntity extends Entity
     {
 		if(!this.worldObj.isRemote)
 		{
-			FMLLog.log(Level.ERROR, "Battle clicked: " + this.combatId);
+			if(MainMod.ServerBattles.containsKey(this.combatId))
+			{
+				MainMod.ServerBattles.get(this.combatId).AddPlayerToCombat((EntityPlayerMP)p_130002_1_);
+			}
 		}
 		
 		return true;

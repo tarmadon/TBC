@@ -53,45 +53,15 @@ public class CombatEngine
 
 		for(int i = 0; i<this.allies.size(); i++)
 		{
-			List constantEffects = new ArrayList();
 			CombatEntity ally = this.allies.get(i);
-			for(Pair<Integer, ICombatAbility> ability : ally.GetAbilities())
-			{
-				if(ability.item2 instanceof ConstantAbility)
-				{
-					constantEffects.addAll(((ConstantAbility)ability.item2).GetConstantEffects());
-				}
-			}
-
-			if(ally.entityType == null)
-			{
-				ArrayList<ICombatAbility> equipmentAbilities = EquippedItemManager.Instance.GetAbilitiesFromEquippedItems(Minecraft.getMinecraft(), (EntityPlayer)Minecraft.getMinecraft().theWorld.getEntityByID(ally.id));
-				for(ICombatAbility equipmentAbility : equipmentAbilities)
-				{
-					if(equipmentAbility instanceof ConstantAbility)
-					{
-						constantEffects.addAll(((ConstantAbility)equipmentAbility).GetConstantEffects());
-					}
-				}
-			}
-
-			ally.ongoingEffects = constantEffects;
+			ally.ongoingEffects = GetStartingConstantEffects(ally);
 			turnTimings.put(this.allies.get(i), allyStartTime);
 		}
 
 		for(int i = 0; i<this.enemies.size(); i++)
 		{
-			List constantEffects = new ArrayList();
 			CombatEntity enemy = this.enemies.get(i);
-			for(Pair<Integer, ICombatAbility> ability : enemy.GetAbilities())
-			{
-				if(ability.item2 instanceof ConstantAbility)
-				{
-					constantEffects.addAll(((ConstantAbility)ability.item2).GetConstantEffects());
-				}
-			}
-
-			enemy.ongoingEffects = constantEffects;
+			enemy.ongoingEffects = GetStartingConstantEffects(enemy);
 			turnTimings.put(this.enemies.get(i), enemyStartTime);
 		}
 	}
@@ -345,7 +315,7 @@ public class CombatEngine
 		return ability;
 	}
 
-	public void AddEntityToCombat(CombatEntity user, CombatEntity toAdd)
+	public boolean AddEntityToCombat(CombatEntity user, CombatEntity toAdd)
 	{
 		boolean isAlly = false;
 		for(CombatEntity ally : allies)
@@ -356,17 +326,29 @@ public class CombatEngine
 			}
 		}
 
-		if(isAlly && this.allies.size() < maxEntities)
+		if((isAlly && this.allies.size() >= maxEntities) || (!isAlly && this.enemies.size() > maxEntities))
+		{
+			return false;
+		}
+		
+		if(isAlly)
 		{
 			this.allies.add(toAdd);
 		}
-		else if(this.enemies.size() < maxEntities)
+		else
 		{
 			this.enemies.add(toAdd);
 		}
 
+		toAdd.ongoingEffects = GetStartingConstantEffects(toAdd);
+		this.turnTimings.put(toAdd, 0F);
+		return true;
+	}
+
+	private List GetStartingConstantEffects(CombatEntity ally)
+	{
 		List constantEffects = new ArrayList();
-		for(Pair<Integer, ICombatAbility> ability : toAdd.GetAbilities())
+		for(Pair<Integer, ICombatAbility> ability : ally.GetAbilities())
 		{
 			if(ability.item2 instanceof ConstantAbility)
 			{
@@ -374,10 +356,21 @@ public class CombatEngine
 			}
 		}
 
-		toAdd.ongoingEffects = constantEffects;
-		this.turnTimings.put(toAdd, 0F);
+		if(ally.entityType == null)
+		{
+			ArrayList<ICombatAbility> equipmentAbilities = EquippedItemManager.Instance.GetAbilitiesFromEquippedItems(Minecraft.getMinecraft(), (EntityPlayer)Minecraft.getMinecraft().theWorld.getEntityByID(ally.id));
+			for(ICombatAbility equipmentAbility : equipmentAbilities)
+			{
+				if(equipmentAbility instanceof ConstantAbility)
+				{
+					constantEffects.addAll(((ConstantAbility)equipmentAbility).GetConstantEffects());
+				}
+			}
+		}
+		
+		return constantEffects;
 	}
-
+	
 	private ArrayList<CombatEntity> ChooseTargetForEnemy(CombatEntity enemy, ICombatAbility ability)
 	{
 		ArrayList<ArrayList<CombatEntity>> targets = GetValidTargets(enemy, ability.GetAbilityTarget());

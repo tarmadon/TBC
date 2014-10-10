@@ -1,93 +1,38 @@
 package TBC.CombatScreen;
 
-import java.io.ByteArrayOutputStream;
-import java.io.Console;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
-
-import org.lwjgl.opengl.GL11;
-
-import sun.font.LayoutPathImpl.EndType;
-
-import cpw.mods.fml.common.SidedProxy;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 
 import TBC.BattleEntity;
 import TBC.HenchmanItem;
 import TBC.MainMod;
 import TBC.Pair;
-import TBC.Triplet;
 import TBC.Combat.CombatEngine;
 import TBC.Combat.CombatEntity;
 import TBC.Combat.CombatEntityLookup;
-import TBC.Combat.CombatEntityTemplate;
-import TBC.Combat.CombatRandom;
-import TBC.Combat.EquippedItemManager;
 import TBC.Combat.LevelingEngine;
-import TBC.Combat.Abilities.AbilityTargetType;
-import TBC.Combat.Abilities.DefaultAttackAbility;
-import TBC.Combat.Abilities.DelayedAbility;
 import TBC.Combat.Abilities.ICombatAbility;
-import TBC.Combat.TriggeredEffects.ITriggeredEffect;
 import TBC.Messages.CombatCommandMessage;
 import TBC.Messages.CombatEndedMessage;
 import TBC.Messages.CombatPlayerControlMessage;
 import TBC.Messages.CombatStartedMessage;
 import TBC.Messages.CombatSyncDataMessage;
 import TBC.Messages.NBTTagCompoundMessage;
-import TBC.Messages.StringMessage;
-
-import net.minecraft.block.Block;
-import net.minecraft.block.material.MapColor;
-import net.minecraft.block.material.Material;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.audio.PositionedSoundRecord;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.multiplayer.ServerAddress;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.RenderBlocks;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.culling.Frustrum;
-import net.minecraft.client.renderer.entity.Render;
-import net.minecraft.client.renderer.entity.RenderLiving;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.monster.EntityCreeper;
-import net.minecraft.entity.monster.EntitySkeleton;
-import net.minecraft.entity.monster.EntityWitch;
-import net.minecraft.entity.passive.EntityChicken;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.Container;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.Vec3;
-import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraft.world.chunk.Chunk;
 
 public class Battle
 {
@@ -213,20 +158,6 @@ public class Battle
 		this.levelingEngine = new LevelingEngine();
 	}
 
-	private void AddEntityBackToGame(Pair<Double, Entity> toReenable) 
-	{
-		Entity entityToReenable = toReenable.item2;
-		entityToReenable.isDead = false;
-		this.world.loadedEntityList.add(entityToReenable);
-	}
-	
-	private void RemoveEntityFromGame(CombatEntity entity, EntityLivingBase additionalLivingEnemy) 
-	{
-		this.world.loadedEntityList.remove(additionalLivingEnemy);
-		removedEntities.put(entity, new Pair<Double, Entity>(additionalLivingEnemy.posY, additionalLivingEnemy));
-		additionalLivingEnemy.isDead = true;
-	}
-
 	public Battle(long id, EntityPlayerMP player, ArrayList<Pair<String, String>> setEnemies, boolean isAttacker)
 	{
 //		player.worldObj.removeEntity(player);
@@ -291,143 +222,36 @@ public class Battle
 //		this.levelingEngine = new LevelingEngine();
 //		MainMod.combatStartedHandler.sendTo(this.GetBattleStartMessage(), player);
 	}
-
-	public void HandlePlayerCommand(CombatCommandMessage message)
+	
+	public boolean AddPlayerToCombat(EntityPlayerMP player)
 	{
-		if(mainLoopRunning)
+		CombatEntity playerEntity = CombatEntity.GetCombatEntity(player);
+		CombatEntity otherPlayerEntity = (CombatEntity)this.players.keySet().toArray()[0];
+		if(!this.combatEngine.AddEntityToCombat(otherPlayerEntity, playerEntity))
 		{
-			return;
+			return false;
 		}
-		else
-		{
-			HandlePlayerCommand(message.User, message.AbilityToUse, message.Targets);
-		}
+		
+		players.put(playerEntity, player);
+		owners.put(playerEntity, player);
+		RemoveEntityFromGame(playerEntity, player);
+		MainMod.combatStartedHandler.sendTo(GetBattleStartMessage(), player);
+		
+		return true;
 	}
 	
-	public void HandlePlayerCommand(Integer userId, ICombatAbility abilityToUse, ArrayList<Integer> targetIds)
+	private void AddEntityBackToGame(Pair<Double, Entity> toReenable) 
 	{
-		CombatEntity user = null;
-		for(int i = 0; i < allies.size(); i++)
-		{
-			if(allies.get(i).id == userId)
-			{
-				user = allies.get(i);
-				break;
-			}
-		}
-
-		if(abilityToUse == null)
-		{
-			AttemptEscape(user);
-			return;
-		}
-		
-		ArrayList<CombatEntity> targets = new ArrayList<CombatEntity>();
-		for(int i = 0; i < targetIds.size(); i++)
-		{
-			boolean found = false;
-			for(int j = 0; j < enemies.size(); j++)
-			{
-				if(enemies.get(j).id == targetIds.get(i))
-				{
-					targets.add(enemies.get(j));
-					found = true;
-					break;
-				}
-			}
-			
-			if(found)
-			{
-				break;
-			}
-			
-			for(int j = 0; j < allies.size(); j++)
-			{
-				if(allies.get(j).id == targetIds.get(i))
-				{
-					targets.add(allies.get(j));
-					break;
-				}
-			}
-		}
-		
-		ArrayList<String> messages = new ArrayList<String>();
-		this.combatEngine.Attack(user, targets, abilityToUse, messages);
-		if(!this.EndTurn(abilityToUse, targets, messages))
-		{
-			this.DoNextTurn();
-		}
+		Entity entityToReenable = toReenable.item2;
+		entityToReenable.isDead = false;
+		this.world.loadedEntityList.add(entityToReenable);
 	}
 	
-	public CombatStartedMessage GetBattleStartMessage()
+	private void RemoveEntityFromGame(CombatEntity entity, EntityLivingBase additionalLivingEnemy) 
 	{
-		CombatStartedMessage m = new CombatStartedMessage();
-		m.Allies = this.allies;
-		m.Enemies = this.enemies;
-		m.CombatId = this.id;
-		return m;
-	}
-
-	public void AttemptEscape(CombatEntity user)
-	{
-		ArrayList<CombatEntity> allEscapees = new ArrayList<CombatEntity>();
-		EntityPlayerMP owner = this.owners.get(user);
-		Set<CombatEntity> allEntities = this.owners.keySet();
-		for(CombatEntity e : allEntities)
-		{
-			if(this.owners.get(e) == owner)
-			{
-				allEscapees.add(e);
-			}
-		}
-		
-		ArrayList<String> messages = new ArrayList<String>();
-		if(this.combatEngine.CanEscape(allEscapees))
-		{
-			messages.add("Successfully escaped!");
-			for(CombatEntity escaped : allEscapees)
-			{
-				SyncCombatEntityToMinecraftWorld(escaped, DamageSource.causePlayerDamage(owner), true);
-			}
-			
-			Object[] removedEntities = this.removedEntities.keySet().toArray();
-			for(Object obj : removedEntities)
-			{
-				CombatEntity e = (CombatEntity)obj;
-				if(allEscapees.contains(e))
-				{
-					Pair<Double, Entity> toReenable = this.removedEntities.get(e);
-					AddEntityBackToGame(toReenable);
-					this.removedEntities.remove(e);
-				}
-			}
-			
-			this.allies.removeAll(allEscapees);
-			this.enemies.removeAll(allEscapees);
-			for(CombatEntity e : allEscapees)
-			{
-				this.players.remove(e);
-			}
-			
-			this.combatEngine.RemoveEntities(allEscapees);
-			
-			CombatEndedMessage m = new CombatEndedMessage();
-			m.APGained = null;
-			m.XPGained = null;
-			m.GainedLevel = false;
-			m.GainedSkill = false;
-			m.Won = true;
-			MainMod.combatEndedHandler.sendTo(m, owner);
-		}
-		else
-		{
-			messages.add("Failed to escape!");
-		}
-		
-		if(!this.EndTurn(null, new ArrayList<CombatEntity>(), messages))
-		{
-			this.DoNextTurn();
-		}
+		this.world.loadedEntityList.remove(additionalLivingEnemy);
+		removedEntities.put(entity, new Pair<Double, Entity>(additionalLivingEnemy.posY, additionalLivingEnemy));
+		additionalLivingEnemy.isDead = true;
 	}
 
 	public void DoNextTurn()
@@ -523,10 +347,67 @@ public class Battle
 		
 		return false;
 	}
-	
-	private void ClearAttack()
+
+	public void AttemptEscape(CombatEntity user)
 	{
-		this.entityForCurrentTurn = null;
+		ArrayList<CombatEntity> allEscapees = new ArrayList<CombatEntity>();
+		EntityPlayerMP owner = this.owners.get(user);
+		Set<CombatEntity> allEntities = this.owners.keySet();
+		for(CombatEntity e : allEntities)
+		{
+			if(this.owners.get(e) == owner)
+			{
+				allEscapees.add(e);
+			}
+		}
+		
+		ArrayList<String> messages = new ArrayList<String>();
+		if(this.combatEngine.CanEscape(allEscapees))
+		{
+			messages.add("Successfully escaped!");
+			for(CombatEntity escaped : allEscapees)
+			{
+				SyncCombatEntityToMinecraftWorld(escaped, DamageSource.causePlayerDamage(owner), true);
+			}
+			
+			Object[] removedEntities = this.removedEntities.keySet().toArray();
+			for(Object obj : removedEntities)
+			{
+				CombatEntity e = (CombatEntity)obj;
+				if(allEscapees.contains(e))
+				{
+					Pair<Double, Entity> toReenable = this.removedEntities.get(e);
+					AddEntityBackToGame(toReenable);
+					this.removedEntities.remove(e);
+				}
+			}
+			
+			this.allies.removeAll(allEscapees);
+			this.enemies.removeAll(allEscapees);
+			for(CombatEntity e : allEscapees)
+			{
+				this.players.remove(e);
+			}
+			
+			this.combatEngine.RemoveEntities(allEscapees);
+			
+			CombatEndedMessage m = new CombatEndedMessage();
+			m.APGained = null;
+			m.XPGained = null;
+			m.GainedLevel = false;
+			m.GainedSkill = false;
+			m.Won = true;
+			MainMod.combatEndedHandler.sendTo(m, owner);
+		}
+		else
+		{
+			messages.add("Failed to escape!");
+		}
+		
+		if(!this.EndTurn(null, new ArrayList<CombatEntity>(), messages))
+		{
+			this.DoNextTurn();
+		}
 	}
 
 	private void EndCombat()
@@ -594,7 +475,6 @@ public class Battle
 
 		MainMod.ServerBattles.remove(this.id);
 	}
-
 
 	private void SyncCombatEntityToMinecraftWorld(CombatEntity entity, DamageSource damageSource, boolean wonBattle)
 	{
@@ -678,4 +558,86 @@ public class Battle
 			}
 		}
 	}
+	
+	public void HandlePlayerCommand(CombatCommandMessage message)
+	{
+		if(mainLoopRunning)
+		{
+			return;
+		}
+		else
+		{
+			HandlePlayerCommand(message.User, message.AbilityToUse, message.Targets);
+		}
+	}
+	
+	public void HandlePlayerCommand(Integer userId, ICombatAbility abilityToUse, ArrayList<Integer> targetIds)
+	{
+		CombatEntity user = null;
+		for(int i = 0; i < allies.size(); i++)
+		{
+			if(allies.get(i).id == userId)
+			{
+				user = allies.get(i);
+				break;
+			}
+		}
+
+		if(abilityToUse == null)
+		{
+			AttemptEscape(user);
+			return;
+		}
+		
+		ArrayList<CombatEntity> targets = new ArrayList<CombatEntity>();
+		for(int i = 0; i < targetIds.size(); i++)
+		{
+			boolean found = false;
+			for(int j = 0; j < enemies.size(); j++)
+			{
+				if(enemies.get(j).id == targetIds.get(i))
+				{
+					targets.add(enemies.get(j));
+					found = true;
+					break;
+				}
+			}
+			
+			if(found)
+			{
+				break;
+			}
+			
+			for(int j = 0; j < allies.size(); j++)
+			{
+				if(allies.get(j).id == targetIds.get(i))
+				{
+					targets.add(allies.get(j));
+					break;
+				}
+			}
+		}
+		
+		ArrayList<String> messages = new ArrayList<String>();
+		this.combatEngine.Attack(user, targets, abilityToUse, messages);
+		if(!this.EndTurn(abilityToUse, targets, messages))
+		{
+			this.DoNextTurn();
+		}
+	}
+	
+	public CombatStartedMessage GetBattleStartMessage()
+	{
+		CombatStartedMessage m = new CombatStartedMessage();
+		m.Allies = this.allies;
+		m.Enemies = this.enemies;
+		m.CombatId = this.id;
+		return m;
+	}
+	
+	private void ClearAttack()
+	{
+		this.entityForCurrentTurn = null;
+	}
+
 }
