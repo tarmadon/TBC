@@ -2,12 +2,12 @@ package TBC.Messages;
 
 import java.io.Serializable;
 
-import TBC.PlayerXPWorldSavedData;
+import TBC.CombatEntitySaveData;
 import net.minecraft.nbt.NBTTagCompound;
 
 public class CombatEndedMessage extends ObjectMessage implements Serializable
 {
-	public PlayerXPWorldSavedData PlayerData;
+	public CombatEntitySaveData PlayerData;
 	public boolean Won;
 	public boolean GainedLevel;
 	public boolean GainedSkill;

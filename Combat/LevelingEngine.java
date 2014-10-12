@@ -15,7 +15,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import TBC.Pair;
-import TBC.PlayerXPWorldSavedData;
+import TBC.CombatEntitySaveData;
 import TBC.Combat.Abilities.AbilityLookup;
 import TBC.Combat.Abilities.ICombatAbility;
 
@@ -104,28 +104,28 @@ public class LevelingEngine
 		boolean gainedLevel = false;
 		boolean gainedSkill = false;
 		EntityPlayer player = (EntityPlayer)world.getEntityByID(leveledPlayer.id);
-		PlayerXPWorldSavedData data = this.GetSavedPlayerData(player);
-		SimpleEntry<Boolean, Integer> returnedXp = this.CheckGainedLevel(leveledPlayer, data.PlayerLevel, data.PlayerXp + gainedXp, endOfCombatMessageQueue);
-		SimpleEntry<Boolean, Integer> returnedAp = this.CheckGainedSkillLevel(leveledPlayer, data.SwordSkillLevel, data.PlayerAp + gainedAp, endOfCombatMessageQueue);
-		data.PlayerXp = returnedXp.getValue();
-		data.PlayerAp = returnedAp.getValue();
+		CombatEntitySaveData data = this.GetSavedPlayerData(player);
+		SimpleEntry<Boolean, Integer> returnedXp = this.CheckGainedLevel(leveledPlayer, data.Level, data.CurrentXp + gainedXp, endOfCombatMessageQueue);
+		SimpleEntry<Boolean, Integer> returnedAp = this.CheckGainedSkillLevel(leveledPlayer, data.ThiefClassLevel, data.CurrentAp + gainedAp, endOfCombatMessageQueue);
+		data.CurrentXp = returnedXp.getValue();
+		data.CurrentAp = returnedAp.getValue();
 		if(returnedXp.getKey())
 		{
-			data.PlayerLevel++;
+			data.Level++;
 			CombatEntityTemplate playerBaseStats = leveledPlayer.GetBaseStats();
-			data.PlayerMaxHP = playerBaseStats.maxHp;
-			data.PlayerMaxMP = playerBaseStats.maxMp;
-			data.PlayerAttack = playerBaseStats.attack;
-			data.PlayerDefense = playerBaseStats.defense;
-			data.PlayerMAttack = playerBaseStats.mAttack;
-			data.PlayerMDefense = playerBaseStats.mDefense;
-			data.PlayerSpeed = playerBaseStats.speed;
+			data.MaxHP = playerBaseStats.maxHp;
+			data.MaxMP = playerBaseStats.maxMp;
+			data.Attack = playerBaseStats.attack;
+			data.Defense = playerBaseStats.defense;
+			data.MAttack = playerBaseStats.mAttack;
+			data.MDefense = playerBaseStats.mDefense;
+			data.Speed = playerBaseStats.speed;
 			gainedLevel = true;
 		}
 
 		if(returnedAp.getKey())
 		{
-			data.SwordSkillLevel++;
+			data.ThiefClassLevel++;
 			ArrayList<String> playerAbilities = new ArrayList<String>();
 			for(Pair<Integer,ICombatAbility> a : leveledPlayer.GetAbilities())
 			{
@@ -138,7 +138,7 @@ public class LevelingEngine
 				playerAbilities.add(abilityName);
 			}
 
-			data.PlayerAbilities = playerAbilities;
+			data.Abilities = playerAbilities;
 			gainedSkill = true;
 		}
 
@@ -146,31 +146,31 @@ public class LevelingEngine
 		return new Pair<Boolean, Boolean>(gainedLevel, gainedSkill);
 	}
 
-	public PlayerXPWorldSavedData GetXpDataForPlayer(EntityPlayer entityPlayer)
+	public CombatEntitySaveData GetXpDataForPlayer(EntityPlayer entityPlayer)
 	{
 		return this.GetSavedPlayerData(entityPlayer);
 	}
 
-	public void SaveXpDataForPlayer(EntityPlayer entityPlayer, PlayerXPWorldSavedData saveData)
+	public void SaveXpDataForPlayer(EntityPlayer entityPlayer, CombatEntitySaveData saveData)
 	{
 		this.SavePlayerData(entityPlayer, saveData);
 	}
 
 	public CombatEntityTemplate GetPlayerEntityFromSavedData(EntityPlayer entityPlayer, String name)
 	{
-		PlayerXPWorldSavedData data = this.GetSavedPlayerData(entityPlayer);
+		CombatEntitySaveData data = this.GetSavedPlayerData(entityPlayer);
 		CombatEntityTemplate player = new CombatEntityTemplate();
-		player.maxHp = data.PlayerMaxHP;
-		player.maxMp = data.PlayerMaxMP;
-		player.attack = data.PlayerAttack;
-		player.defense = data.PlayerDefense;
-		player.mAttack = data.PlayerMAttack;
-		player.mDefense = data.PlayerMDefense;
-		player.speed = data.PlayerSpeed;
+		player.maxHp = data.MaxHP;
+		player.maxMp = data.MaxMP;
+		player.attack = data.Attack;
+		player.defense = data.Defense;
+		player.mAttack = data.MAttack;
+		player.mDefense = data.MDefense;
+		player.speed = data.Speed;
 		player.name = name;
 
 		ArrayList<Pair<Integer, ICombatAbility>> abilities = new ArrayList<Pair<Integer,ICombatAbility>>();
-		for(String s : data.PlayerAbilities)
+		for(String s : data.Abilities)
 		{
 			ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(s);
 			if(ability != null)
@@ -185,16 +185,16 @@ public class LevelingEngine
 		return player;
 	}
 
-	private void SavePlayerData(EntityPlayer player, PlayerXPWorldSavedData data)
+	private void SavePlayerData(EntityPlayer player, CombatEntitySaveData data)
 	{
 		NBTTagCompound persistedTag = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
 		data.saveNBTData(persistedTag);
 		player.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, persistedTag);
 	}
 
-	private PlayerXPWorldSavedData GetSavedPlayerData(EntityPlayer player)
+	private CombatEntitySaveData GetSavedPlayerData(EntityPlayer player)
 	{
-		PlayerXPWorldSavedData data = new PlayerXPWorldSavedData();
+		CombatEntitySaveData data = new CombatEntitySaveData();
 		data.loadNBTData(player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
 		return data;
 	}

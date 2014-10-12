@@ -43,84 +43,20 @@ public class SyncPlayerDataHandler implements IMessageHandler<NBTTagCompoundMess
 	
 	public static void MergeTagCompound(NBTTagCompound newTag, NBTTagCompound existingTag)
 	{
-		if(newTag.hasKey("TBCPlayerMP"))
+		for(Object keyAsObject : newTag.func_150296_c())
 		{
-			existingTag.setInteger("TBCPlayerMP", newTag.getInteger("TBCPlayerMP"));
-		}
-
-		if(newTag.hasKey("playerXP"))
-		{
-			existingTag.setInteger("playerXP", newTag.getInteger("playerXP"));
-		}
-
-		if(newTag.hasKey("playerAP"))
-		{
-			existingTag.setInteger("playerAP", newTag.getInteger("playerAP"));
-		}
-
-		if(newTag.hasKey("playerLevel"))
-		{
-			existingTag.setInteger("playerLevel", newTag.getInteger("playerLevel"));
-		}
-
-		if(newTag.hasKey("bowSkillLevel"))
-		{
-			existingTag.setInteger("bowSkillLevel", newTag.getInteger("bowSkillLevel"));
-		}
-
-		if(newTag.hasKey("swordSkillLevel"))
-		{
-			existingTag.setInteger("swordSkillLevel", newTag.getInteger("swordSkillLevel"));
-		}
-
-		if(newTag.hasKey("axeSkillLevel"))
-		{
-			existingTag.setInteger("axeSkillLevel", newTag.getInteger("axeSkillLevel"));
-		}
-
-		if(newTag.hasKey("playerMaxHP"))
-		{
-			existingTag.setInteger("playerMaxHP", newTag.getInteger("playerMaxHP"));
-		}
-
-		if(newTag.hasKey("playerMaxMP"))
-		{
-			existingTag.setInteger("playerMaxMP", newTag.getInteger("playerMaxMP"));
-		}
-
-		if(newTag.hasKey("playerAttack"))
-		{
-			existingTag.setInteger("playerAttack", newTag.getInteger("playerAttack"));
-		}
-
-		if(newTag.hasKey("playerDefense"))
-		{
-			existingTag.setInteger("playerDefense", newTag.getInteger("playerDefense"));
-		}
-
-		if(newTag.hasKey("playerMAttack"))
-		{
-			existingTag.setInteger("playerMAttack", newTag.getInteger("playerMAttack"));
-		}
-
-		if(newTag.hasKey("playerMDefense"))
-		{
-			existingTag.setInteger("playerMDefense", newTag.getInteger("playerMDefense"));
-		}
-
-		if(newTag.hasKey("playerSpeed"))
-		{
-			existingTag.setInteger("playerSpeed", newTag.getInteger("playerSpeed"));
-		}
-
-		if(newTag.hasKey("playerAbilities"))
-		{
-			existingTag.setString("playerAbilities", newTag.getString("playerAbilities"));
-		}
-
-		if(newTag.hasKey("questProgress"))
-		{
-			existingTag.setInteger("questProgress", newTag.getInteger("questProgress"));
+			String key = (String)keyAsObject;
+			if(key.startsWith("TBC"))
+			{
+				if(key.equals("TBCAbilities"))
+				{
+					existingTag.setString(key, newTag.getString(key));
+				}
+				else
+				{
+					existingTag.setInteger(key, newTag.getInteger(key));
+				}
+			}
 		}
 	}
 }

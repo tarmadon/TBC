@@ -6,7 +6,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 
 import TBC.Pair;
-import TBC.PlayerXPWorldSavedData;
+import TBC.CombatEntitySaveData;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Effects.StatChangeStatus;
 

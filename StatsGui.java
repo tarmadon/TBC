@@ -134,7 +134,7 @@ public class StatsGui extends GuiInventory
     protected void drawGuiContainerForegroundLayer(int par1, int par2)
     {
     	CombatEntity player = null;
-    	PlayerXPWorldSavedData xpData = null;
+    	CombatEntitySaveData xpData = null;
     	if(this.asStatContainer.CharSlot.getStack() != null)
     	{
     		ItemStack itemStack = this.asStatContainer.CharSlot.getStack();
@@ -142,7 +142,7 @@ public class StatsGui extends GuiInventory
     		if(item instanceof HenchmanItem)
     		{
 				HenchmanItem h = (HenchmanItem)item;
-				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(0, h.henchmanType, h.henchmanName);
+				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(9, h.henchmanType, h.henchmanName);
 				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(itemStack)/(float)h.getMaxDamage())));
 				NBTTagCompound itemData = itemStack.getTagCompound();
 				if(itemData != null && itemData.hasKey("HenchMP"))
@@ -150,8 +150,8 @@ public class StatsGui extends GuiInventory
 					henchmanEntity.currentMp = itemData.getInteger("HenchMP");
 				}
 
-    			xpData = new PlayerXPWorldSavedData();
-    			xpData.PlayerLevel = 1;
+    			xpData = new CombatEntitySaveData();
+    			xpData.Level = 1;
     			player = henchmanEntity;
     		}
     	}
@@ -162,7 +162,7 @@ public class StatsGui extends GuiInventory
     		xpData = LevelingEngine.Instance.GetXpDataForPlayer(Minecraft.getMinecraft().thePlayer);
     	}
 
-    	this.fontRendererObj.drawString(xpData.PlayerLevel + "", 102, 9, 2);
+    	this.fontRendererObj.drawString(xpData.Level + "", 102, 9, 2);
 
     	// Check to see if the user has changed, if it has return to stats page
     	ItemStack chosen = this.asStatContainer.CharSlot.getStack();
@@ -379,7 +379,7 @@ public class StatsGui extends GuiInventory
     	return partyMembers;
     }
 
-	private void drawStatus(CombatEntity player, PlayerXPWorldSavedData xpData)
+	private void drawStatus(CombatEntity player, CombatEntitySaveData xpData)
 	{
 		int leftLabelXPos = 8;
     	int leftValueXPos = 45;
@@ -401,10 +401,10 @@ public class StatsGui extends GuiInventory
     	this.fontRendererObj.drawString(player.currentMp + " / " + player.GetMaxMp(), leftValueXPos, secondLineYPos, 2);
 
     	this.fontRendererObj.drawString("XP:", rightLabelXPos, firstLineYPos, 2);
-    	this.fontRendererObj.drawString(xpData.PlayerXp + " / " + LevelingEngine.GetXpRequiredForLevel(xpData.PlayerLevel), rightValueXPos, firstLineYPos, 2);
+    	this.fontRendererObj.drawString(xpData.CurrentXp + " / " + LevelingEngine.GetXpRequiredForLevel(xpData.Level), rightValueXPos, firstLineYPos, 2);
 
     	this.fontRendererObj.drawString("AP:", rightLabelXPos, secondLineYPos, 2);
-    	this.fontRendererObj.drawString(xpData.PlayerAp + "", rightValueXPos, secondLineYPos, 2);
+    	this.fontRendererObj.drawString(xpData.CurrentAp + "", rightValueXPos, secondLineYPos, 2);
 
     	this.fontRendererObj.drawString("Att:", leftLabelXPos, thirdLineYPos, 2);
     	this.fontRendererObj.drawString(player.GetAttack() + "", leftValueXPos, thirdLineYPos, 2);

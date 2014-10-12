@@ -23,7 +23,7 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.registry.EntityRegistry;
 
 import TBC.Pair;
-import TBC.PlayerXPWorldSavedData;
+import TBC.CombatEntitySaveData;
 import TBC.Combat.Abilities.AbilityLookup;
 import TBC.Combat.Abilities.DefaultAttackAbility;
 import TBC.Combat.Abilities.ICombatAbility;

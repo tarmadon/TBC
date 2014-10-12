@@ -281,7 +281,7 @@ public class MainMod
 			this.lastAttackTime = currentTime;
 			setEnemies = new ArrayList<Pair<String,String>>();
 			questProgress = questProgress + 1;
-			PlayerXPWorldSavedData questData = LevelingEngine.Instance.GetXpDataForPlayer(mc.thePlayer);
+			CombatEntitySaveData questData = LevelingEngine.Instance.GetXpDataForPlayer(mc.thePlayer);
 			questData.QuestProgress = questProgress;
 			LevelingEngine.Instance.SaveXpDataForPlayer(mc.thePlayer, questData);
 			SyncTagToServer(mc.thePlayer);
@@ -447,7 +447,7 @@ public class MainMod
 				if(s != null && s.getItem() instanceof HenchmanItem)
 				{
 					HenchmanItem item = (HenchmanItem)s.getItem();
-					CombatEntity hench = CombatEntityLookup.Instance.GetCombatEntity(0, null, item.henchmanName);
+					CombatEntity hench = CombatEntityLookup.Instance.GetCombatEntity(0, item.henchmanType, item.henchmanName);
 					s.setItemDamage(0);
 					NBTTagCompound tag = s.getTagCompound();
 					if(tag == null)
