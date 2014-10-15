@@ -9,9 +9,15 @@ import TBC.Combat.IStatusChange;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Effects.IDamageEffect;
 import TBC.Combat.Effects.IEffectFactory;
+import TBC.Combat.Effects.IOneTimeEffect;
 
 public class BaseTriggeredEffect implements ITriggeredEffect, IEffectFactory
 {
+	public IOneTimeEffect[] OnAttack(CombatEngine engine, CombatEntity attacker, ArrayList<CombatEntity> targets, IOneTimeEffect[] attackEffects, ArrayList<String> messages)
+	{
+		return attackEffects;
+	}
+	
 	public int OnDamage(CombatEngine engine, CombatEntity attacker, CombatEntity defender, IDamageEffect source, int damage, Boolean effectFromAttacker)
 	{
 		return damage;

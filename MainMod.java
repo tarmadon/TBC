@@ -28,6 +28,7 @@ import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
+import net.minecraftforge.common.BiomeManager;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -58,11 +59,13 @@ import TBC.CombatScreen.PlayerCommandHandler;
 import TBC.CombatScreen.PlayerControlHandler;
 import TBC.CombatScreen.StartCombatHandler;
 import TBC.CombatScreen.SyncCombatDataHandler;
+import TBC.Menu.StatsGui;
 import TBC.Messages.CombatCommandMessage;
 import TBC.Messages.CombatEndedMessage;
 import TBC.Messages.CombatPlayerControlMessage;
 import TBC.Messages.CombatStartedMessage;
 import TBC.Messages.CombatSyncDataMessage;
+import TBC.Messages.ItemDataMessage;
 import TBC.Messages.NBTTagCompoundMessage;
 import TBC.Messages.StringMessage;
 import TBC.ZoneGeneration.ZoneChunkData;
@@ -172,7 +175,7 @@ public class MainMod
 	{
 		NetworkRegistry.INSTANCE.registerGuiHandler(TBCMod.instance, new TBCGuiHandler());
 		setItemDataHandler = new SimpleNetworkWrapper("TBCSetDur");
-		setItemDataHandler.registerMessage(SetItemDataHandler.class, StringMessage.class, 0, Side.SERVER);
+		setItemDataHandler.registerMessage(SetItemDataHandler.class, ItemDataMessage.class, 0, Side.SERVER);
 		setHealthHandler = new SimpleNetworkWrapper("TBCSetHealth");
 		setHealthHandler.registerMessage(SetEntityHealthHandler.class, StringMessage.class, 0, Side.SERVER);
 		syncPlayerDataHandler = new SimpleNetworkWrapper("TBCPlayerData");
@@ -458,8 +461,13 @@ public class MainMod
 					tag.setInteger("HenchMP", hench.GetMaxMp());
 					s.setTagCompound(tag);
 					
-					StringMessage itemDurMessage = new StringMessage();
-					itemDurMessage.Data = i + ",0," + hench.GetMaxMp();
+					ItemDataMessage itemDurMessage = new ItemDataMessage();
+					CombatEntitySaveData d = HenchmanItem.GetCombatEntitySaveData(s);
+					d.CurrentMp = hench.GetMaxMp();
+					HenchmanItem.SetCombatEntitySaveData(d, s);
+					itemDurMessage.Slot = i;
+					itemDurMessage.ItemDurability = 0;
+					itemDurMessage.tag = s.getTagCompound();
 					setItemDataHandler.sendTo(itemDurMessage, mpPlayer);
 				}
 			}

@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import TBC.Combat.CombatEntityTemplate;
+import TBC.Combat.Abilities.AbilityLookup;
+import TBC.Combat.Abilities.ICombatAbility;
+
 import net.minecraft.entity.Entity;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
@@ -15,6 +19,8 @@ public class CombatEntitySaveData implements Serializable
 {
 	public int QuestProgress;
 
+	public int IsInParty;
+	public int IsFrontRow;
 	public int CurrentMp;
 	public int CurrentXp;
 	public int CurrentAp;
@@ -31,10 +37,32 @@ public class CombatEntitySaveData implements Serializable
 	public int Speed;
 	public List<String> Abilities;
 
+	public CombatEntitySaveData()
+	{	
+	}
+	
+	public CombatEntitySaveData(CombatEntityTemplate data)
+	{
+		this.MaxHP = data.maxHp;
+		this.MaxMP = data.maxMp;
+		this.Attack = data.attack;
+		this.Defense = data.defense;
+		this.MAttack = data.mAttack;
+		this.MDefense = data.mDefense;
+		this.Speed = data.speed;
+
+		this.Abilities = new ArrayList<String>();
+		for(Pair<Integer, ICombatAbility> s : data.abilities)
+		{
+			this.Abilities.add(AbilityLookup.Instance.GetLookupNameForAbility(s.item2));
+		}
+	}
+	
 	public void loadNBTData(NBTTagCompound nbttagcompound)
 	{
 		QuestProgress = getIntOrDefault(nbttagcompound, "questProgress", 1);
-
+		IsInParty = getIntOrDefault(nbttagcompound, "TBCIsInParty", 0);
+		IsFrontRow = getIntOrDefault(nbttagcompound, "TBCIsFrontRow", 0);
 		CurrentMp = getIntOrDefault(nbttagcompound, "TBCCurrentMP", 0);
 		CurrentXp = getIntOrDefault(nbttagcompound, "TBCXP", 0);
 		CurrentAp = getIntOrDefault(nbttagcompound, "TBCAP", 0);
@@ -67,6 +95,8 @@ public class CombatEntitySaveData implements Serializable
 	{
 		nbttagcompound.setInteger("questProgress", QuestProgress);
 
+		nbttagcompound.setInteger("TBCIsInParty", IsInParty);
+		nbttagcompound.setInteger("TBCIsFrontRow", IsFrontRow);
 		nbttagcompound.setInteger("TBCCurrentMP", CurrentMp);
 		nbttagcompound.setInteger("TBCXP", CurrentXp);
 		nbttagcompound.setInteger("TBCAP", CurrentAp);

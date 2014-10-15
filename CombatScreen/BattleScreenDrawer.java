@@ -21,6 +21,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.util.IIcon;
@@ -330,17 +331,22 @@ public class BattleScreenDrawer
 		int totalAllyCount = allies.size();
 		for(int i = totalAllyCount - 1; i>=0; i--)
 		{
-			CombatEntity player = allies.get(totalAllyCount - (i + 1));
-			if(player.currentHp < 1)
+			CombatEntity entityToDraw = allies.get(totalAllyCount - (i + 1));
+			if(entityToDraw.currentHp < 1)
 			{
 				continue;
 			}
 
-			Pair<Integer, Integer> position = positionLookup.get(player);
+			Pair<Integer, Integer> position = positionLookup.get(entityToDraw);
 			int playerXPos = position.item1;
+			if(!entityToDraw.IsFrontLine())
+			{
+				playerXPos += 15;
+			}
+			
 			int playerYPos = position.item2;
 
-			DrawCombatEntity(turnState, positionLookup, player, true, playerXPos, playerYPos, -70);
+			DrawCombatEntity(turnState, positionLookup, entityToDraw, true, playerXPos, playerYPos, -70);
 		}
 	}
 
@@ -371,8 +377,8 @@ public class BattleScreenDrawer
 		int modelYPos = yPos;
 		if(found instanceof EntityPlayer)
 		{
-			yPos -= 30;
-			modelYPos -= 48;
+			yPos -= 20;
+			modelYPos -= 25;
 		}
 
 		drawCombatModel(found, xPos, modelYPos, entity, rotation);
@@ -469,11 +475,12 @@ public class BattleScreenDrawer
 	private void drawCombatModel(Entity worldEntity, int xPos, int yPos, CombatEntity entity, int rotation)
 	{
 		EntityLivingBase el = (EntityLivingBase)worldEntity;
-		if(!(worldEntity instanceof EntityPlayer))
+		if(worldEntity == null || !(worldEntity instanceof EntityPlayer || worldEntity instanceof EntitySlime))
 		{
 			try
 			{
-				el = (EntityLivingBase)worldEntity.getClass().getConstructor(new Class[] {World.class}).newInstance(new Object[] {worldEntity.worldObj});
+				el = (EntityLivingBase)EntityList.createEntityByName(entity.entityType, Minecraft.getMinecraft().theWorld);
+				//el = (EntityLivingBase)worldEntity.getClass().getConstructor(new Class[] {World.class}).newInstance(new Object[] {worldEntity.worldObj});
 			}
 			catch (Exception e)
 			{
@@ -490,7 +497,7 @@ public class BattleScreenDrawer
         GL11.glTranslatef(xPos + 40, yPos, 0);
         GL11.glRotatef(150, 1F, 0, 0);
         GL11.glRotatef(el.prevRenderYawOffset + rotation, 0, 1F, 0);
-        GL11.glScaled(20, 20, 20);
+        GL11.glScaled(15, 15, 15);
         el.prevSwingProgress = 0;
         el.swingProgress = 0;
         el.limbSwing = 0;
@@ -516,7 +523,8 @@ public class BattleScreenDrawer
 	private Pair<Integer, Integer> GetAllyPosition(int allyNumber, int totalAllies)
 	{
 		int allyBasePositionX = this.canvas.width - 100;
-		int allyBasePositionY = -(int)(allyNumber * ((this.canvas.height - this.cutoffLineHeight) /(totalAllies + 1))) + (this.canvas.height - this.cutoffLineHeight);
+		int offsetPerAlly = (this.canvas.height - this.cutoffLineHeight) /(totalAllies + 1);
+		int allyBasePositionY = -(int)((totalAllies - 1 - allyNumber) * offsetPerAlly) + (-10 + this.canvas.height - this.cutoffLineHeight);
 		return new Pair<Integer, Integer>(allyBasePositionX, allyBasePositionY);
 	}
 

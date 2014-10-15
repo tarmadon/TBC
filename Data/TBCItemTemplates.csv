@@ -12,7 +12,7 @@ hatchetIron,flat,MainHand,FALSE,1,11,,
 hatchetGold,flat,MainHand,FALSE,1,17,,
 hatchetDiamond,flat,MainHand,FALSE,1,25,,
 ,,,,,,,
-bow,flat;use,MainHand,FALSE,1,15,Barrage,10
+bow,flat;use,MainHand,FALSE,1,15,Ranged,0
 ,,,,,,,
 chestplateCloth,flat,Torso,TRUE,2,4,,
 chestplateIron,flat,Torso,TRUE,2,6,,

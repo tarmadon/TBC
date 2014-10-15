@@ -127,7 +127,7 @@ public class EquippedItemManager
 				if(usableLookup.containsKey(effectiveItemName))
 				{
 					Pair<ICombatAbility, Integer> ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(mc, player, new Pair(RemoveItemAbility.ArmorInventory, i), ability.item2, s, ability.item1);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.ArmorInventory, i), ability.item2, ability.item1);
 					usableItems.add(new Pair(itemAbility, 1));
 				}
 			}
@@ -142,7 +142,7 @@ public class EquippedItemManager
 				if(usableLookup.containsKey(effectiveItemName))
 				{
 					Pair<ICombatAbility, Integer> ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(mc, player, new Pair(RemoveItemAbility.MainInventory, i), ability.item2, s, ability.item1);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.MainInventory, i), ability.item2, ability.item1);
 					usableItems.add(new Pair(itemAbility, s.stackSize));
 				}
 			}
@@ -164,7 +164,7 @@ public class EquippedItemManager
 				if(usableLookup.containsKey(effectiveItemName))
 				{
 					Pair<ICombatAbility, Integer> ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(mc, player, new Pair(RemoveItemAbility.ArmorInventory, i), ability.item2, s, ability.item1);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.ArmorInventory, i), ability.item2, ability.item1);
 					usableItems.add(new Quintuplet(s.getItem(), null, itemAbility, 1));
 				}
 				else if(lookup.containsKey(effectiveItemName))
@@ -184,7 +184,7 @@ public class EquippedItemManager
 				if(usableLookup.containsKey(effectiveItemName))
 				{
 					Pair<ICombatAbility, Integer> ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(mc, player, new Pair(RemoveItemAbility.MainInventory, i), ability.item2, s, ability.item1);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.MainInventory, i), ability.item2, ability.item1);
 					usableItems.add(new Quintuplet(s.getItem(), null, itemAbility, s.stackSize));
 				}
 				else if(lookup.containsKey(effectiveItemName))

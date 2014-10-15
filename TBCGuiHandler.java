@@ -8,6 +8,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.world.World;
 import TBC.CombatScreen.BattleScreenClient;
 import TBC.CombatScreen.StartCombatHandler;
+import TBC.Menu.StatsGui;
 import TBC.Messages.StringMessage;
 
 import com.google.common.primitives.Bytes;
@@ -51,7 +52,7 @@ public class TBCGuiHandler implements IGuiHandler
 		}
 		else if(ID == 1)
 		{
-        	return new ContainerForStatsGui(playerBase.inventory);
+        	return null;
 		}
 
 		return null;
@@ -67,7 +68,7 @@ public class TBCGuiHandler implements IGuiHandler
 		}
 		else
 		{
-			StatsGui gui = new StatsGui(player, new ContainerForStatsGui(player.inventory));
+			StatsGui gui = new StatsGui(player);
         	return gui;
 		}
 	}

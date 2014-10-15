@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.AbstractMap.SimpleEntry;
 import java.util.List;
 
+import TBC.HenchmanItem;
 import TBC.Pair;
 import TBC.CombatEntitySaveData;
 import TBC.Combat.Abilities.ICombatAbility;
@@ -26,7 +27,8 @@ public class CombatEntity implements Serializable
 	public int currentMp;
 	public Integer lastDamageTaken = null;
 	public String name;
-
+	public boolean isFrontLine;
+	
 	public List ongoingEffects;
 	private CombatEntityTemplate baseStats;
 
@@ -43,6 +45,7 @@ public class CombatEntity implements Serializable
 		CombatEntity lookup;
 		lookup = CombatEntityLookup.Instance.GetCombatEntity(entityId, entityType, enemyName);
 		lookup.name = lookup.baseStats.name;
+		lookup.isFrontLine = true;
 		if(enemyNumber == 1)
 		{
 			lookup.name += " A";
@@ -73,6 +76,7 @@ public class CombatEntity implements Serializable
 		CombatEntity lookup;
 		lookup = CombatEntitySpawnLookup.Instance.GetCombatEntity(entityId, entity);
 		lookup.name = lookup.baseStats.name;
+		lookup.isFrontLine = true;
 		if(enemyNumber == 1)
 		{
 			lookup.name += " A";
@@ -99,23 +103,53 @@ public class CombatEntity implements Serializable
 		return lookup;
 	}
 
-	public static CombatEntity GetCombatEntity(EntityPlayer entity)
+	public static Pair<Integer, CombatEntity> GetCombatEntity(EntityPlayer entity)
 	{
-		CombatEntity lookup;
-		lookup = CombatEntityLookup.Instance.GetCombatEntityForPlayer(entity);
-		lookup.name = lookup.baseStats.name;
-
+		CombatEntitySaveData s = new CombatEntitySaveData();
+		s.loadNBTData(entity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+		String name = entity.getDisplayName();
+		CombatEntityTemplate t = new CombatEntityTemplate(name, s);
+		CombatEntity e = new CombatEntity(entity.getEntityId(), null, t);
+		e.name = t.name;
+		e.isFrontLine = s.IsFrontRow > 0 ? true : false;
+		
 		float currentHpPercentage = (float)entity.getHealth() / entity.getMaxHealth();
-		lookup.currentHp = Math.round(currentHpPercentage * lookup.baseStats.maxHp);
+		e.currentHp = Math.round(currentHpPercentage * e.baseStats.maxHp);
 		NBTTagCompound tag = entity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
 		if(tag.hasKey("TBCPlayerMP"))
 		{
-			lookup.currentMp = tag.getInteger("TBCPlayerMP");
+			e.currentMp = tag.getInteger("TBCPlayerMP");
 		}
 
-		return lookup;
+		return new Pair<Integer, CombatEntity>(s.IsInParty, e);
 	}
 
+	public static Pair<Integer, CombatEntity> GetCombatEntity(int entityId, ItemStack henchmanStack)
+	{
+		HenchmanItem h = (HenchmanItem)henchmanStack.getItem();
+		CombatEntitySaveData s = HenchmanItem.GetCombatEntitySaveData(henchmanStack);
+		String name = h.henchmanName;
+		CombatEntityTemplate t = new CombatEntityTemplate(name, s);
+		CombatEntity henchmanEntity = new CombatEntity(entityId, null, t);
+		henchmanEntity.name = name;
+		henchmanEntity.entityType = h.henchmanType;
+		henchmanEntity.isFrontLine = s.IsFrontRow > 0 ? true : false;
+		henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(henchmanStack)/(float)h.getMaxDamage())));
+
+		NBTTagCompound itemData = henchmanStack.getTagCompound();
+		if(itemData != null && itemData.hasKey("HenchMP"))
+		{
+			henchmanEntity.currentMp = itemData.getInteger("HenchMP");
+		}
+		
+		return new Pair<Integer, CombatEntity>(s.IsInParty, henchmanEntity);
+	}
+	
+	public boolean IsFrontLine()
+	{
+		return this.isFrontLine;
+	}
+	
 	public int GetMaxHp()
 	{
 		return GetEffectiveStat(this.baseStats.maxHp, StatChangeStatus.HpChange);

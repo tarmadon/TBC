@@ -2,7 +2,8 @@ package TBC;
 
 import java.util.List;
 
-import TBC.ContainerForStatsGui.SlotArmor2;
+import TBC.Combat.CombatEntityLookup;
+import TBC.Combat.CombatEntityTemplate;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -13,6 +14,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
+import net.minecraft.world.World;
 import net.minecraftforge.client.IItemRenderer;
 
 public class HenchmanItem extends Item
@@ -45,44 +47,26 @@ public class HenchmanItem extends Item
     @Override
     public boolean onDroppedByPlayer(ItemStack item, EntityPlayer player) 
     {
-    	if(item.hasTagCompound())
+    	if(item.hasTagCompound() && item.getTagCompound().hasKey("TBCIsInParty"))
     	{
-    		item.getTagCompound().setBoolean("TBCinParty", false);
+    		CombatEntitySaveData d = HenchmanItem.GetCombatEntitySaveData(item);
+    		d.IsInParty = 0;
+    		HenchmanItem.SetCombatEntitySaveData(d, item);
     	}
     	
     	return super.onDroppedByPlayer(item, player);
     }
     
-    public static void SetInParty(ItemStack item, boolean inParty)
+    public static void SetItem(int slot, ItemStack item, ItemStack hench)
     {
-    	if(!item.hasTagCompound())
+    	if(!hench.hasTagCompound())
     	{
-    		item.setTagCompound(new NBTTagCompound());
-    	}
-    	
-    	item.getTagCompound().setBoolean("TBCinParty", inParty);
-    }
-    
-    public static boolean IsInParty(ItemStack item)
-    {
-    	if(item.getTagCompound().hasKey("TBCinParty"))
-    	{
-    		return item.getTagCompound().getBoolean("TBCinParty");
-    	}
-    	
-    	return false;
-    }
-    
-    public static void SetItem(int slot, ItemStack item)
-    {
-    	if(!item.hasTagCompound())
-    	{
-    		item.setTagCompound(new NBTTagCompound());
+    		hench.setTagCompound(new NBTTagCompound());
     	}
     	
     	NBTTagCompound itemTag = new NBTTagCompound();
     	itemTag = item.writeToNBT(itemTag);
-    	item.getTagCompound().setTag("TBCslot" + slot, itemTag);
+    	hench.getTagCompound().setTag("TBCslot" + slot, itemTag);
     }
     
     public static ItemStack[] GetItems(ItemStack item)
@@ -90,12 +74,37 @@ public class HenchmanItem extends Item
     	ItemStack[] equipped = new ItemStack[4];
     	for(int i = 0; i < 4; i++)
     	{
-    		if(item.getTagCompound().hasKey("TBCslot" + i))
+    		if(item.hasTagCompound() && item.getTagCompound().hasKey("TBCslot" + i))
     		{
     			equipped[i] = ItemStack.loadItemStackFromNBT(item.getTagCompound().getCompoundTag("TBCslot" + i));
     		}
     	}
     	
     	return equipped;
+    }
+    
+    public static void SetCombatEntitySaveData(CombatEntitySaveData data, ItemStack hench)
+    {
+    	if(!hench.hasTagCompound())
+    	{
+    		hench.setTagCompound(new NBTTagCompound());
+    	}
+    	
+    	data.saveNBTData(hench.getTagCompound());
+    }
+    
+    public static CombatEntitySaveData GetCombatEntitySaveData(ItemStack hench)
+    {
+    	CombatEntitySaveData data = new CombatEntitySaveData();
+    	if(!hench.hasTagCompound() || !hench.getTagCompound().hasKey("TBCIsInParty"))
+    	{
+        	HenchmanItem item = (HenchmanItem)hench.getItem();
+        	CombatEntityTemplate t = CombatEntityLookup.Instance.lookupByName.get(item.henchmanName);
+        	CombatEntitySaveData d = new CombatEntitySaveData(t);
+        	HenchmanItem.SetCombatEntitySaveData(d, hench);
+    	}
+    	
+    	data.loadNBTData(hench.getTagCompound());
+    	return data;
     }
 }

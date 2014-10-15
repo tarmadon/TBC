@@ -1,4 +1,4 @@
-package TBC;
+package TBC.Menu;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -14,51 +14,54 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.DamageSource;
 
+import TBC.CombatEntitySaveData;
+import TBC.HenchmanItem;
+import TBC.MainMod;
+import TBC.Triplet;
 import TBC.Combat.CombatEngine;
 import TBC.Combat.CombatEntity;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.CombatScreen.IGenericAction;
+import TBC.Messages.ItemDataMessage;
 import TBC.Messages.NBTTagCompoundMessage;
 import TBC.Messages.StringMessage;
 
 public class UseAbilityFromStatsGuiAction implements IGenericAction
 {
 	private StatsGui statsGui;
-	private CombatEntity user;
-	private ArrayList<CombatEntity> targets;
+	private StatMenuCharData user;
+	private ArrayList<StatMenuCharData> targets;
 	private ICombatAbility ability;
-	private int returnMode;
-	private ItemStack[] henchmanEntities;
-
-	public UseAbilityFromStatsGuiAction(StatsGui statsGui, int returnMode, CombatEntity user, ICombatAbility ability, ArrayList<CombatEntity> targets, ItemStack[] henchmanEntities)
+	private IGenericAction returnAction;
+	
+	public UseAbilityFromStatsGuiAction(StatsGui statsGui, StatMenuCharData user, ICombatAbility ability, ArrayList<StatMenuCharData> targets, IGenericAction returnAction)
 	{
 		this.statsGui = statsGui;
-		this.returnMode = returnMode;
 		this.user = user;
 		this.ability = ability;
 		this.targets = targets;
-		this.henchmanEntities = henchmanEntities;
+		this.returnAction = returnAction;
 	}
 
 	public void Invoke()
 	{
 		ArrayList<CombatEntity> allies = new ArrayList<CombatEntity>();
-		allies.add(this.user);
-
-		// If the user is also a target, make sure there is only one CombatEntity being used (no duplicates).
-		// Otherwise, there will be problems syncing with the server.
-		for(int i = 0; i< targets.size(); i++)
+		for(int i = 0; i < this.statsGui.partyMembers.size(); i++)
 		{
-			if(targets.get(i).id == this.user.id)
-			{
-				targets.set(i, this.user);
-			}
+			allies.add(this.statsGui.partyMembers.get(i).CombatEntity);
 		}
 
+		ArrayList<CombatEntity> targetCombatEntities = new ArrayList<CombatEntity>();
+		for(int i = 0; i < this.targets.size(); i++)
+		{
+			targetCombatEntities.add(targets.get(i).CombatEntity);
+		}
+		
 		CombatEngine engine = new CombatEngine(allies, new ArrayList<CombatEntity>(), true, 0);
-		engine.Attack(user, targets, ability, new ArrayList<String>());
-		user.ApplyDamage();
-		for(CombatEntity target : targets)
+		engine.Attack(user.CombatEntity, targetCombatEntities, ability, new ArrayList<String>());
+		
+		user.CombatEntity.ApplyDamage();
+		for(CombatEntity target : targetCombatEntities)
 		{
 			target.ApplyDamage();
 		}
@@ -71,46 +74,51 @@ public class UseAbilityFromStatsGuiAction implements IGenericAction
 		SyncCombatEntityHealth(mc, user);
 		for(int i = 0; i < targets.size(); i++)
 		{
-			CombatEntity target = targets.get(i);
-			if(target.id != user.id)
+			StatMenuCharData target = targets.get(i);
+			if(target.CombatEntity.id != user.CombatEntity.id)
 			{
 				SyncCombatEntityHealth(mc, target);
 			}
 		}
 
-		this.statsGui.ChangeMode(this.user, null, this.returnMode);
+		this.returnAction.Invoke();
 	}
 
-	private void SyncCombatEntityHealth(Minecraft mc, CombatEntity entity)
+	private void SyncCombatEntityHealth(Minecraft mc, StatMenuCharData entity)
 	{
-		if(entity.entityType == null)
+		if(entity.Player != null)
 		{
-			EntityClientPlayerMP player = mc.thePlayer;
+			EntityPlayer player = mc.thePlayer;
 			float maxHealth = player.getMaxHealth();
-			float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
+			float currentHpPercentage = (float)entity.CombatEntity.currentHp / entity.CombatEntity.GetMaxHp();
 			int healthToSet = Math.round((currentHpPercentage * maxHealth) + .499999F);
 			StringMessage setHealth = new StringMessage();
 			setHealth.Data = "" + healthToSet;
 			MainMod.setHealthHandler.sendToServer(setHealth);
 
 			NBTTagCompound tag = mc.thePlayer.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
-			tag.setInteger("TBCPlayerMP", entity.currentMp);
+			tag.setInteger("TBCPlayerMP", entity.CombatEntity.currentMp);
 			player.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
 			SyncTagToServer(player);
 		}
 		else
 		{
-			float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
+			float currentHpPercentage = (float)entity.CombatEntity.currentHp / entity.CombatEntity.GetMaxHp();
 			int healthToSet = Math.round((currentHpPercentage * 100) + .499999F);
-			int index = entity.id;
-			ItemStack h = this.henchmanEntities[index];
+			int index = entity.CombatEntity.id;
+			ItemStack h = entity.Item;
 			if(index == 9)
 			{
 				index = -1;
 			}
 
-			StringMessage itemDurMessage = new StringMessage();
-			itemDurMessage.Data = index + "," + (100 - healthToSet) + "," + entity.currentMp;
+			ItemDataMessage itemDurMessage = new ItemDataMessage();
+			CombatEntitySaveData d = HenchmanItem.GetCombatEntitySaveData(entity.Item);
+			d.CurrentMp = entity.CombatEntity.currentMp;
+			HenchmanItem.SetCombatEntitySaveData(d, entity.Item);
+			itemDurMessage.Slot = index;
+			itemDurMessage.ItemDurability = 100 - healthToSet;
+			itemDurMessage.tag = entity.Item.getTagCompound();
 			MainMod.setItemDataHandler.sendToServer(itemDurMessage);
 		}
 	}

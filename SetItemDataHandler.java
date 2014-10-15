@@ -1,5 +1,6 @@
 package TBC;
 
+import TBC.Messages.ItemDataMessage;
 import TBC.Messages.StringMessage;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Slot;
@@ -9,16 +10,13 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 
-public class SetItemDataHandler implements IMessageHandler<StringMessage, IMessage>
+public class SetItemDataHandler implements IMessageHandler<ItemDataMessage, IMessage>
 {
 	@Override
-	public IMessage onMessage(StringMessage message, MessageContext ctx) 
+	public IMessage onMessage(ItemDataMessage message, MessageContext ctx) 
 	{
-		String s = message.Data;
-		String[] s2 = s.split(",");
-		int asSlot = new Integer(s2[0]);
-		int asDamage = new Integer(s2[1]);
-		int asMp = new Integer(s2[2]);
+		int asSlot = message.Slot;
+		int asDamage = message.ItemDurability;
 		EntityPlayer entityPlayer = ctx.getServerHandler().playerEntity;
 		ItemStack stack;
 		if(asSlot == -1)
@@ -31,14 +29,14 @@ public class SetItemDataHandler implements IMessageHandler<StringMessage, IMessa
 		}
 
 		stack.setItemDamage(asDamage);
-		NBTTagCompound existingTag = stack.getTagCompound();
-		if(existingTag == null)
-		{
-			existingTag = new NBTTagCompound();
-		}
-
-		existingTag.setInteger("HenchMP", asMp);
-		stack.setTagCompound(existingTag);
+		CombatEntitySaveData data = new CombatEntitySaveData();
+		data.loadNBTData(message.tag);
+		
+		CombatEntitySaveData existing = HenchmanItem.GetCombatEntitySaveData(stack);
+		existing.CurrentMp = data.CurrentMp;
+		existing.IsInParty = data.IsInParty;
+		existing.IsFrontRow = data.IsFrontRow;
+		HenchmanItem.SetCombatEntitySaveData(existing, stack);
 		return null;
 	}
 }

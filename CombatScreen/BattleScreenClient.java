@@ -115,7 +115,6 @@ public class BattleScreenClient extends GuiScreen
 		this.allies = allies;
 		this.enemies = enemies;
 		this.combatEngine = new CombatEngine(allies, enemies, false, 0);
-		//this.world.removeEntity(this.player);
 	}
 
 	public void SyncCombatData(CombatSyncDataMessage message)

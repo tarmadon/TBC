@@ -103,6 +103,14 @@ public class CombatEngine
 	{
 		attacker.currentMp = attacker.currentMp - ability.GetMpCost();
 		IOneTimeEffect[] attackEffects = ability.GetEffects(this, attacker, targets, messages);
+		for(Object effect : attacker.ongoingEffects)
+		{
+			if(effect instanceof ITriggeredEffect)
+			{
+				attackEffects = ((ITriggeredEffect)effect).OnAttack(this, attacker, targets, attackEffects, messages);
+			}
+		}
+		
 		for(int i = 0; i<targets.size(); i++)
 		{
 			for(int j = 0; j<attackEffects.length; j++)

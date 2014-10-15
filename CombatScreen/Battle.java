@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import TBC.BattleEntity;
+import TBC.CombatEntitySaveData;
 import TBC.HenchmanItem;
 import TBC.MainMod;
 import TBC.Pair;
@@ -41,7 +42,7 @@ public class Battle
 	private ArrayList<GenericGuiButton> buttonsToSwap;
 
 	private WorldServer world;
-	private HashMap<CombatEntity, EntityPlayerMP> players = new HashMap<CombatEntity, EntityPlayerMP>();
+	private ArrayList<EntityPlayerMP> players = new ArrayList<EntityPlayerMP>();
 	private HashMap<CombatEntity, EntityPlayerMP> owners = new HashMap<CombatEntity, EntityPlayerMP>();
 	
 	private HashMap<CombatEntity, ItemStack> henchmanLookup = new HashMap<CombatEntity, ItemStack>();
@@ -61,51 +62,68 @@ public class Battle
 		this.world = (WorldServer)player.worldObj;
 		this.damageSource = DamageSource.causePlayerDamage(player);
 		this.damageSource.damageType = "bypass";
-		CombatEntity playerEntity = CombatEntity.GetCombatEntity(player);
+
+		Pair<Integer, CombatEntity> playerEntity = CombatEntity.GetCombatEntity(player);
 		CombatEntity enemyCombatEntity = CombatEntity.GetCombatEntity(enemyEntity.getEntityId(), enemyEntity, 1);
 
 		entityInWorld = new BattleEntity(world, id);
 		entityInWorld.setLocationAndAngles(player.posX, player.posY + 1.25, player.posZ, 0, 0);
 		this.world.spawnEntityInWorld(entityInWorld);
 		
-		players.put(playerEntity, player);
-		owners.put(playerEntity, player);
+		players.add(player);
 		enemies.add(enemyCombatEntity);
+		this.allies = new ArrayList<CombatEntity>();
+		for(int i = 0; i < 10; i++)
+		{
+			this.allies.add(null);
+		}
 		
 		int currentEntityId = -1;
-		allies.add(playerEntity);
+		if(playerEntity.item1 > 0)
+		{
+			allies.set(playerEntity.item1, playerEntity.item2);
+			owners.put(playerEntity.item2, player);
+		}
 
 		int foundHenchmen = 0;
-		for(int i = 0; i< player.inventory.getHotbarSize(); i++)
+		for(int i = 0; i< player.inventory.mainInventory.length; i++)
 		{
 			if(player.inventory.mainInventory[i] != null && player.inventory.mainInventory[i].getItem() instanceof HenchmanItem)
 			{
 				ItemStack henchmanStack = player.inventory.mainInventory[i];
-				HenchmanItem h = (HenchmanItem)henchmanStack.getItem();
-				CombatEntity henchmanEntity = CombatEntityLookup.Instance.GetCombatEntity(currentEntityId--, h.henchmanType, h.henchmanName);
-				henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(henchmanStack)/(float)h.getMaxDamage())));
-				if(henchmanEntity.currentHp < 1)
+				Pair<Integer, CombatEntity> henchmanEntity = CombatEntity.GetCombatEntity(currentEntityId--, henchmanStack);
+				if(henchmanEntity == null || henchmanEntity.item1 < 1)
 				{
 					continue;
 				}
-
-				NBTTagCompound itemData = henchmanStack.getTagCompound();
-				if(itemData != null && itemData.hasKey("HenchMP"))
-				{
-					henchmanEntity.currentMp = itemData.getInteger("HenchMP");
-				}
-
-				allies.add(henchmanEntity);
+				
+				allies.set(henchmanEntity.item1, henchmanEntity.item2);
 				foundHenchmen++;
-				henchmanLookup.put(henchmanEntity, henchmanStack);
-				owners.put(henchmanEntity, player);
-				if(foundHenchmen >= 3)
+				henchmanLookup.put(henchmanEntity.item2, henchmanStack);
+				owners.put(henchmanEntity.item2, player);
+			}
+		}
+
+		ArrayList<CombatEntity> fixedAllies = new ArrayList<CombatEntity>();
+		for(int i = 0; i < allies.size(); i++)
+		{
+			if(allies.get(i) != null)
+			{
+				fixedAllies.add(allies.get(i));
+				if(fixedAllies.size() >= 4)
 				{
 					break;
 				}
 			}
 		}
-
+		
+		if(fixedAllies.size() == 0)
+		{
+			fixedAllies.add(playerEntity.item2);
+			owners.put(playerEntity.item2, player);
+		}
+		
+		this.allies = fixedAllies;
 		Vec3 position = enemyEntity.getPosition(1.0F);
 		double enemyX = position.xCoord;
 		double enemyY = position.yCoord;
@@ -152,7 +170,7 @@ public class Battle
 			}
 		}
 
-		RemoveEntityFromGame(playerEntity, player);
+		RemoveEntityFromGame(playerEntity.item2, player);
 		RemoveEntityFromGame(enemyCombatEntity, enemyEntity);
 		this.combatEngine = new CombatEngine(this.allies, this.enemies, isAttacker, currentEntityId);
 		this.levelingEngine = new LevelingEngine();
@@ -225,16 +243,15 @@ public class Battle
 	
 	public boolean AddPlayerToCombat(EntityPlayerMP player)
 	{
-		CombatEntity playerEntity = CombatEntity.GetCombatEntity(player);
-		CombatEntity otherPlayerEntity = (CombatEntity)this.players.keySet().toArray()[0];
-		if(!this.combatEngine.AddEntityToCombat(otherPlayerEntity, playerEntity))
+		Pair<Integer, CombatEntity> playerEntity = CombatEntity.GetCombatEntity(player);
+		if(!this.combatEngine.AddEntityToCombat(this.allies.get(0), playerEntity.item2))
 		{
 			return false;
 		}
 		
-		players.put(playerEntity, player);
-		owners.put(playerEntity, player);
-		RemoveEntityFromGame(playerEntity, player);
+		players.add(player);
+		owners.put(playerEntity.item2, player);
+		RemoveEntityFromGame(playerEntity.item2, player);
 		MainMod.combatStartedHandler.sendTo(GetBattleStartMessage(), player);
 		
 		return true;
@@ -333,10 +350,9 @@ public class Battle
 		
 		m.Allies = this.allies;
 		m.Enemies = this.enemies;
-		Object[] playerValues = this.players.values().toArray();
-		for(int i = 0; i<playerValues.length; i++)
+		for(int i = 0; i<this.players.size(); i++)
 		{
-			MainMod.syncCombatDataHandler.sendTo(m, (EntityPlayerMP)playerValues[i]);
+			MainMod.syncCombatDataHandler.sendTo(m, this.players.get(i));
 		}
 		
 		if(activeEnemies == 0 || activeAllies == 0)
@@ -435,31 +451,39 @@ public class Battle
 		if(wonBattle)
 		{
 			SimpleEntry<Integer, Integer> rewards = this.combatEngine.GetXpAndApReward(this.enemies);
+			HashMap<EntityPlayerMP, ArrayList<Pair<Boolean, Boolean>>> levelUps = new HashMap<EntityPlayerMP, ArrayList<Pair<Boolean,Boolean>>>();
 			for(CombatEntity e : this.allies)
 			{
+				EntityPlayerMP owner = this.owners.get(e);
 				Pair<Boolean, Boolean> gainedLevelOrSkill = LevelingEngine.Instance.GainXP(this.world, e, rewards.getKey(), rewards.getValue(), messageQueue);
-				if(this.players.containsKey(e))
+				if(!levelUps.containsKey(owner))
 				{
-					EntityPlayerMP player = this.players.get(e);
-					CombatEndedMessage m = new CombatEndedMessage();
-					m.XPGained = rewards.getKey();
-					m.APGained = rewards.getValue();
-					m.GainedLevel = gainedLevelOrSkill.item1;
-					m.GainedSkill = gainedLevelOrSkill.item2;
-					m.Won = true;
-					m.PlayerData = LevelingEngine.Instance.GetXpDataForPlayer(player);
-					MainMod.combatEndedHandler.sendTo(m, player);
+					levelUps.put(owner, new ArrayList<Pair<Boolean,Boolean>>());
 				}
+			
+				levelUps.get(owner).add(gainedLevelOrSkill);
+			}
+			
+			for(EntityPlayerMP toNotify : this.players)
+			{
+				ArrayList<Pair<Boolean, Boolean>> levelUpsForPlayer = levelUps.get(toNotify);
+				CombatEndedMessage m = new CombatEndedMessage();
+				m.XPGained = rewards.getKey();
+				m.APGained = rewards.getValue();
+				m.GainedLevel = levelUpsForPlayer.get(0).item1;
+				m.GainedSkill = levelUpsForPlayer.get(0).item2;
+				m.Won = true;
+				m.PlayerData = LevelingEngine.Instance.GetXpDataForPlayer(toNotify);
+				MainMod.combatEndedHandler.sendTo(m, toNotify);
 			}
 		}
 		else
 		{
 			CombatEndedMessage m = new CombatEndedMessage();
 			m.Won = false;
-			Object[] playerValues = this.players.values().toArray();
-			for(int i = 0; i<playerValues.length; i++)
+			for(int i = 0; i<this.players.size(); i++)
 			{
-				MainMod.combatEndedHandler.sendTo(m, (EntityPlayerMP)playerValues[i]);
+				MainMod.combatEndedHandler.sendTo(m, this.players.get(i));
 			}
 		}
 		
@@ -478,9 +502,9 @@ public class Battle
 
 	private void SyncCombatEntityToMinecraftWorld(CombatEntity entity, DamageSource damageSource, boolean wonBattle)
 	{
-		if(this.players.containsKey(entity))
+		if(entity.entityType == null)
 		{
-			EntityPlayerMP player = this.players.get(entity);
+			EntityPlayerMP player = this.owners.get(entity);
 			if(entity.currentHp < 1)
 			{
 				if(!wonBattle)

@@ -13,6 +13,7 @@ import TBC.CombatScreen.TurnState;
 import TBC.Messages.StringMessage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 
 public class RemoveItemAbility implements ICombatAbility
@@ -20,20 +21,16 @@ public class RemoveItemAbility implements ICombatAbility
 	public static final int MainInventory = 0;
 	public static final int ArmorInventory = 1;
 	private ICombatAbility itemAbility;
-	private ItemStack item;
 	private Pair<Integer, Integer> inventoryItemPosition;
 	private int damage;
-	private Minecraft mc;
-	private EntityPlayer player;
+	private int playerId;
 
-	public RemoveItemAbility(Minecraft mc, EntityPlayer player, Pair<Integer, Integer> inventoryItemPosition, int damage, ItemStack item, ICombatAbility itemAbility)
+	public RemoveItemAbility(int playerId, Pair<Integer, Integer> inventoryItemPosition, int damage, ICombatAbility itemAbility)
 	{
-		this.mc = mc;
 		this.itemAbility = itemAbility;
-		this.item = item;
 		this.damage = damage;
 		this.inventoryItemPosition = inventoryItemPosition;
-		this.player = player;
+		this.playerId = playerId;
 	}
 
 	public int GetMpCost()
@@ -48,7 +45,15 @@ public class RemoveItemAbility implements ICombatAbility
 
 	public String GetAbilityName()
 	{
-		return item.getDisplayName();
+		EntityPlayer player = (EntityPlayer)Minecraft.getMinecraft().theWorld.getEntityByID(this.playerId);
+		if(this.inventoryItemPosition.item1 == RemoveItemAbility.ArmorInventory)
+		{
+			return player.inventory.armorInventory[this.inventoryItemPosition.item2].getDisplayName();
+		}
+		else
+		{
+			return player.inventory.mainInventory[this.inventoryItemPosition.item2].getDisplayName();
+		}
 	}
 
 	public int GetAbilityTarget()
@@ -58,6 +63,7 @@ public class RemoveItemAbility implements ICombatAbility
 
 	public IOneTimeEffect[] GetEffects(CombatEngine engine, CombatEntity user, ArrayList<CombatEntity> targets, ArrayList<String> messages)
 	{
+		EntityPlayer player = (EntityPlayer)Minecraft.getMinecraft().theWorld.getEntityByID(this.playerId);
 		StringMessage syncToServer = new StringMessage();
 		syncToServer.Data = this.inventoryItemPosition.item1 + "," + this.inventoryItemPosition.item2 + "," + this.damage;
 		MainMod.removeItemHandler.sendToServer(syncToServer);
@@ -77,7 +83,7 @@ public class RemoveItemAbility implements ICombatAbility
 			}
 			else
 			{
-				stack.damageItem(this.damage, this.player);
+				stack.damageItem(this.damage, player);
 			}
 		}
 		else
@@ -96,7 +102,7 @@ public class RemoveItemAbility implements ICombatAbility
 			}
 			else
 			{
-				player.inventory.armorInventory[this.inventoryItemPosition.item2].damageItem(this.damage, this.player);
+				player.inventory.armorInventory[this.inventoryItemPosition.item2].damageItem(this.damage, player);
 			}
 		}
 

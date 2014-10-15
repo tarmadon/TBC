@@ -9,9 +9,11 @@ import TBC.Combat.CombatEntity;
 import TBC.Combat.IStatusChange;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Effects.IDamageEffect;
+import TBC.Combat.Effects.IOneTimeEffect;
 
 public interface ITriggeredEffect extends Serializable
 {
+	IOneTimeEffect[] OnAttack(CombatEngine engine, CombatEntity attacker, ArrayList<CombatEntity> targets, IOneTimeEffect[] attackEffects, ArrayList<String> messages);
 	int OnDamage(CombatEngine engine, CombatEntity attacker, CombatEntity defender, IDamageEffect source, int damage, Boolean effectFromAttacker);
 	boolean EndOfTurn(CombatEngine engine, CombatEntity entity);
 	Object OnStatusChange(CombatEngine engine, CombatEntity user, CombatEntity target, Object statusChange, boolean effectFromAttacker);
