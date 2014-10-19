@@ -4,10 +4,6 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.function.Function;
-import java.util.function.ToDoubleFunction;
-import java.util.function.ToIntFunction;
-import java.util.function.ToLongFunction;
 
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -338,22 +334,23 @@ public class StatsGui extends GuiInventory
 			staging.add(new Pair(c.item1 < 1 ? 1 : c.item1, new StatMenuCharData(player, null, c.item2, c.item2.IsFrontLine())));
 		}
 		
-		staging.sort(new Comparator<Pair<Integer, StatMenuCharData>>() 
-				{
-
-					@Override
-					public int compare(
-							Pair<Integer, StatMenuCharData> arg0,
-							Pair<Integer, StatMenuCharData> arg1) 
-					{
-						return arg0.item1.compareTo(arg1.item1);
-					}
-				});
-		
 		this.partyMembers.clear();
-		for(Pair<Integer, StatMenuCharData> found : staging)
+		while(staging.size() != 0)
 		{
-			this.partyMembers.add(found.item2);
+			int lowestPos = -1;
+			int lowest = 1000;
+			for(int i = 0; i < staging.size(); i++)
+			{
+				int position = staging.get(i).item1;
+				if(position < lowest)
+				{
+					lowest = position;
+					lowestPos = i;
+				}
+			}
+			
+			this.partyMembers.add(staging.get(lowestPos).item2);
+			staging.remove(lowestPos);
 		}
 	}
 	
