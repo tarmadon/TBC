@@ -73,13 +73,13 @@ public class BattleScreenDrawer
 		}
 
         this.cutoffLineYPos = this.canvas.height - cutoffLineHeight;
-		ArrayList<Triplet<String, String, IGenericAction>> commandActions = new ArrayList<Triplet<String, String, IGenericAction>>();
-		commandActions.add(new Triplet("Attack", "", new AttackCommandFunction(this.canvas)));
-		commandActions.add(new Triplet("Magic", "", new SelectAbilityFunction(this.canvas)));
-		commandActions.add(new Triplet("Item", "", new SelectItemFunction(this.canvas)));
-		commandActions.add(new Triplet("Run", "", new AttemptEscapeFunction(this.canvas)));
+		ArrayList<GenericScrollBoxCellData> commandActions = new ArrayList<GenericScrollBoxCellData>();
+		commandActions.add(new GenericScrollBoxCellData("Attack", "", new AttackCommandFunction(this.canvas)));
+		commandActions.add(new GenericScrollBoxCellData("Magic", "", new SelectAbilityFunction(this.canvas)));
+		commandActions.add(new GenericScrollBoxCellData("Item", "", new SelectItemFunction(this.canvas)));
+		commandActions.add(new GenericScrollBoxCellData("Run", "", new AttemptEscapeFunction(this.canvas)));
 		List buttons = new ArrayList<GuiButton>();
-		buttons.add(new GenericScrollBox(0, 210, cutoffLineYPos + 7, this.canvas.width - 210, (this.canvas.height - cutoffLineYPos) - 10, "commands", commandActions, new ArrayList<Triplet<String,String,IGenericAction>>(), 1));
+		buttons.add(new GenericScrollBox(0, 210, cutoffLineYPos + 7, this.canvas.width - 210, (this.canvas.height - cutoffLineYPos) - 10, "commands", commandActions, new ArrayList<GenericScrollBoxCellData>(), 1));
 		this.commandButtons = buttons;
 	}
 
@@ -137,16 +137,16 @@ public class BattleScreenDrawer
 
 	public void DisplayTargetButtons(ArrayList<CombatEntity> enemies)
 	{
-		ArrayList<Triplet<String, String, IGenericAction>> targets = new ArrayList<Triplet<String, String, IGenericAction>>();
+		ArrayList<GenericScrollBoxCellData> targets = new ArrayList<GenericScrollBoxCellData>();
 		int enemyCount = enemies.size() + 1;
 		for(int i = 0; i < enemies.size(); i++)
 		{
 			String buttonName = enemies.get(i).GetName();
-			targets.add(new Triplet(buttonName, "", new TargetEnemyFunction(this.canvas, enemies.get(i))));
+			targets.add(new GenericScrollBoxCellData(buttonName, "", new TargetEnemyFunction(this.canvas, enemies.get(i))));
 		}
 
-		ArrayList<Triplet<String, String, IGenericAction>> cancelButton = new ArrayList<Triplet<String, String, IGenericAction>>();
-		cancelButton.add(new Triplet("Cancel", "", new CancelAttackCommandFunction(this.canvas)));
+		ArrayList<GenericScrollBoxCellData> cancelButton = new ArrayList<GenericScrollBoxCellData>();
+		cancelButton.add(new GenericScrollBoxCellData("Cancel", "", new CancelAttackCommandFunction(this.canvas)));
 		List buttons = new ArrayList<GuiButton>();
 		buttons.add(new GenericScrollBox(0, 210, cutoffLineYPos + 7, this.canvas.width - 210, (this.canvas.height - cutoffLineYPos) - 10, "commands", targets, cancelButton, 1));
 		this.buttonsToSwap = buttons;
@@ -154,7 +154,7 @@ public class BattleScreenDrawer
 
 	public void DisplayAbilityButtons(CombatEntity entity, ArrayList<ICombatAbility> abilities)
 	{
-		ArrayList<Triplet<String, String, IGenericAction>> usableAbilities = new ArrayList<Triplet<String, String, IGenericAction>>();
+		ArrayList<GenericScrollBoxCellData> usableAbilities = new ArrayList<GenericScrollBoxCellData>();
 		for(int i = 0; i < abilities.size(); i++)
 		{
 			ICombatAbility ability = abilities.get(i);
@@ -162,14 +162,14 @@ public class BattleScreenDrawer
 			String abilityCost = Integer.toString(ability.GetMpCost());
 			if(abilityName != null && abilityName != ""  && !(ability instanceof ConstantAbility))
 			{
-				usableAbilities.add(new Triplet(abilityName, abilityCost, new UseAbilityFunction(this.canvas, ability)));
+				usableAbilities.add(new GenericScrollBoxCellData(abilityName, abilityCost, new UseAbilityFunction(this.canvas, ability)));
 			}
 		}
 
 		int abilityHeight = (this.canvas.height - cutoffLineYPos) - 10;
 
-		ArrayList<Triplet<String, String, IGenericAction>> constantItems = new ArrayList<Triplet<String, String, IGenericAction>>();
-		constantItems.add(new Triplet("Cancel", "", new CancelAttackCommandFunction(this.canvas)));
+		ArrayList<GenericScrollBoxCellData> constantItems = new ArrayList<GenericScrollBoxCellData>();
+		constantItems.add(new GenericScrollBoxCellData("Cancel", "", new CancelAttackCommandFunction(this.canvas)));
 		List buttons = new ArrayList<GuiButton>();
 		buttons.add(new GenericScrollBox(0, 210, cutoffLineYPos + 7, this.canvas.width - 210, abilityHeight, "abilities", usableAbilities, constantItems, 0));
 		this.buttonsToSwap = buttons;
@@ -177,17 +177,17 @@ public class BattleScreenDrawer
 
 	public void DisplayItemButtons(Minecraft mc, EntityPlayer player)
 	{
-		ArrayList<Triplet<String, String, IGenericAction>> usableAbilities = new ArrayList<Triplet<String, String, IGenericAction>>();
+		ArrayList<GenericScrollBoxCellData> usableAbilities = new ArrayList<GenericScrollBoxCellData>();
 		ArrayList<Pair<ICombatAbility, Integer>> abilities = EquippedItemManager.Instance.GetUsableItemsForPlayer(mc, player);
 		for(int i = 0; i < abilities.size(); i++)
 		{
 			ICombatAbility ability = abilities.get(i).item1;
-			usableAbilities.add(new Triplet(ability.GetAbilityName(), Integer.toString(abilities.get(i).item2), new UseAbilityFunction(this.canvas, ability)));
+			usableAbilities.add(new GenericScrollBoxCellData(ability.GetAbilityName(), Integer.toString(abilities.get(i).item2), new UseAbilityFunction(this.canvas, ability)));
 		}
 
 		int abilityHeight = (this.canvas.height - cutoffLineYPos) - 10;
-		ArrayList<Triplet<String, String, IGenericAction>> constantItems = new ArrayList<Triplet<String, String, IGenericAction>>();
-		constantItems.add(new Triplet("Cancel", "", new CancelAttackCommandFunction(this.canvas)));
+		ArrayList<GenericScrollBoxCellData> constantItems = new ArrayList<GenericScrollBoxCellData>();
+		constantItems.add(new GenericScrollBoxCellData("Cancel", "", new CancelAttackCommandFunction(this.canvas)));
 		List buttons = new ArrayList<GuiButton>();
 		buttons.add(new GenericScrollBox(0, 210, cutoffLineYPos + 7, this.canvas.width - 210, abilityHeight, "abilities", usableAbilities, constantItems, 0));
 		this.buttonsToSwap = buttons;

@@ -7,6 +7,7 @@ import net.minecraft.item.ItemStack;
 import TBC.Pair;
 import TBC.Triplet;
 import TBC.Combat.CombatEntity;
+import TBC.CombatScreen.GenericScrollBoxCellData;
 import TBC.CombatScreen.IGenericAction;
 
 public class ShowPartyRowMenuFunction implements IGenericAction 
@@ -25,10 +26,10 @@ public class ShowPartyRowMenuFunction implements IGenericAction
 	@Override
 	public void Invoke() 
 	{
-		ArrayList<Triplet<String, String, IGenericAction>> constant = new ArrayList<Triplet<String,String,IGenericAction>>();
-		ArrayList<Triplet<String, String, IGenericAction>> display = new ArrayList<Triplet<String,String,IGenericAction>>();
-		display.add(new Triplet<String, String, IGenericAction>("Front Row", "", new ShowPartyMenuFunction(this.gui, this.selectedPartyMembers, this.toAdd, true)));
-		display.add(new Triplet<String, String, IGenericAction>("Back Row", "", new ShowPartyMenuFunction(this.gui, this.selectedPartyMembers, this.toAdd, false)));
+		ArrayList<GenericScrollBoxCellData> constant = new ArrayList<GenericScrollBoxCellData>();
+		ArrayList<GenericScrollBoxCellData> display = new ArrayList<GenericScrollBoxCellData>();
+		display.add(new GenericScrollBoxCellData("Front Row", "", new ShowPartyMenuFunction(this.gui, this.selectedPartyMembers, this.toAdd, true)));
+		display.add(new GenericScrollBoxCellData("Back Row", "", new ShowPartyMenuFunction(this.gui, this.selectedPartyMembers, this.toAdd, false)));
 		this.gui.ChangeButtonForSubMenu("SelectRow", display, constant, 1);
 	}
 }

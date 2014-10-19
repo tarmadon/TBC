@@ -8,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import TBC.Pair;
 import TBC.Triplet;
 import TBC.Combat.CombatEntity;
+import TBC.CombatScreen.GenericScrollBoxCellData;
 import TBC.CombatScreen.IGenericAction;
 
 public class SelectMainMenuFunction implements IGenericAction 
@@ -22,14 +23,14 @@ public class SelectMainMenuFunction implements IGenericAction
 	@Override
 	public void Invoke() 
 	{
-		ArrayList<Triplet<String, String, IGenericAction>> buttons = new ArrayList<Triplet<String,String,IGenericAction>>();
-		buttons.add(new Triplet<String, String, IGenericAction>("Job", "", null));
-		buttons.add(new Triplet<String, String, IGenericAction>("Items", "", new ShowItemsMenuFunction(this.gui, this.gui.player, this.gui.partyMembers.get(0))));
-		buttons.add(new Triplet<String, String, IGenericAction>("Abilities", "", new SelectAbilitiesMenuFunction(this.gui)));
-		buttons.add(new Triplet<String, String, IGenericAction>("Equip", "", null));
-		buttons.add(new Triplet<String, String, IGenericAction>("Status", "", null));
-		buttons.add(new Triplet<String, String, IGenericAction>("Party", "", new ShowPartyMenuFunction(this.gui, new ArrayList<Pair<StatMenuCharData,Boolean>>(), null, false)));
+		ArrayList<GenericScrollBoxCellData> buttons = new ArrayList<GenericScrollBoxCellData>();
+		buttons.add(new GenericScrollBoxCellData("Job", "", null));
+		buttons.add(new GenericScrollBoxCellData("Items", "", new ShowItemsMenuFunction(this.gui, this.gui.player, this.gui.partyMembers.get(0))));
+		buttons.add(new GenericScrollBoxCellData("Abilities", "", new SelectAbilitiesMenuFunction(this.gui)));
+		buttons.add(new GenericScrollBoxCellData("Equip", "", null));
+		buttons.add(new GenericScrollBoxCellData("Status", "", null));
+		buttons.add(new GenericScrollBoxCellData("Party", "", new ShowPartyMenuFunction(this.gui, new ArrayList<Pair<StatMenuCharData,Boolean>>(), null, false)));
 		
-		this.gui.ChangeButtonForMainMenu("MainMenu", buttons, new ArrayList<Triplet<String, String, IGenericAction>>(), 1);
+		this.gui.ChangeButtonForMainMenu("MainMenu", buttons, new ArrayList<GenericScrollBoxCellData>(), 1);
 	}
 }

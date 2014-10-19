@@ -12,6 +12,7 @@ import TBC.Pair;
 import TBC.Triplet;
 import TBC.Combat.CombatEntity;
 import TBC.Combat.CombatEntityLookup;
+import TBC.CombatScreen.GenericScrollBoxCellData;
 import TBC.CombatScreen.IGenericAction;
 import TBC.Messages.NBTTagCompoundMessage;
 
@@ -63,7 +64,7 @@ public class ShowPartyMenuFunction implements IGenericAction
 			}
 		}
 
-		ArrayList<Triplet<String, String, IGenericAction>> display = new ArrayList<Triplet<String,String,IGenericAction>>();
+		ArrayList<GenericScrollBoxCellData> display = new ArrayList<GenericScrollBoxCellData>();
 		for(int i = 0; i < potentialPartyMembers.size(); i++)
 		{
 			StatMenuCharData potential = potentialPartyMembers.get(i);
@@ -79,17 +80,17 @@ public class ShowPartyMenuFunction implements IGenericAction
 			
 			if(!alreadyAdded)
 			{
-				display.add(new Triplet<String, String, IGenericAction>(potential.CombatEntity.GetName(), "", new ShowPartyRowMenuFunction(this.gui, this.selectedPartyMembers, potential)));
+				display.add(new GenericScrollBoxCellData(potential.CombatEntity.GetName(), "", new ShowPartyRowMenuFunction(this.gui, this.selectedPartyMembers, potential)));
 			}
 		}
 		
-		ArrayList<Triplet<String, String, IGenericAction>> constant = new ArrayList<Triplet<String,String,IGenericAction>>();
+		ArrayList<GenericScrollBoxCellData> constant = new ArrayList<GenericScrollBoxCellData>();
 		if(this.selectedPartyMembers.size() > 0)
 		{
-			constant.add(new Triplet<String, String, IGenericAction>("Done", "", new ApplyPartyChangesMenuFunction(this.gui, this.selectedPartyMembers)));
+			constant.add(new GenericScrollBoxCellData("Done", "", new ApplyPartyChangesMenuFunction(this.gui, this.selectedPartyMembers)));
 		}
 		
-		constant.add(new Triplet<String, String, IGenericAction>("Cancel", "", new SelectMainMenuFunction(this.gui)));
+		constant.add(new GenericScrollBoxCellData("Cancel", "", new SelectMainMenuFunction(this.gui)));
 		this.gui.ChangeButtonForSubMenu("ShowParty", display, constant, 0);
 	}
 }

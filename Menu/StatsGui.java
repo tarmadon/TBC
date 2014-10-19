@@ -9,6 +9,7 @@ import java.util.function.ToDoubleFunction;
 import java.util.function.ToIntFunction;
 import java.util.function.ToLongFunction;
 
+import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL12;
 
@@ -29,6 +30,7 @@ import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Effects.StatChangeStatus;
 import TBC.CombatScreen.GenericGuiButton;
 import TBC.CombatScreen.GenericScrollBox;
+import TBC.CombatScreen.GenericScrollBoxCellData;
 import TBC.CombatScreen.IGenericAction;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
@@ -72,6 +74,8 @@ public class StatsGui extends GuiInventory
 	private float xSize_lo;
 	public int mode;
 	public EntityPlayer player;
+	private Pair<Integer, Integer> prevPosition = null;
+	private long positionStartTime = 0;
 	
 	public StatsGui(EntityPlayer par1EntityPlayer)
 	{
@@ -119,6 +123,18 @@ public class StatsGui extends GuiInventory
         this.drawGuiContainerForegroundLayer(par1, par2);
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glPopMatrix();
+        
+        if(this.masterButton.mousePressed(mc, par1, par2))
+        {
+        	GenericScrollBoxCellData d = this.masterButton.GetCellUnderMouse(par1, par2);
+        	if(d != null && !d.HoverText.isEmpty())
+        	{
+        		ArrayList<String> toShow = new ArrayList<String>();
+        		toShow.add(d.HoverText);
+        		this.drawHoveringText(toShow, par1, par2, fontRendererObj);
+        	}
+        }
+        
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glEnable(GL11.GL_DEPTH_TEST);
         RenderHelper.enableStandardItemLighting();
@@ -147,7 +163,7 @@ public class StatsGui extends GuiInventory
             }
         }
 
-        super.mouseClicked(par1, par2, par3);
+        //super.mouseClicked(par1, par2, par3);
 	}
 
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
@@ -160,7 +176,7 @@ public class StatsGui extends GuiInventory
         int playerXPos = k + 172;
         int playerYPos = l + 110;
 	}
-
+	
     protected void drawGuiContainerForegroundLayer(int par1, int par2)
     {
     	if(this.mode == Mode.MAIN)
@@ -209,25 +225,28 @@ public class StatsGui extends GuiInventory
     	}
     }
 
-    public void ChangeButton(GuiButton button)
+    public void ChangeButton(GenericScrollBox button)
     {
+    	masterButton = button;
     	this.buttonList.clear();
 		this.buttonList.add(button);
     }
     
-    public void ChangeButtonForSubMenu(String name, ArrayList<Triplet<String, String, IGenericAction>> items, ArrayList<Triplet<String, String, IGenericAction>> constantItems, Integer numColumns)
+    public void ChangeButtonForSubMenu(String name, ArrayList<GenericScrollBoxCellData> items, ArrayList<GenericScrollBoxCellData> constantItems, Integer numColumns)
     {
     	this.mode = Mode.SUBSCREEN;
     	GenericScrollBox scrollBox = new GenericScrollBox(307, this.guiLeft + 10, this.guiTop + 10, 236, 180, name, items, constantItems, numColumns);
+    	masterButton = scrollBox;
     	this.buttonList.clear();
 		this.buttonList.add(scrollBox);
     }
 
-    public void ChangeButtonForMainMenu(String name, ArrayList<Triplet<String, String, IGenericAction>> items, ArrayList<Triplet<String, String, IGenericAction>> constantItems, Integer numColumns)
+    public void ChangeButtonForMainMenu(String name, ArrayList<GenericScrollBoxCellData> items, ArrayList<GenericScrollBoxCellData> constantItems, Integer numColumns)
     {
     	this.mode = Mode.MAIN;
     	int xOffset = 200;
     	GenericScrollBox scrollBox = new GenericScrollBox(307, this.guiLeft + xOffset, this.guiTop + 10, 246-xOffset, 180, name, items, constantItems, numColumns);
+    	masterButton = scrollBox;
     	this.buttonList.clear();
 		this.buttonList.add(scrollBox);
     }

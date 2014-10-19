@@ -13,6 +13,7 @@ import TBC.Combat.EquippedItem;
 import TBC.Combat.EquippedItemManager;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.CombatScreen.GenericScrollBox;
+import TBC.CombatScreen.GenericScrollBoxCellData;
 import TBC.CombatScreen.IGenericAction;
 
 public class ShowItemsMenuFunction implements IGenericAction
@@ -31,7 +32,7 @@ public class ShowItemsMenuFunction implements IGenericAction
 	@Override
 	public void Invoke() 
 	{
-		ArrayList<Triplet<String, String, IGenericAction>> displayItems = new ArrayList<Triplet<String,String,IGenericAction>>();
+		ArrayList<GenericScrollBoxCellData> displayItems = new ArrayList<GenericScrollBoxCellData>();
 		ArrayList<Quintuplet<Item, EquippedItem, ICombatAbility, Integer>> items = EquippedItemManager.Instance.GetAllKnownItemsForPlayer(Minecraft.getMinecraft(), Minecraft.getMinecraft().thePlayer);
 		for(int i = 0; i < items.size(); i++)
 		{
@@ -48,16 +49,16 @@ public class ShowItemsMenuFunction implements IGenericAction
 				itemName = items.get(i).item1.getItemStackDisplayName(new ItemStack(items.get(i).item1));
 			}
 
-			displayItems.add(new Triplet(itemName, items.get(i).item4 + "", action));
+			displayItems.add(new GenericScrollBoxCellData(itemName, items.get(i).item4 + "", action));
 		}
 
 		if(displayItems.size() == 0)
 		{
-			displayItems.add(new Triplet("You have no items.", "", null));
+			displayItems.add(new GenericScrollBoxCellData("You have no items.", "", null));
 		}
 
-		ArrayList<Triplet<String, String, IGenericAction>> constantButtons = new ArrayList<Triplet<String,String,IGenericAction>>();
-		constantButtons.add(new Triplet<String, String, IGenericAction>("Back", "", new SelectMainMenuFunction(this.gui)));
+		ArrayList<GenericScrollBoxCellData> constantButtons = new ArrayList<GenericScrollBoxCellData>();
+		constantButtons.add(new GenericScrollBoxCellData("Back", "", new SelectMainMenuFunction(this.gui)));
 		this.gui.ChangeButtonForSubMenu("Items", displayItems, constantButtons, 0);
 	}
 }

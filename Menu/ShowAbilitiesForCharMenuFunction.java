@@ -10,6 +10,7 @@ import TBC.Combat.CombatEntity;
 import TBC.Combat.Abilities.ConstantAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.CombatScreen.GenericScrollBox;
+import TBC.CombatScreen.GenericScrollBoxCellData;
 import TBC.CombatScreen.IGenericAction;
 
 public class ShowAbilitiesForCharMenuFunction implements IGenericAction
@@ -26,7 +27,7 @@ public class ShowAbilitiesForCharMenuFunction implements IGenericAction
 	@Override
 	public void Invoke() 
 	{
-		ArrayList<Triplet<String, String, IGenericAction>> displayAbilities = new ArrayList<Triplet<String,String,IGenericAction>>();
+		ArrayList<GenericScrollBoxCellData> displayAbilities = new ArrayList<GenericScrollBoxCellData>();
 		Pair<Integer, ICombatAbility>[] abilities = user.CombatEntity.GetAbilities();
 		for(int i = 0; i < abilities.length; i++)
 		{
@@ -46,17 +47,17 @@ public class ShowAbilitiesForCharMenuFunction implements IGenericAction
 					mpDisplay = "";
 				}
 
-				displayAbilities.add(new Triplet(ability.GetAbilityName(), mpDisplay, action));
+				displayAbilities.add(new GenericScrollBoxCellData(ability.GetAbilityName(), mpDisplay, action));
 			}
 		}
 
 		if(displayAbilities.size() == 0)
 		{
-			displayAbilities.add(new Triplet("You have no abilities.", "", null));
+			displayAbilities.add(new GenericScrollBoxCellData("You have no abilities.", "", null));
 		}
 
-		ArrayList<Triplet<String, String, IGenericAction>> constantButtons = new ArrayList<Triplet<String,String,IGenericAction>>();
-		constantButtons.add(new Triplet<String, String, IGenericAction>("Back", "", new SelectAbilitiesMenuFunction(this.gui)));
+		ArrayList<GenericScrollBoxCellData> constantButtons = new ArrayList<GenericScrollBoxCellData>();
+		constantButtons.add(new GenericScrollBoxCellData("Back", "", new SelectAbilitiesMenuFunction(this.gui)));
 		
 		this.gui.ChangeButtonForSubMenu("Abilities", displayAbilities, constantButtons, 0);
 	}
