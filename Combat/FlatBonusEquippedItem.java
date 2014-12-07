@@ -1,5 +1,7 @@
 package TBC.Combat;
 
+import java.util.ArrayList;
+
 import TBC.Combat.Effects.StatChangeStatus;
 
 public class FlatBonusEquippedItem extends EquippedItem
@@ -9,13 +11,14 @@ public class FlatBonusEquippedItem extends EquippedItem
 	private String itemSlot;
 	private Boolean doesRequireWorn;
 
-	public FlatBonusEquippedItem(int effectType, int effectStrength, String slot)
+	public FlatBonusEquippedItem(int effectType, int effectStrength, String slot, ArrayList<String> description)
 	{
-		this(effectType, effectStrength, slot, false);
+		this(effectType, effectStrength, slot, false, description);
 	}
 
-	public FlatBonusEquippedItem(int effectType, int effectStrength, String slot, Boolean doesRequireWorn)
+	public FlatBonusEquippedItem(int effectType, int effectStrength, String slot, Boolean doesRequireWorn, ArrayList<String> description)
 	{
+		super(description);
 		this.itemEffectType = effectType;
 		this.itemEffectStrength = effectStrength;
 		this.itemSlot = slot;

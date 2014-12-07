@@ -12,16 +12,16 @@ public class DelayedAbility extends SacrificeAbility
 	private ICombatAbility delayedAbility;
 	private boolean hasInitialEffect = false;
 
-	public DelayedAbility(ICombatAbility delayedAbility, String name, int targetType, int cost, Boolean usableOutOfCombat, Boolean isSpell)
+	public DelayedAbility(ICombatAbility delayedAbility, String name, int targetType, int cost, Boolean usableOutOfCombat, Boolean isSpell, ArrayList<String> description)
 	{
-		super(new IOneTimeEffect[0], new IOneTimeEffect[0], name, targetType, cost, usableOutOfCombat, isSpell);
+		super(new IOneTimeEffect[0], new IOneTimeEffect[0], name, targetType, cost, usableOutOfCombat, isSpell, description);
 		hasInitialEffect = false;
 		this.delayedAbility = delayedAbility;
 	}
 
-	public DelayedAbility(IOneTimeEffect[] initialSelfEffects, IOneTimeEffect[] initialEffects, ICombatAbility delayedAbility, String name, int targetType, int cost, Boolean usableOutOfCombat, Boolean isSpell)
+	public DelayedAbility(IOneTimeEffect[] initialSelfEffects, IOneTimeEffect[] initialEffects, ICombatAbility delayedAbility, String name, int targetType, int cost, Boolean usableOutOfCombat, Boolean isSpell, ArrayList<String> description)
 	{
-		super(initialSelfEffects, initialEffects, name, targetType, cost, usableOutOfCombat, isSpell);
+		super(initialSelfEffects, initialEffects, name, targetType, cost, usableOutOfCombat, isSpell, description);
 		if(initialEffects.length != 0 || initialSelfEffects.length != 0)
 		{
 			hasInitialEffect = true;

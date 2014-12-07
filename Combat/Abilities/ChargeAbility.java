@@ -1,5 +1,6 @@
 package TBC.Combat.Abilities;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import TBC.Pair;
@@ -11,9 +12,9 @@ import TBC.CombatScreen.TurnState;
 public class ChargeAbility extends StandardAbility
 {
 	public ChargeAbility(IOneTimeEffect[] effects, String name, int targetType,
-			int cost, Boolean usableOutOfCombat, Boolean isSpell)
+			int cost, Boolean usableOutOfCombat, Boolean isSpell, ArrayList<String> descriptions)
 	{
-		super(effects, name, targetType, cost, usableOutOfCombat, isSpell);
+		super(effects, name, targetType, cost, usableOutOfCombat, isSpell, descriptions);
 	}
 
 	public void DrawUser(

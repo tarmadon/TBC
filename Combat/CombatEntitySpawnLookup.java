@@ -77,18 +77,11 @@ public class CombatEntitySpawnLookup
 				String biome = split[4].trim();
 				Integer level = Integer.parseInt(split[5].trim());
 				Integer weight = Integer.parseInt(split[6].trim());
-				String itemToEnchant = null;
-				String enchantedItem = null;
-				if(split.length >= 9)
-				{
-					itemToEnchant = split[7].trim();
-					enchantedItem = split[8].trim();
-				}
 
 				ArrayList<Pair<String, Integer>> additionalDrops = new ArrayList<Pair<String,Integer>>();
-				if(split.length >= 10)
+				if(split.length >= 8)
 				{
-					for(int i = 9; i < split.length; i++)
+					for(int i = 7; i < split.length; i++)
 					{
 						String value = split[i];
 						String[] parts = value.split("/");
@@ -103,7 +96,7 @@ public class CombatEntitySpawnLookup
 				}
 
 				lookup.get(name).add(new TemplateWithLevel(level, displayName));
-				ItemReplacementLookup.Instance.AddItemData(name, displayName, dropItem, recipeItem, itemToEnchant, enchantedItem, additionalDrops);
+				ItemReplacementLookup.Instance.AddItemData(name, displayName, dropItem, recipeItem, additionalDrops);
 			}
 		}
 		catch (FileNotFoundException e)

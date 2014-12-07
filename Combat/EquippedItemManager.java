@@ -45,7 +45,7 @@ public class EquippedItemManager
 
 	public static EquippedItemManager Instance = new EquippedItemManager();
 	public Hashtable<String, EquippedItem> lookup = new Hashtable<String, EquippedItem>();
-	public Hashtable<String, Pair<ICombatAbility, Integer>> usableLookup = new Hashtable<String, Pair<ICombatAbility, Integer>>();
+	public Hashtable<String, UsableItem> usableLookup = new Hashtable<String, UsableItem>();
 
 	private File file;
 
@@ -75,9 +75,26 @@ public class EquippedItemManager
 					continue;
 				}
 
+				ArrayList<String> descriptions = new ArrayList<String>();
+				if(split.length >= 9)
+				{
+					String descriptionRawString = split[8].trim();
+					String[] descriptionSplit = descriptionRawString.split(";");
+					for(String description : descriptionSplit)
+					{
+						descriptions.add(description);
+					}
+				}
+				
 				if(split[1].trim().toLowerCase().contains("flat"))
 				{
-					lookup.put(split[0].trim(), new FlatBonusEquippedItem(Integer.parseInt(split[4].trim()), Integer.parseInt(split[5].trim()), split[2].trim(), Boolean.parseBoolean(split[3].trim())));
+					int effectType = Integer.parseInt(split[4].trim());
+					int effectStrength = Integer.parseInt(split[5].trim());
+					String slot = split[2].trim();
+					boolean requiresWorn = Boolean.parseBoolean(split[3].trim());
+					
+					
+					lookup.put(split[0].trim(), new FlatBonusEquippedItem(effectType, effectStrength, slot, requiresWorn, descriptions));
 				}
 
 				if(split[1].trim().toLowerCase().contains("use"))
@@ -86,7 +103,7 @@ public class EquippedItemManager
 					ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(abilityName);
 					if(ability != null)
 					{
-						usableLookup.put(split[0].trim(), new Pair(ability, Integer.parseInt(split[7].trim())));
+						usableLookup.put(split[0].trim(), new UsableItem(ability, Integer.parseInt(split[7].trim()), descriptions));
 					}
 				}
 			}
@@ -126,8 +143,8 @@ public class EquippedItemManager
 				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
 				if(usableLookup.containsKey(effectiveItemName))
 				{
-					Pair<ICombatAbility, Integer> ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.ArmorInventory, i), ability.item2, ability.item1);
+					UsableItem ability = usableLookup.get(effectiveItemName);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.ArmorInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility(), ability);
 					usableItems.add(new Pair(itemAbility, 1));
 				}
 			}
@@ -141,8 +158,8 @@ public class EquippedItemManager
 				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
 				if(usableLookup.containsKey(effectiveItemName))
 				{
-					Pair<ICombatAbility, Integer> ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.MainInventory, i), ability.item2, ability.item1);
+					UsableItem ability = usableLookup.get(effectiveItemName);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.MainInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility(), ability);
 					usableItems.add(new Pair(itemAbility, s.stackSize));
 				}
 			}
@@ -163,8 +180,8 @@ public class EquippedItemManager
 				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
 				if(usableLookup.containsKey(effectiveItemName))
 				{
-					Pair<ICombatAbility, Integer> ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.ArmorInventory, i), ability.item2, ability.item1);
+					UsableItem ability = usableLookup.get(effectiveItemName);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.ArmorInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility(), ability);
 					usableItems.add(new Quintuplet(s.getItem(), null, itemAbility, 1));
 				}
 				else if(lookup.containsKey(effectiveItemName))
@@ -183,8 +200,8 @@ public class EquippedItemManager
 				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
 				if(usableLookup.containsKey(effectiveItemName))
 				{
-					Pair<ICombatAbility, Integer> ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.MainInventory, i), ability.item2, ability.item1);
+					UsableItem ability = usableLookup.get(effectiveItemName);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.MainInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility(), ability);
 					usableItems.add(new Quintuplet(s.getItem(), null, itemAbility, s.stackSize));
 				}
 				else if(lookup.containsKey(effectiveItemName))
@@ -210,9 +227,8 @@ public class EquippedItemManager
 				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
 				if(usableLookup.containsKey(effectiveItemName))
 				{
-					Pair<ICombatAbility, Integer> ability = usableLookup.get(effectiveItemName);
-
-					equippedItems.add(ability.item1);
+					UsableItem ability = usableLookup.get(effectiveItemName);
+					equippedItems.add(ability.GetUseAbility());
 				}
 			}
 		}
@@ -223,8 +239,8 @@ public class EquippedItemManager
 			String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
 			if(usableLookup.containsKey(effectiveItemName))
 			{
-				Pair<ICombatAbility, Integer> ability = usableLookup.get(effectiveItemName);
-				equippedItems.add(ability.item1);
+				UsableItem ability = usableLookup.get(effectiveItemName);
+				equippedItems.add(ability.GetUseAbility());
 			}
 		}
 
@@ -283,7 +299,7 @@ public class EquippedItemManager
 				writer.close();
 			}
 
-			lookup.put(effectiveItemName, new FlatBonusEquippedItem(StatChangeStatus.DefenseChange, 1, UUID.randomUUID().toString()));
+			lookup.put(effectiveItemName, new FlatBonusEquippedItem(StatChangeStatus.DefenseChange, 1, "", new ArrayList<String>()));
 		}
 
 		return currentStat;

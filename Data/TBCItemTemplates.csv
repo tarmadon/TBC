@@ -1,61 +1,61 @@
-ItemName,ItemType,Slot,RequiresWorn,StatType,StatValue,Ability,DamageFromUse
-swordWood,flat,MainHand,FALSE,1,3,,
-swordStone,flat;use,MainHand,FALSE,1,6,Smite,10
-swordIron,flat,MainHand,FALSE,1,13,,
-swordGold,flat,MainHand,FALSE,1,20,,
-swordDiamond,flat,MainHand,FALSE,1,30,,
-bloodSword,flat;use,MainHand,FALSE,1,6,Lifesteal,0
-,,,,,,,
-hatchetWood,flat,MainHand,FALSE,1,2,,
-hatchetStone,flat,MainHand,FALSE,1,5,,
-hatchetIron,flat,MainHand,FALSE,1,11,,
-hatchetGold,flat,MainHand,FALSE,1,17,,
-hatchetDiamond,flat,MainHand,FALSE,1,25,,
-,,,,,,,
-bow,flat;use,MainHand,FALSE,1,15,Ranged,0
-,,,,,,,
-chestplateCloth,flat,Torso,TRUE,2,4,,
-chestplateIron,flat,Torso,TRUE,2,6,,
-chestplateChain,flat,Torso,TRUE,2,6,,
-chestplateGold,flat,Torso,TRUE,2,8,,
-chestplateDiamond,flat,Torso,TRUE,2,12,,
-,,,,,,,
-helmetCloth,flat,Head,TRUE,2,2,,
-helmetIron,flat,Head,TRUE,2,3,,
-helmetChain,flat,Head,TRUE,2,3,,
-helmetGold,flat,Head,TRUE,2,4,,
-helmetDiamond,flat,Head,TRUE,2,6,,
-,,,,,,,
-bootsCloth,flat;use,Foot,TRUE,2,2,Heal,-1
-bootsIron,flat,Foot,TRUE,2,3,,
-bootsChain,flat,Foot,TRUE,2,3,,
-bootsGold,flat,Foot,TRUE,2,4,,
-bootsDiamond,flat,Foot,TRUE,2,6,,
-,,,,,,,
-leggingsCloth,flat,Legs,TRUE,2,2,,
-leggingsIron,flat,Legs,TRUE,2,4,,
-leggingsChain,flat,Legs,TRUE,2,4,,
-leggingsGold,flat,Legs,TRUE,2,6,,
-leggingsDiamond,flat,Legs,TRUE,2,8,,
-,,,,,,,
-smallPotion,use,,,,,smallPotion,-1
-medPotion,use,,,,,medPotion,-1
-highPotion,use,,,,,highPotion,-1
-smallManaPotion,use,,,,,smallManaPotion,-1
-highManaPotion,use,,,,,highManaPotion,-1
-elixir,use,,,,,elixir,-1
-megalixir,use,,,,,megalixir,-1
-,,,,,,,
-antidote,use,,,,,antidote,-1
-echoScreen,use,,,,,echoScreen,-1
-parlyzHeal,use,,,,,parlyzHeal,-1
-pinwheel,use,,,,,pinwheel,-1
-eyeDrops,use,,,,,eyeDrops,-1
-panacea,use,,,,,panacea,-1
-phoenixDown,use,,,,,phoenixDown,-1
-,,,,,,,
-fireBomb,use,,,,,fireBomb,-1
-earthGem,use,,,,,earthGem,-1
-iceCrystal,use,,,,,iceCrystal,-1
-lightningRod,use,,,,,lightningRod,-1
-##UNKNOWN##,,,,,,,
+ItemName,ItemType,Slot,RequiresWorn,StatType,StatValue,Ability,DamageFromUse,Description
+swordWood,flat,MainHand,FALSE,1,3,,,+3 Attack
+swordStone,flat;use,MainHand,FALSE,1,6,Smite,10,+6 Attack
+swordIron,flat,MainHand,FALSE,1,13,,,+13 Attack
+swordGold,flat,MainHand,FALSE,1,20,,,+20 Attack
+swordDiamond,flat,MainHand,FALSE,1,30,,,+30 Attack
+bloodSword,flat;use,MainHand,FALSE,1,6,Lifesteal,0,+6 Attack;Lifesteal
+,,,,,,,,
+hatchetWood,flat,MainHand,FALSE,1,2,,,+2 Attack
+hatchetStone,flat,MainHand,FALSE,1,5,,,+5 Attack
+hatchetIron,flat,MainHand,FALSE,1,11,,,+11 Attack
+hatchetGold,flat,MainHand,FALSE,1,17,,,+17 Attack
+hatchetDiamond,flat,MainHand,FALSE,1,25,,,+25 Attack
+,,,,,,,,
+bow,flat;use,MainHand,FALSE,1,15,Ranged,0,+15 Attack;Ranged
+,,,,,,,,
+chestplateCloth,flat,Torso,TRUE,2,4,,,+4 Defense
+chestplateIron,flat,Torso,TRUE,2,6,,,+6 Defense
+chestplateChain,flat,Torso,TRUE,2,6,,,+6 Defense
+chestplateGold,flat,Torso,TRUE,2,8,,,+8 Defense
+chestplateDiamond,flat,Torso,TRUE,2,12,,,+12 Defense
+,,,,,,,,
+helmetCloth,flat,Head,TRUE,2,2,,,+2 Defense
+helmetIron,flat,Head,TRUE,2,3,,,+3 Defense
+helmetChain,flat,Head,TRUE,2,3,,,+3 Defense
+helmetGold,flat,Head,TRUE,2,4,,,+4 Defense
+helmetDiamond,flat,Head,TRUE,2,6,,,+6 Defense
+,,,,,,,,
+bootsCloth,flat;use,Foot,TRUE,2,2,Heal,-1,+2 Defense
+bootsIron,flat,Foot,TRUE,2,3,,,+3 Defense
+bootsChain,flat,Foot,TRUE,2,3,,,+3 Defense
+bootsGold,flat,Foot,TRUE,2,4,,,+4 Defense
+bootsDiamond,flat,Foot,TRUE,2,6,,,+6 Defense
+,,,,,,,,
+leggingsCloth,flat,Legs,TRUE,2,2,,,+2 Defense
+leggingsIron,flat,Legs,TRUE,2,4,,,+4 Defense
+leggingsChain,flat,Legs,TRUE,2,4,,,+4 Defense
+leggingsGold,flat,Legs,TRUE,2,6,,,+6 Defense
+leggingsDiamond,flat,Legs,TRUE,2,8,,,+8 Defense
+,,,,,,,,
+smallPotion,use,,,,,smallPotion,-1,Restores 20 HP
+medPotion,use,,,,,medPotion,-1,Restores 50 HP
+highPotion,use,,,,,highPotion,-1,Restores all HP
+smallManaPotion,use,,,,,smallManaPotion,-1,Restores 10 MP
+highManaPotion,use,,,,,highManaPotion,-1,Restores 100 MP
+elixir,use,,,,,elixir,-1,Restores all HP and MP
+megalixir,use,,,,,megalixir,-1,Restores entire party HP and MP
+,,,,,,,,
+antidote,use,,,,,antidote,-1,Cures Poison
+echoScreen,use,,,,,echoScreen,-1,Cures Silence
+parlyzHeal,use,,,,,parlyzHeal,-1,Cures Paralysis
+pinwheel,use,,,,,pinwheel,-1,Cures Confusion
+eyeDrops,use,,,,,eyeDrops,-1,Cures Blindness
+panacea,use,,,,,panacea,-1,Recovers status
+phoenixDown,use,,,,,phoenixDown,-1,Revives ally
+,,,,,,,,
+fireBomb,use,,,,,fireBomb,-1,Deals fire damage to one enemy
+earthGem,use,,,,,earthGem,-1,Deals earth damage to one enemy
+iceCrystal,use,,,,,iceCrystal,-1,Deals ice damage to one enemy
+lightningRod,use,,,,,lightningRod,-1,Deals lightning damage to one enemy
+##UNKNOWN##,,,,,,,,

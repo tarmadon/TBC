@@ -18,8 +18,9 @@ public class StandardAbility implements ICombatAbility
 	private IOneTimeEffect[] effects;
 	private Boolean usableOutOfCombat;
 	private Boolean isSpell;
-
-	public StandardAbility(IOneTimeEffect[] effects, String name, int targetType, int cost, Boolean usableOutOfCombat, Boolean isSpell)
+	private ArrayList<String> description;
+	
+	public StandardAbility(IOneTimeEffect[] effects, String name, int targetType, int cost, Boolean usableOutOfCombat, Boolean isSpell, ArrayList<String> description)
 	{
 		this.cost = cost;
 		this.targetType = targetType;
@@ -27,6 +28,7 @@ public class StandardAbility implements ICombatAbility
 		this.effects = effects;
 		this.usableOutOfCombat = usableOutOfCombat;
 		this.isSpell = isSpell;
+		this.description = description;
 	}
 
 	public int GetMpCost()
@@ -44,6 +46,11 @@ public class StandardAbility implements ICombatAbility
 		return this.targetType;
 	}
 
+	public ArrayList<String> GetDescription() 
+	{
+		return this.description;
+	}
+	
 	public IOneTimeEffect[] GetEffects(CombatEngine engine, CombatEntity user, ArrayList<CombatEntity> targets, ArrayList<String> messages)
 	{
 		if(!this.GetAbilityName().isEmpty() && messages != null)

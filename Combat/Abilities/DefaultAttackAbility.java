@@ -18,6 +18,6 @@ public class DefaultAttackAbility extends StandardAbility
 
 	public DefaultAttackAbility()
 	{
-		super(effect, "", AbilityTargetType.OneEnemy, 0, false, false);
+		super(effect, "", AbilityTargetType.OneEnemy, 0, false, false, new ArrayList<String>());
 	}
 }

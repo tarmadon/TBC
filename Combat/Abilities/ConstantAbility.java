@@ -15,11 +15,13 @@ public class ConstantAbility implements ICombatAbility
 {
 	private String abilityName;
 	private List effects;
-
-	public ConstantAbility(String abilityName, List effects)
+	private ArrayList<String> description;
+	
+	public ConstantAbility(String abilityName, List effects, ArrayList<String> description)
 	{
 		this.abilityName = abilityName;
 		this.effects = effects;
+		this.description = description;
 	}
 
 	public Boolean IsUsableOutOfCombat()
@@ -37,6 +39,11 @@ public class ConstantAbility implements ICombatAbility
 		return AbilityTargetType.Self;
 	}
 
+	public ArrayList<String> GetDescription() 
+	{
+		return this.description;
+	}
+	
 	public int GetMpCost()
 	{
 		return 100000;

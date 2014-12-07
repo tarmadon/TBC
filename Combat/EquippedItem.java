@@ -1,7 +1,16 @@
 package TBC.Combat;
 
+import java.util.ArrayList;
+
 public class EquippedItem
 {
+	private ArrayList<String> descriptions;
+	
+	public EquippedItem(ArrayList<String> descriptions)
+	{
+		this.descriptions = descriptions;
+	}
+	
 	public Boolean HasEffect(int effectType)
 	{
 		return false;
@@ -27,8 +36,8 @@ public class EquippedItem
 		return false;
 	}
 
-	public String GetDisplayString()
+	public ArrayList<String> DescriptionStrings()
 	{
-		return "";
+		return descriptions;
 	}
 }

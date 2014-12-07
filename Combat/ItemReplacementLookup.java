@@ -25,7 +25,7 @@ public class ItemReplacementLookup
 	HashMap<String, ItemReplacementData> lookup = new HashMap<String, ItemReplacementData>();
 	HashMap<String, Item> baseItemLookup = null;
 
-	public void AddItemData(String baseEntityName, String entityName, String baseItemName, String recipeItemName, String itemToEnchant, String enchantedItem, ArrayList<Pair<String, Integer>> optionalDrops)
+	public void AddItemData(String baseEntityName, String entityName, String baseItemName, String recipeItemName, ArrayList<Pair<String, Integer>> optionalDrops)
 	{
 		if(baseItemName == null || baseItemName.isEmpty())
 		{
@@ -45,10 +45,8 @@ public class ItemReplacementLookup
 			}
 		}
 
-		boolean hasEnchantedItem = itemToEnchant != null && itemToEnchant.length() > 0;
 		Item baseItem = null;
 		Item recipeItem = null;
-		Item toEnchantItem = null;
 		if(!baseItemName.isEmpty())
 		{
 			baseItem = baseItemLookup.get(baseItemName.toLowerCase());
@@ -59,20 +57,25 @@ public class ItemReplacementLookup
 			recipeItem = baseItemLookup.get(recipeItemName.toLowerCase());
 		}
 
-		if(hasEnchantedItem)
-		{
-			toEnchantItem = baseItemLookup.get(itemToEnchant.toLowerCase());
-		}
-
 		ArrayList<Pair<Item, Integer>> additionalDrops = new ArrayList<Pair<Item,Integer>>();
 		for(Pair<String, Integer> add : optionalDrops)
 		{
 			additionalDrops.add(new Pair<Item, Integer>(baseItemLookup.get(add.item1.toLowerCase()), add.item2));
 		}
 
-		lookup.put(entityName, new ItemReplacementData(baseEntityName, entityName, baseItem, recipeItem, toEnchantItem, enchantedItem, additionalDrops));
+		lookup.put(entityName, new ItemReplacementData(baseEntityName, entityName, baseItem, recipeItem, additionalDrops));
 	}
 
+	public Item GetBaseItem(String itemName)
+	{
+		if(this.baseItemLookup.containsKey(itemName))
+		{
+			return this.baseItemLookup.get(itemName);
+		}
+		
+		return null;
+	}
+	
 	public ArrayList<Pair<Item, Item>> GetItemReplacementForEntity(String entityName)
 	{
 		ArrayList<Pair<Item, Item>> replacements = new ArrayList<Pair<Item,Item>>();
@@ -105,34 +108,14 @@ public class ItemReplacementLookup
 			String entityName = data.EntityName;
 			Item baseItem = data.BaseItem;
 			Item recipeHeadItem = data.RecipeHeadItem;
-			Item itemToEnchant = data.ItemToEnchant;
 
 			Item entityHench = new HenchmanItem(baseEntityName, entityName).setUnlocalizedName(entityName.replace(" ",  "") + "Hench");
-			Item entityItem = new CloneItem(baseItem, null).setUnlocalizedName(entityName.replace(" ",  "") + "Drop");
+			Item entityItem = new CloneItem(baseItem).setUnlocalizedName(entityName.replace(" ",  "") + "Drop");
 			GameRegistry.registerItem(entityHench, entityHench.getUnlocalizedName(), "tbc");
 			GameRegistry.registerItem(entityItem, entityItem.getUnlocalizedName(), "tbc");
 			data.ReplacementItem = entityItem;
 			GameRegistry.addShapedRecipe(new ItemStack(entityHench), " y ","xxx"," x ", 'x',entityItem, 'y', recipeHeadItem);
 			GameRegistry.addShapelessRecipe(new ItemStack(baseItem), entityItem);
-			if(itemToEnchant != null)
-			{
-				String enchantedItemName = data.EnchantedItemName.replace(" ", "");
-				Item enchantedItem;
-				if(!createdItems.containsKey(enchantedItemName))
-				{
-					enchantedItem = new CloneItem(itemToEnchant, null).setUnlocalizedName(data.EnchantedItemName.replace(" ", ""));
-					GameRegistry.registerItem(enchantedItem, enchantedItem.getUnlocalizedName(), "tbc");
-					createdItems.put(enchantedItemName, enchantedItem);
-				}
-				else
-				{
-					enchantedItem = createdItems.get(enchantedItemName);
-				}
-				
-				GameRegistry.addShapedRecipe(new ItemStack(enchantedItem), "xxx", "xyx", "xxx", 'x', entityItem, 'y', itemToEnchant);
-				LanguageRegistry.addName(enchantedItem, data.EnchantedItemName);
-			}
-
 			LanguageRegistry.addName(entityHench, entityName + " Link");
 			LanguageRegistry.addName(entityItem, entityName + " " + new ItemStack(baseItem).getDisplayName());
 		}
@@ -140,14 +123,12 @@ public class ItemReplacementLookup
 
 	public class ItemReplacementData
 	{
-		public ItemReplacementData(String baseName, String entityName, Item baseItem, Item recipeItem, Item itemToEnchant, String enchantedItemName, ArrayList<Pair<Item, Integer>> additionalDrops)
+		public ItemReplacementData(String baseName, String entityName, Item baseItem, Item recipeItem, ArrayList<Pair<Item, Integer>> additionalDrops)
 		{
 			this.BaseEntityName = baseName;
 			this.EntityName = entityName;
 			this.BaseItem = baseItem;
 			this.RecipeHeadItem = recipeItem;
-			this.ItemToEnchant = itemToEnchant;
-			this.EnchantedItemName = enchantedItemName;
 			this.AdditionalDrops = additionalDrops;
 		}
 
@@ -156,8 +137,6 @@ public class ItemReplacementLookup
 		Item BaseItem;
 		Item ReplacementItem;
 		Item RecipeHeadItem;
-		Item ItemToEnchant;
-		String EnchantedItemName;
 		ArrayList<Pair<Item, Integer>> AdditionalDrops;
 	}
 

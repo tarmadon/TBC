@@ -18,9 +18,10 @@ public interface ICombatAbility extends Serializable
 	Boolean IsUsableOutOfCombat();
 	String GetAbilityName();
 	int GetAbilityTarget();
+	ArrayList<String> GetDescription();
 	int GetMpCost();
 	IOneTimeEffect[] GetEffects(CombatEngine engine, CombatEntity user, ArrayList<CombatEntity> targets, ArrayList<String> messages);
-
+	
 	void DrawUser(BattleScreenDrawer display, HashMap<CombatEntity, Pair<Integer, Integer>> positionLookup, TurnState state, CombatEntity entity, boolean isAlly, boolean isTarget, int startXPos, int startYPos, int startRotation);
 	void DrawTarget(BattleScreenDrawer display, TurnState state, CombatEntity entity, boolean isAlly, int startXPos, int startYPos, int startRotation);
 	int GetAnimationTime();

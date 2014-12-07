@@ -7,6 +7,7 @@ import TBC.MainMod;
 import TBC.Pair;
 import TBC.Combat.CombatEngine;
 import TBC.Combat.CombatEntity;
+import TBC.Combat.UsableItem;
 import TBC.Combat.Effects.IOneTimeEffect;
 import TBC.CombatScreen.BattleScreenDrawer;
 import TBC.CombatScreen.TurnState;
@@ -21,16 +22,18 @@ public class RemoveItemAbility implements ICombatAbility
 	public static final int MainInventory = 0;
 	public static final int ArmorInventory = 1;
 	private ICombatAbility itemAbility;
+	private UsableItem item;
 	private Pair<Integer, Integer> inventoryItemPosition;
 	private int damage;
 	private int playerId;
 
-	public RemoveItemAbility(int playerId, Pair<Integer, Integer> inventoryItemPosition, int damage, ICombatAbility itemAbility)
+	public RemoveItemAbility(int playerId, Pair<Integer, Integer> inventoryItemPosition, int damage, ICombatAbility itemAbility, UsableItem item)
 	{
 		this.itemAbility = itemAbility;
 		this.damage = damage;
 		this.inventoryItemPosition = inventoryItemPosition;
 		this.playerId = playerId;
+		this.item = item;
 	}
 
 	public int GetMpCost()
@@ -56,6 +59,11 @@ public class RemoveItemAbility implements ICombatAbility
 		}
 	}
 
+	public ArrayList<String> GetDescription() 
+	{
+		return this.item.DescriptionStrings();
+	}
+	
 	public int GetAbilityTarget()
 	{
 		return itemAbility.GetAbilityTarget();

@@ -14,13 +14,11 @@ import net.minecraft.util.IIcon;
 public class CloneItem extends Item
 {
 	private Item originalItem;
-	private String description;
-	private IIcon icon;
+		private IIcon icon;
 
-	public CloneItem(Item originalItem, String description)
+	public CloneItem(Item originalItem)
 	{
 		this.originalItem = originalItem;
-		this.description = description;
 		this.setCreativeTab(originalItem.getCreativeTab());
 	}
 
@@ -34,14 +32,4 @@ public class CloneItem extends Item
 	{
 		return this.originalItem.getIconFromDamage(par1);
 	}
-
-    @SideOnly(Side.CLIENT)
-    public void addInformation(ItemStack par1ItemStack, EntityPlayer par2EntityPlayer, List par3List, boolean par4)
-    {
-    	super.addInformation(par1ItemStack, par2EntityPlayer, par3List, par4);
-    	if(this.description != null)
-    	{
-    		par3List.add(this.description);
-    	}
-    }
 }

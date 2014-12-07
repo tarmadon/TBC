@@ -39,6 +39,16 @@ public class ShowItemsMenuFunction implements IGenericAction
 			IGenericAction action = null;
 			ICombatAbility itemAbility = items.get(i).item3;
 			String itemName = "";
+			String hoverText = "";
+			if(itemAbility != null)
+			{
+				ArrayList<String> descriptions = itemAbility.GetDescription();
+				if(descriptions.size() > 0)
+				{
+					hoverText = itemAbility.GetDescription().get(0);
+				}
+			}
+			
 			if(itemAbility != null && itemAbility.IsUsableOutOfCombat())
 			{
 				itemName = itemAbility.GetAbilityName();
@@ -47,9 +57,14 @@ public class ShowItemsMenuFunction implements IGenericAction
 			else
 			{
 				itemName = items.get(i).item1.getItemStackDisplayName(new ItemStack(items.get(i).item1));
+				if(items.get(i).item2 != null)
+				{
+					hoverText = items.get(i).item2.DescriptionStrings().get(0);
+				}
 			}
+			
 
-			displayItems.add(new GenericScrollBoxCellData(itemName, items.get(i).item4 + "", action));
+			displayItems.add(new GenericScrollBoxCellData(itemName, items.get(i).item4 + "", action, hoverText));
 		}
 
 		if(displayItems.size() == 0)

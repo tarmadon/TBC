@@ -10,9 +10,9 @@ public class SacrificeAbility extends StandardAbility
 {
 	private IOneTimeEffect[] effectsOnUser;
 
-	public SacrificeAbility(IOneTimeEffect[] effectsOnUser, IOneTimeEffect[] effectsOnTarget, String name, int targetType, int cost, Boolean usableOutOfCombat, Boolean isSpell)
+	public SacrificeAbility(IOneTimeEffect[] effectsOnUser, IOneTimeEffect[] effectsOnTarget, String name, int targetType, int cost, Boolean usableOutOfCombat, Boolean isSpell, ArrayList<String> description)
 	{
-		super(effectsOnTarget, name, targetType, cost, usableOutOfCombat, isSpell);
+		super(effectsOnTarget, name, targetType, cost, usableOutOfCombat, isSpell, description);
 		this.effectsOnUser = effectsOnUser;
 	}
 
