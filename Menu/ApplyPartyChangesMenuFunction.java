@@ -8,6 +8,7 @@ import TBC.CombatEntitySaveData;
 import TBC.HenchmanItem;
 import TBC.MainMod;
 import TBC.Pair;
+import TBC.PlayerSaveData;
 import TBC.Triplet;
 import TBC.Combat.CombatEntity;
 import TBC.CombatScreen.IGenericAction;
@@ -51,13 +52,13 @@ public class ApplyPartyChangesMenuFunction implements IGenericAction
 		{
 			EntityPlayer player = selected.Player;
 			CombatEntitySaveData playerData = new CombatEntitySaveData();
-			playerData.loadNBTData(player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+			playerData.loadNBTData(PlayerSaveData.GetPlayerTag(player));
 			playerData.IsInParty = index;
 			playerData.IsFrontRow = frontRow ? 1 : 0;
 			
-			playerData.saveNBTData(player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+			playerData.saveNBTData(PlayerSaveData.GetPlayerTag(player));
 			NBTTagCompoundMessage m = new NBTTagCompoundMessage();
-			m.tag = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+			m.tag = PlayerSaveData.GetPlayerTag(player);
 			MainMod.syncPlayerDataHandler.sendToServer(m);
 		}
 		else

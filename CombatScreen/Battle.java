@@ -11,6 +11,7 @@ import TBC.CombatEntitySaveData;
 import TBC.HenchmanItem;
 import TBC.MainMod;
 import TBC.Pair;
+import TBC.PlayerSaveData;
 import TBC.Combat.CombatEngine;
 import TBC.Combat.CombatEntity;
 import TBC.Combat.CombatEntityLookup;
@@ -514,25 +515,24 @@ public class Battle
 				else
 				{
 					player.setHealth(1);
-					NBTTagCompound tag = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+					NBTTagCompound tag = PlayerSaveData.GetPlayerTag(player);
 					tag.setInteger("TBCPlayerMP", entity.currentMp);
-					player.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
+					PlayerSaveData.SetPlayerTag(player, tag);
 				}
 			}
 			else
 			{
 				float maxHealth = player.getMaxHealth();
 				float currentHpPercentage = (float)entity.currentHp / entity.GetMaxHp();
-				//int healthToSet = Math.round((currentHpPercentage * maxHealth) + .499999F);
 				player.setHealth(currentHpPercentage * maxHealth);
 
-				NBTTagCompound tag = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+				NBTTagCompound tag = PlayerSaveData.GetPlayerTag(player);
 				tag.setInteger("TBCPlayerMP", entity.currentMp);
-				player.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
+				PlayerSaveData.SetPlayerTag(player, tag);
 			}
 			
 			NBTTagCompoundMessage playerData = new NBTTagCompoundMessage();
-			playerData.tag = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+			playerData.tag = PlayerSaveData.GetPlayerTag(player);
 			MainMod.syncPlayerDataHandler.sendTo(playerData, player);
 		}
 		else if(henchmanLookup.containsKey(entity))

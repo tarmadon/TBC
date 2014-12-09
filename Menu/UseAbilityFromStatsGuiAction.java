@@ -17,6 +17,7 @@ import net.minecraft.util.DamageSource;
 import TBC.CombatEntitySaveData;
 import TBC.HenchmanItem;
 import TBC.MainMod;
+import TBC.PlayerSaveData;
 import TBC.Triplet;
 import TBC.Combat.CombatEngine;
 import TBC.Combat.CombatEntity;
@@ -96,9 +97,9 @@ public class UseAbilityFromStatsGuiAction implements IGenericAction
 			setHealth.Data = "" + healthToSet;
 			MainMod.setHealthHandler.sendToServer(setHealth);
 
-			NBTTagCompound tag = mc.thePlayer.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+			NBTTagCompound tag = PlayerSaveData.GetPlayerTag(mc.thePlayer);
 			tag.setInteger("TBCPlayerMP", entity.CombatEntity.currentMp);
-			player.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
+			PlayerSaveData.SetPlayerTag(player, tag);
 			SyncTagToServer(player);
 		}
 		else
@@ -126,7 +127,7 @@ public class UseAbilityFromStatsGuiAction implements IGenericAction
 	private void SyncTagToServer(EntityPlayer playerEntity)
 	{
 		NBTTagCompoundMessage message = new NBTTagCompoundMessage();
-		message.tag = playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+		message.tag = PlayerSaveData.GetPlayerTag(playerEntity);
 		MainMod.syncPlayerDataHandler.sendToServer(message);
 	}
 }

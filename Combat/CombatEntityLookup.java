@@ -24,6 +24,7 @@ import cpw.mods.fml.common.registry.EntityRegistry;
 
 import TBC.Pair;
 import TBC.CombatEntitySaveData;
+import TBC.PlayerSaveData;
 import TBC.Combat.Abilities.AbilityLookup;
 import TBC.Combat.Abilities.DefaultAttackAbility;
 import TBC.Combat.Abilities.ICombatAbility;
@@ -36,6 +37,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 import net.minecraftforge.client.ForgeHooksClient;
@@ -141,11 +143,11 @@ public class CombatEntityLookup
 		}
 	}
 
-	public CombatEntity GetCombatEntity(int entityId, String entityType, String templateName)
+	public CombatEntity GetCombatEntity(int entityId, String entityType, String templateName, NBTTagCompound tag)
 	{
 		if(this.lookupByName.containsKey(templateName))
 		{
-			return new CombatEntity(entityId, entityType, this.lookupByName.get(templateName));
+			return new CombatEntity(entityId, entityType, this.lookupByName.get(templateName), tag);
 		}
 
 		FMLLog.severe("Could not find entity for:  " + templateName);
@@ -159,12 +161,12 @@ public class CombatEntityLookup
 		if(this.lookupByName.containsKey(lookupName))
 		{
 			CombatEntityTemplate template = this.lookupByName.get(lookupName);
-			return new CombatEntity(player.getEntityId(), null, template);
+			return new CombatEntity(player.getEntityId(), null, template, PlayerSaveData.GetPlayerTag(player));
 		}
 
 		CombatEntityTemplate playerTemplate = LevelingEngine.Instance.GetPlayerEntityFromSavedData(player, playerName);
 		lookupByName.put(lookupName, playerTemplate);
-		return new CombatEntity(player.getEntityId(), null, playerTemplate);
+		return new CombatEntity(player.getEntityId(), null, playerTemplate, PlayerSaveData.GetPlayerTag(player));
 	}
 
 	public void ClearCombatEntitiesForPlayers()

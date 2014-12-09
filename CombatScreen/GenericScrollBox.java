@@ -32,9 +32,9 @@ public class GenericScrollBox extends GuiButton
 	private int numRows;
 	private int offset;
 
-	public GenericScrollBox(int par1, int par2, int par3, int par4, int par5, String par6Str, ArrayList<GenericScrollBoxCellData> items, ArrayList<GenericScrollBoxCellData> constantItems, Integer numColumns)
+	public GenericScrollBox(int id, int xPos, int yPos, int width, int height, String displayString, ArrayList<GenericScrollBoxCellData> items, ArrayList<GenericScrollBoxCellData> constantItems, Integer numColumns)
 	{
-		super(par1, par2, par3, par4, par5, par6Str);
+		super(id, xPos, yPos, width, height, displayString);
 		this.offset = 0;
 		FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
 		int maxStringLength = 0;
@@ -58,10 +58,10 @@ public class GenericScrollBox extends GuiButton
 		}
 		else
 		{
-			this.numColumns = par4/xSpacing;
+			this.numColumns = width/xSpacing;
 		}
 
-		this.numRows = (par5/ySpacing) - 1;
+		this.numRows = (height/ySpacing) - 1;
 		int curCol = 0;
 		int curRow = 0;
 		positions = new ArrayList<Triplet<Integer,Integer,Integer>>();

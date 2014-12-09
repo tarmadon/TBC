@@ -113,6 +113,7 @@ public class MainMod
 	public static SimpleNetworkWrapper syncPlayerDataHandler;
 	public static SimpleNetworkWrapper setHealthHandler;
 	public static SimpleNetworkWrapper removeItemHandler;
+	public static SimpleNetworkWrapper addItemHandler;
 	public static SimpleNetworkWrapper openGuiHandler;
 	
 	public static SimpleNetworkWrapper combatStartedHandler;
@@ -184,6 +185,8 @@ public class MainMod
 		syncPlayerDataHandler.registerMessage(SyncPlayerDataHandler.class, NBTTagCompoundMessage.class, 0, Side.SERVER);
 		removeItemHandler = new SimpleNetworkWrapper("TBCRemoveItem");
 		removeItemHandler.registerMessage(RemoveItemHandler.class, StringMessage.class, 0, Side.SERVER);
+		addItemHandler = new SimpleNetworkWrapper("TBCAddItem");
+		addItemHandler.registerMessage(AddItemHandler.class, NBTTagCompoundMessage.class, 0, Side.SERVER);
 		openGuiHandler = new SimpleNetworkWrapper("TBCOpenGui");
 		
 		combatStartedHandler = new SimpleNetworkWrapper("TBCCombatStart");
@@ -224,7 +227,7 @@ public class MainMod
 		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT && buildingEntity.entity instanceof EntityPlayer)
 		{
 			EntityPlayer playerEntity = (EntityPlayer)buildingEntity.entity;
-			if(!playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG).hasKey("playerLevel"))
+			if(!PlayerSaveData.GetPlayerTag(playerEntity).hasKey("playerLevel"))
 			{
 				syncPlayerDataHandler.sendToServer(new StringMessage());
 			}
@@ -300,7 +303,7 @@ public class MainMod
 	private void SyncTagToServer(EntityPlayer playerEntity)
 	{
 		NBTTagCompoundMessage message = new NBTTagCompoundMessage();
-		message.tag = playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+		message.tag = PlayerSaveData.GetPlayerTag(playerEntity);
 		syncPlayerDataHandler.sendToServer(message);
 	}
 
@@ -436,13 +439,13 @@ public class MainMod
         }
 
 		CombatEntity entity = CombatEntityLookup.Instance.GetCombatEntityForPlayer(evt.entityPlayer);
-		evt.entityPlayer.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG).setInteger("TBCPlayerMP", entity.GetMaxMp());
+		PlayerSaveData.GetPlayerTag(evt.entityPlayer).setInteger("TBCPlayerMP", entity.GetMaxMp());
 
 		if(evt.entityPlayer instanceof EntityPlayerMP)
 		{
 			EntityPlayerMP mpPlayer = (EntityPlayerMP)evt.entityPlayer;
 			NBTTagCompoundMessage playerDataMessage = new NBTTagCompoundMessage();
-			playerDataMessage.tag = mpPlayer.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+			playerDataMessage.tag = PlayerSaveData.GetPlayerTag(mpPlayer);
 			syncPlayerDataHandler.sendTo(playerDataMessage, mpPlayer);
 			
 			ItemStack[] p = mpPlayer.inventory.mainInventory;
@@ -452,7 +455,7 @@ public class MainMod
 				if(s != null && s.getItem() instanceof HenchmanItem)
 				{
 					HenchmanItem item = (HenchmanItem)s.getItem();
-					CombatEntity hench = CombatEntityLookup.Instance.GetCombatEntity(0, item.henchmanType, item.henchmanName);
+					CombatEntity hench = CombatEntityLookup.Instance.GetCombatEntity(0, item.henchmanType, item.henchmanName, HenchmanItem.GetTag(s));
 					s.setItemDamage(0);
 					NBTTagCompound tag = s.getTagCompound();
 					if(tag == null)

@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import TBC.Pair;
+import TBC.PlayerSaveData;
 import TBC.Quintuplet;
 import TBC.Triplet;
 import TBC.Combat.Abilities.AbilityLookup;
@@ -34,6 +35,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 
 public class EquippedItemManager
 {
@@ -168,6 +170,46 @@ public class EquippedItemManager
 		return usableItems;
 	}
 
+	public ArrayList<Quintuplet<Integer, Integer, Item, EquippedItem>> GetEquippableItemsForPlayer(Minecraft mc, EntityPlayer player)
+	{
+		ArrayList<Quintuplet<Integer, Integer, Item, EquippedItem>> usableItems = new ArrayList<Quintuplet<Integer, Integer, Item, EquippedItem>>();
+		InventoryPlayer inventory = player.inventory;
+		for(int i = 0; i<inventory.armorInventory.length; i++)
+		{
+			ItemStack s = inventory.armorInventory[i];
+			if(s != null)
+			{
+				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
+				if(lookup.containsKey(effectiveItemName))
+				{
+					EquippedItem item = lookup.get(effectiveItemName);
+					usableItems.add(new Quintuplet(RemoveItemAbility.ArmorInventory, i, s.getItem(), item));
+				}
+			}
+		}
+
+		for(int i = 0; i<inventory.mainInventory.length; i++)
+		{
+			ItemStack s = inventory.mainInventory[i];
+			if(s != null)
+			{
+				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
+				if(lookup.containsKey(effectiveItemName))
+				{
+					EquippedItem item = lookup.get(effectiveItemName);
+					usableItems.add(new Quintuplet(RemoveItemAbility.MainInventory, i, s.getItem(), item));
+				}
+			}
+		}
+
+		return usableItems;
+	}
+	
+	public EquippedItem GetEquippedItem(ItemStack itemStack)
+	{
+		return lookup.get(itemStack.getItem().getUnlocalizedName().replaceFirst("item.", ""));
+	}
+	
 	public ArrayList<Quintuplet<Item, EquippedItem, ICombatAbility, Integer>> GetAllKnownItemsForPlayer(Minecraft mc, EntityPlayer player)
 	{
 		ArrayList<Quintuplet<Item, EquippedItem, ICombatAbility, Integer>> usableItems = new ArrayList<Quintuplet<Item, EquippedItem, ICombatAbility, Integer>>();
@@ -215,13 +257,12 @@ public class EquippedItemManager
 		return usableItems;
 	}
 
-	public ArrayList<ICombatAbility> GetAbilitiesFromEquippedItems(Minecraft mc, EntityPlayer player)
+	public ArrayList<ICombatAbility> GetAbilitiesFromEquippedItems(NBTTagCompound tag)
 	{
 		ArrayList<ICombatAbility> equippedItems = new ArrayList<ICombatAbility>();
-		InventoryPlayer inventory = player.inventory;
-		for(int i = 0; i<inventory.armorInventory.length; i++)
+		ItemStack[] items = this.GetEquippedItems(tag);
+		for(ItemStack s : items)
 		{
-			ItemStack s = inventory.armorInventory[i];
 			if(s != null)
 			{
 				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
@@ -233,75 +274,61 @@ public class EquippedItemManager
 			}
 		}
 
-		ItemStack s = inventory.mainInventory[0];
-		if(s != null)
-		{
-			String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
-			if(usableLookup.containsKey(effectiveItemName))
-			{
-				UsableItem ability = usableLookup.get(effectiveItemName);
-				equippedItems.add(ability.GetUseAbility());
-			}
-		}
-
 		return equippedItems;
 	}
 
 	public int GetEffectiveStat(CombatEntity entity, int statType, int currentStat)
 	{
-		ArrayList<String> occupiedSlots = new ArrayList<String>();
 		int returnStat = currentStat;
-		if(entity.entityType == null)
+		if(entity.tag != null)
 		{
-			EntityPlayer player = (EntityPlayer)Minecraft.getMinecraft().theWorld.getEntityByID(entity.id);
-			InventoryPlayer inventory = player.inventory;
-			for(int i = 0; i<inventory.armorInventory.length; i++)
+			ItemStack[] items = this.GetEquippedItems(entity.tag);
+			for(ItemStack item : items)
 			{
-				if(inventory.armorInventory[i] != null)
+				if(item != null)
 				{
-					String itemName = inventory.armorInventory[i].getItem().getUnlocalizedName();
-					returnStat = ApplyFoundItem(itemName, statType, returnStat, occupiedSlots, true);
+					String itemName = item.getItem().getUnlocalizedName();
+					returnStat = ApplyFoundItem(itemName, statType, returnStat);
 				}
-			}
-
-			if(inventory.mainInventory[0] != null)
-			{
-				String itemName = inventory.mainInventory[0].getItem().getUnlocalizedName();
-				returnStat = ApplyFoundItem(itemName, statType, returnStat, occupiedSlots, false);
 			}
 		}
 
 		return returnStat;
 	}
 
-	private int ApplyFoundItem(String itemName, int statType, int currentStat, ArrayList<String> occupiedSlots, Boolean isWorn)
+	private int ApplyFoundItem(String itemName, int statType, int currentStat)
 	{
 		String effectiveItemName = itemName.replaceFirst("item.", "");
 		if(lookup.containsKey(effectiveItemName))
 		{
 			EquippedItem foundItem = lookup.get(effectiveItemName);
-			if(foundItem.HasEffect(statType) && !occupiedSlots.contains(foundItem.GetSlot()) && (isWorn || !foundItem.DoesRequireWorn()))
+			if(foundItem.HasEffect(statType))
 			{
-				occupiedSlots.add(foundItem.GetSlot());
 				return foundItem.GetModifiedValue(currentStat);
 			}
-		}
-		else if(isWorn)
-		{
-			PrintWriter writer = null;
-			try
-			{
-				writer = new PrintWriter(new FileWriter(this.file, true));
-				writer.println(effectiveItemName);
-			} catch (IOException e) { FMLLog.severe("Could not write unknown armor: %s", itemName); }
-			finally
-			{
-				writer.close();
-			}
-
-			lookup.put(effectiveItemName, new FlatBonusEquippedItem(StatChangeStatus.DefenseChange, 1, "", new ArrayList<String>()));
 		}
 
 		return currentStat;
 	}
+	
+	public ItemStack[] GetEquippedItems(NBTTagCompound tag)
+	{	
+		ItemStack[] equipped = new ItemStack[5];
+		for(int i = 0; i < 5; i++)
+		{
+			if(tag.hasKey("TBCslot" + i))
+			{
+				equipped[i] = ItemStack.loadItemStackFromNBT(tag.getCompoundTag("TBCslot" + i));
+			}
+		}
+		
+		return equipped;
+	}
+	
+    public static void SetItem(int slot, ItemStack item, NBTTagCompound tag)
+    {
+    	NBTTagCompound itemTag = new NBTTagCompound();
+    	itemTag = item.writeToNBT(itemTag);
+    	tag.setTag("TBCslot" + slot, itemTag);
+    }
 }

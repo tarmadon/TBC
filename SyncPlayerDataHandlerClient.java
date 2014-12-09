@@ -18,9 +18,9 @@ public class SyncPlayerDataHandlerClient implements IMessageHandler<NBTTagCompou
 		{
 			EntityPlayer playerEntity = Minecraft.getMinecraft().thePlayer;
 			NBTTagCompound c = message.tag;
-			NBTTagCompound tag = playerEntity.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
-			SyncPlayerDataHandler.MergeTagCompound(c, tag);
-			playerEntity.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, tag);
+			NBTTagCompound tag = PlayerSaveData.GetPlayerTag(playerEntity);
+			TagCompoundExt.MergeTagCompound(c, tag);
+			PlayerSaveData.SetPlayerTag(playerEntity, tag);
 			MainMod.playerDataInit = true;
 		}
 		

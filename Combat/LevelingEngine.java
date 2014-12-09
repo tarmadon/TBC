@@ -16,6 +16,7 @@ import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
 import TBC.Pair;
 import TBC.CombatEntitySaveData;
+import TBC.PlayerSaveData;
 import TBC.Combat.Abilities.AbilityLookup;
 import TBC.Combat.Abilities.ICombatAbility;
 
@@ -187,15 +188,15 @@ public class LevelingEngine
 
 	private void SavePlayerData(EntityPlayer player, CombatEntitySaveData data)
 	{
-		NBTTagCompound persistedTag = player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG);
+		NBTTagCompound persistedTag = PlayerSaveData.GetPlayerTag(player);
 		data.saveNBTData(persistedTag);
-		player.getEntityData().setTag(EntityPlayer.PERSISTED_NBT_TAG, persistedTag);
+		PlayerSaveData.SetPlayerTag(player, persistedTag);
 	}
 
 	private CombatEntitySaveData GetSavedPlayerData(EntityPlayer player)
 	{
 		CombatEntitySaveData data = new CombatEntitySaveData();
-		data.loadNBTData(player.getEntityData().getCompoundTag(EntityPlayer.PERSISTED_NBT_TAG));
+		data.loadNBTData(PlayerSaveData.GetPlayerTag(player));
 		return data;
 	}
 }

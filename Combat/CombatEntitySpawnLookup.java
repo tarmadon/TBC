@@ -22,6 +22,7 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.monster.EntityMob;
 import net.minecraft.entity.passive.EntityAnimal;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import TBC.Pair;
 import TBC.Combat.Abilities.DefaultAttackAbility;
@@ -132,7 +133,7 @@ public class CombatEntitySpawnLookup
 		
 		if(innerEntity.getEntityData().getString("TBCEntityName") != "")
 		{
-			return CombatEntityLookup.Instance.GetCombatEntity(entityId, entityName, innerEntity.getEntityData().getString("TBCEntityName"));
+			return CombatEntityLookup.Instance.GetCombatEntity(entityId, entityName, innerEntity.getEntityData().getString("TBCEntityName"), new NBTTagCompound());
 		}
 
 		if(entityName != null && this.lookup.containsKey(entityName))
@@ -180,7 +181,7 @@ public class CombatEntitySpawnLookup
 
 			int totalWeight = nearMatches.size();
 			int value = CombatRandom.GetRandom().nextInt(totalWeight);
-			CombatEntity found = CombatEntityLookup.Instance.GetCombatEntity(entityId, entityName, nearMatches.get(value).templateName);
+			CombatEntity found = CombatEntityLookup.Instance.GetCombatEntity(entityId, entityName, nearMatches.get(value).templateName, new NBTTagCompound());
 			if(found != null)
 			{
 				return found;
@@ -190,12 +191,12 @@ public class CombatEntitySpawnLookup
 			CombatEntityTemplate template = this.BuildDefaultEntityTemplate(innerEntity);
 			template.name = templateName;
 			CombatEntityLookup.Instance.lookupByName.put(templateName, template);
-			return new CombatEntity(entityId, entityName, template);
+			return new CombatEntity(entityId, entityName, template, new NBTTagCompound());
 		}
 
 		CombatEntityTemplate template = this.BuildDefaultEntityTemplate(innerEntity);
 		CombatEntityLookup.Instance.lookupByName.put(entityName, template);
-		return new CombatEntity(entityId, entityName, template);
+		return new CombatEntity(entityId, entityName, template, new NBTTagCompound());
 	}
 
 	public void LogUnknownEntities()

@@ -364,9 +364,9 @@ public class CombatEngine
 			}
 		}
 
-		if(ally.entityType == null)
+		if(ally.tag != null)
 		{
-			ArrayList<ICombatAbility> equipmentAbilities = EquippedItemManager.Instance.GetAbilitiesFromEquippedItems(Minecraft.getMinecraft(), (EntityPlayer)Minecraft.getMinecraft().theWorld.getEntityByID(ally.id));
+			ArrayList<ICombatAbility> equipmentAbilities = EquippedItemManager.Instance.GetAbilitiesFromEquippedItems(ally.tag);
 			for(ICombatAbility equipmentAbility : equipmentAbilities)
 			{
 				if(equipmentAbility instanceof ConstantAbility)

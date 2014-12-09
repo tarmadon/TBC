@@ -120,14 +120,18 @@ public class StatsGui extends GuiInventory
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glPopMatrix();
         
-        if(this.masterButton.mousePressed(mc, par1, par2))
+        for(Object b : this.buttonList)
         {
-        	GenericScrollBoxCellData d = this.masterButton.GetCellUnderMouse(par1, par2);
-        	if(d != null && !d.HoverText.isEmpty())
+        	if(b instanceof GenericScrollBox)
         	{
-        		ArrayList<String> toShow = new ArrayList<String>();
-        		toShow.add(d.HoverText);
-        		this.drawHoveringText(toShow, par1, par2, fontRendererObj);
+        		GenericScrollBox scrollBox = (GenericScrollBox)b;
+            	GenericScrollBoxCellData d = scrollBox.GetCellUnderMouse(par1, par2);
+            	if(d != null && !d.HoverText.isEmpty())
+            	{
+            		ArrayList<String> toShow = new ArrayList<String>();
+            		toShow.add(d.HoverText);
+            		this.drawHoveringText(toShow, par1, par2, fontRendererObj);
+            	}
         	}
         }
         
@@ -226,6 +230,17 @@ public class StatsGui extends GuiInventory
     	masterButton = button;
     	this.buttonList.clear();
 		this.buttonList.add(button);
+    }
+    
+    public void ChangeButtonForSubMenu(String name, ArrayList<GenericScrollBoxCellData> leftSideItems, ArrayList<GenericScrollBoxCellData> rightSideItems, ArrayList<GenericScrollBoxCellData> constantItems, Integer numColumns)
+    {
+    	this.mode = Mode.SUBSCREEN;
+    	GenericScrollBox scrollBoxLeft = new GenericScrollBox(307, this.guiLeft + 10, this.guiTop + 10, 80, 180, name, leftSideItems, new ArrayList<GenericScrollBoxCellData>(), 1);
+    	GenericScrollBox scrollBoxRight = new GenericScrollBox(308, this.guiLeft + 90, this.guiTop + 10, 156, 180, name, rightSideItems, constantItems, numColumns);
+    	masterButton = scrollBoxRight;
+    	this.buttonList.clear();
+		this.buttonList.add(scrollBoxLeft);
+		this.buttonList.add(scrollBoxRight);
     }
     
     public void ChangeButtonForSubMenu(String name, ArrayList<GenericScrollBoxCellData> items, ArrayList<GenericScrollBoxCellData> constantItems, Integer numColumns)

@@ -4,6 +4,7 @@ import java.util.List;
 
 import TBC.Combat.CombatEntityLookup;
 import TBC.Combat.CombatEntityTemplate;
+import TBC.Combat.EquippedItemManager;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -64,23 +65,22 @@ public class HenchmanItem extends Item
     		hench.setTagCompound(new NBTTagCompound());
     	}
     	
-    	NBTTagCompound itemTag = new NBTTagCompound();
-    	itemTag = item.writeToNBT(itemTag);
-    	hench.getTagCompound().setTag("TBCslot" + slot, itemTag);
+    	EquippedItemManager.Instance.SetItem(slot, item, hench.getTagCompound());
     }
     
     public static ItemStack[] GetItems(ItemStack item)
     {
-    	ItemStack[] equipped = new ItemStack[4];
-    	for(int i = 0; i < 4; i++)
+    	if(item.hasTagCompound())
     	{
-    		if(item.hasTagCompound() && item.getTagCompound().hasKey("TBCslot" + i))
-    		{
-    			equipped[i] = ItemStack.loadItemStackFromNBT(item.getTagCompound().getCompoundTag("TBCslot" + i));
-    		}
+    		return EquippedItemManager.Instance.GetEquippedItems(item.getTagCompound());
     	}
     	
-    	return equipped;
+    	return new ItemStack[5];
+    }
+    
+    public static NBTTagCompound GetTag(ItemStack item)
+    {
+    	return item.getTagCompound();
     }
     
     public static void SetCombatEntitySaveData(CombatEntitySaveData data, ItemStack hench)

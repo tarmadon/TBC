@@ -75,6 +75,7 @@ public class RemoveItemAbility implements ICombatAbility
 		StringMessage syncToServer = new StringMessage();
 		syncToServer.Data = this.inventoryItemPosition.item1 + "," + this.inventoryItemPosition.item2 + "," + this.damage;
 		MainMod.removeItemHandler.sendToServer(syncToServer);
+		messages.add(this.GetAbilityName());
 		if(this.inventoryItemPosition.item1 == MainInventory)
 		{
 			ItemStack stack = player.inventory.mainInventory[this.inventoryItemPosition.item2];
@@ -114,7 +115,6 @@ public class RemoveItemAbility implements ICombatAbility
 			}
 		}
 
-		messages.add(this.GetAbilityName());
 		return this.itemAbility.GetEffects(engine, user, targets, messages);
 	}
 

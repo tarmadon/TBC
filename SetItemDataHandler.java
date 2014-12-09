@@ -29,14 +29,12 @@ public class SetItemDataHandler implements IMessageHandler<ItemDataMessage, IMes
 		}
 
 		stack.setItemDamage(asDamage);
-		CombatEntitySaveData data = new CombatEntitySaveData();
-		data.loadNBTData(message.tag);
+		if(!stack.hasTagCompound())
+		{
+			stack.setTagCompound(new NBTTagCompound());
+		}
 		
-		CombatEntitySaveData existing = HenchmanItem.GetCombatEntitySaveData(stack);
-		existing.CurrentMp = data.CurrentMp;
-		existing.IsInParty = data.IsInParty;
-		existing.IsFrontRow = data.IsFrontRow;
-		HenchmanItem.SetCombatEntitySaveData(existing, stack);
+		TagCompoundExt.MergeTagCompound(message.tag, stack.getTagCompound());
 		return null;
 	}
 }
