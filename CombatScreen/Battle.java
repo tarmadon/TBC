@@ -23,6 +23,7 @@ import TBC.Messages.CombatPlayerControlMessage;
 import TBC.Messages.CombatStartedMessage;
 import TBC.Messages.CombatSyncDataMessage;
 import TBC.Messages.NBTTagCompoundMessage;
+import net.minecraft.client.Minecraft;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityList;
 import net.minecraft.entity.EntityLiving;
@@ -242,6 +243,11 @@ public class Battle
 //		MainMod.combatStartedHandler.sendTo(this.GetBattleStartMessage(), player);
 	}
 	
+	public ArrayList<EntityPlayerMP> GetInvolvedPlayers()
+	{
+		return this.players;
+	}
+	
 	public boolean AddPlayerToCombat(EntityPlayerMP player)
 	{
 		Pair<Integer, CombatEntity> playerEntity = CombatEntity.GetCombatEntity(player);
@@ -261,7 +267,12 @@ public class Battle
 	private void AddEntityBackToGame(Pair<Double, Entity> toReenable) 
 	{
 		Entity entityToReenable = toReenable.item2;
-		entityToReenable.isDead = false;
+		if(entityToReenable instanceof EntityPlayer)
+		{
+			// Remember to set the players to living before adding them back.
+			entityToReenable.isDead = false;
+		}
+		
 		this.world.loadedEntityList.add(entityToReenable);
 	}
 	
@@ -269,7 +280,11 @@ public class Battle
 	{
 		this.world.loadedEntityList.remove(additionalLivingEnemy);
 		removedEntities.put(entity, new Pair<Double, Entity>(additionalLivingEnemy.posY, additionalLivingEnemy));
-		additionalLivingEnemy.isDead = true;
+		if(additionalLivingEnemy instanceof EntityPlayer)
+		{
+			// Players are set to dead after being removed so that they drop aggro
+			additionalLivingEnemy.isDead = true;
+		}
 	}
 
 	public void DoNextTurn()
@@ -498,6 +513,11 @@ public class Battle
 			SyncCombatEntityToMinecraftWorld(this.enemies.get(i), this.damageSource, !wonBattle);
 		}
 
+		for(EntityPlayer p : this.players)
+		{
+			MainMod.lastAttackTimes.put(p, Minecraft.getSystemTime());
+		}
+		
 		MainMod.ServerBattles.remove(this.id);
 	}
 

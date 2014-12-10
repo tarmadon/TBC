@@ -91,6 +91,7 @@ import cpw.mods.fml.relauncher.SideOnly;
 
 public class MainMod
 {
+	public static final Object syncObj = new Object();
 	public static HashMap<Long, Battle> ServerBattles = new HashMap<Long, Battle>(); 
 	public static BattleScreenClient ClientBattle = null;
 	
@@ -100,7 +101,7 @@ public class MainMod
 	public static ArrayList<Pair<String, String>> setEnemies = null;
 	public static EntityLivingBase enemy = null;
 	public static boolean isPlayerAttacker;
-	public static float lastAttackTime = 0;
+	public static HashMap<EntityPlayer, Long> lastAttackTimes = new HashMap<EntityPlayer, Long>();
 	
 	private ILevelScale levelScaling;
 	public DistanceBasedLevelScaling distanceScaling;
@@ -279,24 +280,24 @@ public class MainMod
 			startupTime = currentTime;
 		}
 
-		if(this.enemy == null && this.setEnemies == null && mc.theWorld.getWorldTime() > questProgress * 24000)
-		{
-			if(this.startupTime + 1000 > currentTime || this.lastAttackTime + 1000 > currentTime)
-			{
-				return;
-			}
-
-			this.lastAttackTime = currentTime;
-			setEnemies = new ArrayList<Pair<String,String>>();
-			questProgress = questProgress + 1;
-			CombatEntitySaveData questData = LevelingEngine.Instance.GetXpDataForPlayer(mc.thePlayer);
-			questData.QuestProgress = questProgress;
-			LevelingEngine.Instance.SaveXpDataForPlayer(mc.thePlayer, questData);
-			SyncTagToServer(mc.thePlayer);
-
-			SetQuestBattle(mc);
-			mc.thePlayer.openGui(TBCMod.instance, 0, mc.thePlayer.worldObj, mc.thePlayer.serverPosX, mc.thePlayer.serverPosY, mc.thePlayer.serverPosZ);
-		}
+//		if(this.enemy == null && this.setEnemies == null && mc.theWorld.getWorldTime() > questProgress * 24000)
+//		{
+//			if(this.startupTime + 1000 > currentTime || this.lastAttackTime + 1000 > currentTime)
+//			{
+//				return;
+//			}
+//
+//			this.lastAttackTime = currentTime;
+//			setEnemies = new ArrayList<Pair<String,String>>();
+//			questProgress = questProgress + 1;
+//			CombatEntitySaveData questData = LevelingEngine.Instance.GetXpDataForPlayer(mc.thePlayer);
+//			questData.QuestProgress = questProgress;
+//			LevelingEngine.Instance.SaveXpDataForPlayer(mc.thePlayer, questData);
+//			SyncTagToServer(mc.thePlayer);
+//
+//			SetQuestBattle(mc);
+//			mc.thePlayer.openGui(TBCMod.instance, 0, mc.thePlayer.worldObj, mc.thePlayer.serverPosX, mc.thePlayer.serverPosY, mc.thePlayer.serverPosZ);
+//		}
 	}
 
 	@SideOnly(Side.CLIENT)
@@ -527,17 +528,32 @@ public class MainMod
 		{
 			e.setCanceled(true);
 
-			float currentTime = Minecraft.getSystemTime();
-			if(this.lastAttackTime + 1000 > currentTime)
+			synchronized (syncObj) 
 			{
-				return;
-			}
+				if(e.entityLiving.worldObj.getEntityByID(e.entityLiving.getEntityId()) == null)
+				{
+					return;
+				}
 
-			this.lastAttackTime = Minecraft.getSystemTime();
-			Battle b = new Battle(lastBattleId++, player, enemy, isPlayerAttacker);
-			this.ServerBattles.put(b.id, b);
-			this.combatStartedHandler.sendTo(b.GetBattleStartMessage(), player);
-			b.DoNextTurn();
+				float currentTime = Minecraft.getSystemTime();
+				if(lastAttackTimes.containsKey(player) && lastAttackTimes.get(player) + 1000 > currentTime)
+				{
+					return;
+				}
+				
+				for(Battle b : this.ServerBattles.values())
+				{
+					if(b.GetInvolvedPlayers().contains(player))
+					{
+						return;
+					}
+				}
+				
+				Battle b = new Battle(lastBattleId++, player, enemy, isPlayerAttacker);
+				this.ServerBattles.put(b.id, b);
+				this.combatStartedHandler.sendTo(b.GetBattleStartMessage(), player);
+				b.DoNextTurn();
+			}
 		}
 	}
 
@@ -547,7 +563,7 @@ public class MainMod
 		//ZoneHandler.Instance.ClearData();
 		this.questProgress = 0;
 		this.loadedProgress = false;
-		this.lastAttackTime = 0;
+		lastAttackTimes = new HashMap<EntityPlayer, Long>();
 		this.enemy = null;
 		this.setEnemies = null;
 		this.playerDataInit = false;

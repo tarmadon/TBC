@@ -108,11 +108,6 @@ public class UseAbilityFromStatsGuiAction implements IGenericAction
 			int healthToSet = Math.round((currentHpPercentage * 100) + .499999F);
 			int index = entity.CombatEntity.id;
 			ItemStack h = entity.Item;
-			if(index == 9)
-			{
-				index = -1;
-			}
-
 			ItemDataMessage itemDurMessage = new ItemDataMessage();
 			CombatEntitySaveData d = HenchmanItem.GetCombatEntitySaveData(entity.Item);
 			d.CurrentMp = entity.CombatEntity.currentMp;

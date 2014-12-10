@@ -18,16 +18,7 @@ public class SetItemDataHandler implements IMessageHandler<ItemDataMessage, IMes
 		int asSlot = message.Slot;
 		int asDamage = message.ItemDurability;
 		EntityPlayer entityPlayer = ctx.getServerHandler().playerEntity;
-		ItemStack stack;
-		if(asSlot == -1)
-		{
-			stack = ((Slot)entityPlayer.openContainer.inventorySlots.get(4)).getStack();
-		}
-		else
-		{
-			stack = entityPlayer.inventory.mainInventory[asSlot];
-		}
-
+		ItemStack stack = entityPlayer.inventory.mainInventory[asSlot];
 		stack.setItemDamage(asDamage);
 		if(!stack.hasTagCompound())
 		{
