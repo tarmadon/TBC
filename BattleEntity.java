@@ -38,8 +38,23 @@ public class BattleEntity extends Entity
 	public void readEntityFromNBT(NBTTagCompound p_70037_1_) 
 	{
 		this.combatId = p_70037_1_.getLong("combatId");
+		if(!this.worldObj.isRemote && !MainMod.ServerBattles.containsKey(this.combatId))
+		{
+			this.kill();
+		}
 	}
 
+	@Override
+	public void onEntityUpdate() 
+	{
+		if(!MainMod.ServerBattles.containsKey(this.combatId))
+		{
+			this.kill();
+		}
+		
+		super.onEntityUpdate();
+	}
+	
 	@Override
 	public void writeEntityToNBT(NBTTagCompound p_70014_1_) 
 	{
@@ -67,7 +82,7 @@ public class BattleEntity extends Entity
 	}
 
 	private int numUpdates = 0; 
-	private double velocityRatio = 0.05;
+	private double velocityRatio = 0.01;
 	
 	@Override
 	public void onUpdate() 

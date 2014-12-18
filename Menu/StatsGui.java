@@ -62,16 +62,17 @@ public class StatsGui extends GuiInventory
 	{
 		public static final int MAIN = 0;
 		public static final int SUBSCREEN = 1;
+		public static final int CUSTOM = 2;
 	}
 	
 	public ArrayList<StatMenuCharData> partyMembers = new ArrayList<StatMenuCharData>();
-	public GenericScrollBox masterButton;
 	private float ySize_lo;
 	private float xSize_lo;
 	public int mode;
 	public EntityPlayer player;
 	private Pair<Integer, Integer> prevPosition = null;
 	private long positionStartTime = 0;
+	private ICustomMenuRender customRenderer;
 	
 	public StatsGui(EntityPlayer par1EntityPlayer)
 	{
@@ -162,8 +163,6 @@ public class StatsGui extends GuiInventory
                 }
             }
         }
-
-        //super.mouseClicked(par1, par2, par3);
 	}
 
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
@@ -223,21 +222,25 @@ public class StatsGui extends GuiInventory
     	else if(this.mode == Mode.SUBSCREEN)
     	{
     	}
+    	else if(this.mode == Mode.CUSTOM)
+    	{
+    		this.customRenderer.Render(this, this.fontRendererObj);
+    	}
     }
-
-    public void ChangeButton(GenericScrollBox button)
+    
+    public void ChangeButtonForCustomRenderer(ICustomMenuRender render, String name, ArrayList<GenericScrollBoxCellData> items, ArrayList<GenericScrollBoxCellData> constantItems, Integer numColumns)
     {
-    	masterButton = button;
-    	this.buttonList.clear();
-		this.buttonList.add(button);
+    	this.ChangeButtonForSubMenu(name, items, constantItems, numColumns);
+    	this.mode = Mode.CUSTOM;
+    	this.customRenderer = render;
     }
     
     public void ChangeButtonForSubMenu(String name, ArrayList<GenericScrollBoxCellData> leftSideItems, ArrayList<GenericScrollBoxCellData> rightSideItems, ArrayList<GenericScrollBoxCellData> constantItems, Integer numColumns)
     {
+    	this.customRenderer = null;
     	this.mode = Mode.SUBSCREEN;
     	GenericScrollBox scrollBoxLeft = new GenericScrollBox(307, this.guiLeft + 10, this.guiTop + 10, 80, 180, name, leftSideItems, new ArrayList<GenericScrollBoxCellData>(), 1);
     	GenericScrollBox scrollBoxRight = new GenericScrollBox(308, this.guiLeft + 90, this.guiTop + 10, 156, 180, name, rightSideItems, constantItems, numColumns);
-    	masterButton = scrollBoxRight;
     	this.buttonList.clear();
 		this.buttonList.add(scrollBoxLeft);
 		this.buttonList.add(scrollBoxRight);
@@ -245,81 +248,23 @@ public class StatsGui extends GuiInventory
     
     public void ChangeButtonForSubMenu(String name, ArrayList<GenericScrollBoxCellData> items, ArrayList<GenericScrollBoxCellData> constantItems, Integer numColumns)
     {
+    	this.customRenderer = null;
     	this.mode = Mode.SUBSCREEN;
     	GenericScrollBox scrollBox = new GenericScrollBox(307, this.guiLeft + 10, this.guiTop + 10, 236, 180, name, items, constantItems, numColumns);
-    	masterButton = scrollBox;
     	this.buttonList.clear();
 		this.buttonList.add(scrollBox);
     }
 
     public void ChangeButtonForMainMenu(String name, ArrayList<GenericScrollBoxCellData> items, ArrayList<GenericScrollBoxCellData> constantItems, Integer numColumns)
     {
+    	this.customRenderer = null;
     	this.mode = Mode.MAIN;
     	int xOffset = 200;
     	GenericScrollBox scrollBox = new GenericScrollBox(307, this.guiLeft + xOffset, this.guiTop + 10, 246-xOffset, 180, name, items, constantItems, numColumns);
-    	masterButton = scrollBox;
     	this.buttonList.clear();
 		this.buttonList.add(scrollBox);
     }
 
-	private void drawStatus(CombatEntity player, CombatEntitySaveData xpData)
-	{
-		int leftLabelXPos = 8;
-    	int leftValueXPos = 45;
-    	int rightLabelXPos = 102;
-    	int rightValueXPos = 139;
-
-    	int firstLineYPos = 25;
-    	int secondLineYPos = 37;
-    	int thirdLineYPos = 56;
-    	int fourthLineYPos = 68;
-    	int fifthLineYPos = 80;
-    	int sixthLineYPos = 92;
-    	int seventhLineYPos = 104;
-
-    	this.fontRendererObj.drawString("HP:", leftLabelXPos, firstLineYPos, 2);
-    	this.fontRendererObj.drawString(player.currentHp + " / " + player.GetMaxHp(), leftValueXPos, firstLineYPos, 2);
-
-    	this.fontRendererObj.drawString("MP:", leftLabelXPos, secondLineYPos, 2);
-    	this.fontRendererObj.drawString(player.currentMp + " / " + player.GetMaxMp(), leftValueXPos, secondLineYPos, 2);
-
-    	this.fontRendererObj.drawString("XP:", rightLabelXPos, firstLineYPos, 2);
-    	this.fontRendererObj.drawString(xpData.CurrentXp + " / " + LevelingEngine.GetXpRequiredForLevel(xpData.Level), rightValueXPos, firstLineYPos, 2);
-
-    	this.fontRendererObj.drawString("AP:", rightLabelXPos, secondLineYPos, 2);
-    	this.fontRendererObj.drawString(xpData.CurrentAp + "", rightValueXPos, secondLineYPos, 2);
-
-    	this.fontRendererObj.drawString("Att:", leftLabelXPos, thirdLineYPos, 2);
-    	this.fontRendererObj.drawString(player.GetAttack() + "", leftValueXPos, thirdLineYPos, 2);
-
-    	this.fontRendererObj.drawString("Def:", leftLabelXPos, fourthLineYPos, 2);
-    	this.fontRendererObj.drawString(player.GetDefense() + "", leftValueXPos, fourthLineYPos, 2);
-
-    	this.fontRendererObj.drawString("MAtt:", leftLabelXPos, fifthLineYPos, 2);
-    	this.fontRendererObj.drawString(player.GetMagic() + "", leftValueXPos, fifthLineYPos, 2);
-
-    	this.fontRendererObj.drawString("MDef:", leftLabelXPos, sixthLineYPos, 2);
-    	this.fontRendererObj.drawString(player.GetMagicDefense() + "", leftValueXPos, sixthLineYPos, 2);
-
-    	this.fontRendererObj.drawString("Spd:", leftLabelXPos, seventhLineYPos, 2);
-    	this.fontRendererObj.drawString(player.GetSpeed() + "", leftValueXPos, seventhLineYPos, 2);
-
-    	this.fontRendererObj.drawString("Str:", rightLabelXPos, thirdLineYPos, 2);
-    	this.fontRendererObj.drawString(0 + "", rightValueXPos, thirdLineYPos, 2);
-
-    	this.fontRendererObj.drawString("Dex:", rightLabelXPos, fourthLineYPos, 2);
-    	this.fontRendererObj.drawString(0 + "", rightValueXPos, fourthLineYPos, 2);
-
-    	this.fontRendererObj.drawString("Con:", rightLabelXPos, fifthLineYPos, 2);
-    	this.fontRendererObj.drawString(0 + "", rightValueXPos, fifthLineYPos, 2);
-
-    	this.fontRendererObj.drawString("Int:", rightLabelXPos, sixthLineYPos, 2);
-    	this.fontRendererObj.drawString(0 + "", rightValueXPos, sixthLineYPos, 2);
-
-    	this.fontRendererObj.drawString("Will:", rightLabelXPos, seventhLineYPos, 2);
-    	this.fontRendererObj.drawString(0 + "", rightValueXPos, seventhLineYPos, 2);
-	}
-	
 	public void RefreshCurrentPartyMembers()
 	{
 		ArrayList<Pair<Integer, StatMenuCharData>> staging = new ArrayList<Pair<Integer,StatMenuCharData>>();

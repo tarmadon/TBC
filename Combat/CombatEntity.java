@@ -121,6 +121,11 @@ public class CombatEntity implements Serializable
 		
 		float currentHpPercentage = (float)entity.getHealth() / entity.getMaxHealth();
 		e.currentHp = Math.round(currentHpPercentage * e.baseStats.maxHp);
+		if(e.currentHp < 1)
+		{
+			e.currentHp = 1;
+		}
+		
 		NBTTagCompound tag = PlayerSaveData.GetPlayerTag(entity);
 		if(tag.hasKey("TBCPlayerMP"))
 		{

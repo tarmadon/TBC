@@ -67,7 +67,7 @@ public class ShowEquipmentForCharMenuFunction implements IGenericAction
 		}
 		
 		ArrayList<GenericScrollBoxCellData> constantButtons = new ArrayList<GenericScrollBoxCellData>();
-		constantButtons.add(new GenericScrollBoxCellData("Back", "", new SelectAbilitiesMenuFunction(this.gui)));
+		constantButtons.add(new GenericScrollBoxCellData("Back", "", new SelectEquipmentMenuFunction(this.gui)));
 		
 		this.gui.ChangeButtonForSubMenu("Equipment", leftSide, rightSide, constantButtons, 0);
 	}

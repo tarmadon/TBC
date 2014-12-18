@@ -95,14 +95,14 @@ public class TBCMod
 	{
 		MainModInstance.renderHUD(evt);
 	}
-
+	
 	@SubscribeEvent(receiveCanceled = true)
 	public void onRest(PlayerSleepInBedEvent evt)
 	{
 		MainModInstance.onRest(evt);
 	}
 
-	@SubscribeEvent(receiveCanceled = true)
+	@SubscribeEvent(receiveCanceled = false)
 	public void onLivingAttacked(LivingAttackEvent evt)
 	{
 		MainModInstance.onLivingAttacked(evt);

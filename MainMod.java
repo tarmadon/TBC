@@ -10,6 +10,7 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.KeyBinding;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
@@ -81,6 +82,7 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -486,7 +488,7 @@ public class MainMod
 
 	public void onLivingAttacked(LivingAttackEvent e)
 	{
-		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT)
+		if(FMLCommonHandler.instance().getEffectiveSide() == Side.CLIENT || e.isCanceled())
 		{
 			return;
 		}
@@ -513,7 +515,7 @@ public class MainMod
 
 		if(e.entityLiving instanceof EntityPlayerMP)
 		{
-			enemy = (EntityLiving)sourceEntity;
+			enemy = (EntityLivingBase)sourceEntity;
 			isPlayerAttacker = false;
 			player = (EntityPlayerMP)e.entityLiving;
 		}
@@ -536,7 +538,7 @@ public class MainMod
 				}
 
 				float currentTime = Minecraft.getSystemTime();
-				if(lastAttackTimes.containsKey(player) && lastAttackTimes.get(player) + 1000 > currentTime)
+				if(lastAttackTimes.containsKey(player) && lastAttackTimes.get(player) + 2000 > currentTime)
 				{
 					return;
 				}

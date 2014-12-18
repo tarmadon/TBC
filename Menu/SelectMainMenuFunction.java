@@ -28,7 +28,7 @@ public class SelectMainMenuFunction implements IGenericAction
 		buttons.add(new GenericScrollBoxCellData("Items", "", new ShowItemsMenuFunction(this.gui, this.gui.player, this.gui.partyMembers.get(0))));
 		buttons.add(new GenericScrollBoxCellData("Abilities", "", new SelectAbilitiesMenuFunction(this.gui)));
 		buttons.add(new GenericScrollBoxCellData("Equip", "", new SelectEquipmentMenuFunction(this.gui)));
-		buttons.add(new GenericScrollBoxCellData("Status", "", null));
+		buttons.add(new GenericScrollBoxCellData("Status", "", new SelectStatsMenuFunction(this.gui)));
 		buttons.add(new GenericScrollBoxCellData("Party", "", new ShowPartyMenuFunction(this.gui, new ArrayList<Pair<StatMenuCharData,Boolean>>(), null, false)));
 		
 		this.gui.ChangeButtonForMainMenu("MainMenu", buttons, new ArrayList<GenericScrollBoxCellData>(), 1);

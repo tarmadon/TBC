@@ -264,26 +264,35 @@ public class Battle
 		return true;
 	}
 	
-	private void AddEntityBackToGame(Pair<Double, Entity> toReenable) 
+	private void AddEntityBackToGame(CombatEntity entity, Pair<Double, Entity> toReenable) 
 	{
 		Entity entityToReenable = toReenable.item2;
 		if(entityToReenable instanceof EntityPlayer)
 		{
 			// Remember to set the players to living before adding them back.
 			entityToReenable.isDead = false;
+			this.world.loadedEntityList.add(entityToReenable);
 		}
-		
-		this.world.loadedEntityList.add(entityToReenable);
+		else
+		{
+			entityToReenable.isDead = false;
+			entityToReenable.resetEntityId();
+			entity.id = entityToReenable.getEntityId();
+			this.world.spawnEntityInWorld(entityToReenable);
+		}
 	}
 	
 	private void RemoveEntityFromGame(CombatEntity entity, EntityLivingBase additionalLivingEnemy) 
 	{
-		this.world.loadedEntityList.remove(additionalLivingEnemy);
 		removedEntities.put(entity, new Pair<Double, Entity>(additionalLivingEnemy.posY, additionalLivingEnemy));
 		if(additionalLivingEnemy instanceof EntityPlayer)
 		{
-			// Players are set to dead after being removed so that they drop aggro
+			this.world.loadedEntityList.remove(additionalLivingEnemy);
 			additionalLivingEnemy.isDead = true;
+		}
+		else
+		{
+			this.world.removeEntity(additionalLivingEnemy);
 		}
 	}
 
@@ -409,17 +418,14 @@ public class Battle
 				if(allEscapees.contains(e))
 				{
 					Pair<Double, Entity> toReenable = this.removedEntities.get(e);
-					AddEntityBackToGame(toReenable);
+					AddEntityBackToGame(e, toReenable);
 					this.removedEntities.remove(e);
 				}
 			}
 			
 			this.allies.removeAll(allEscapees);
 			this.enemies.removeAll(allEscapees);
-			for(CombatEntity e : allEscapees)
-			{
-				this.players.remove(e);
-			}
+    		this.players.remove(owner);
 			
 			this.combatEngine.RemoveEntities(allEscapees);
 			
@@ -444,14 +450,12 @@ public class Battle
 
 	private void EndCombat()
 	{
-		entityInWorld.isDead = true;
-		
 		List toLoad = new ArrayList();
-		Object[] allRemoved = this.removedEntities.values().toArray();
-		for(int i = 0; i<allRemoved.length; i++)
+		Object[] allRemoved = this.removedEntities.keySet().toArray();
+		for(Object removed : allRemoved)
 		{
-			Pair<Double, Entity> toReenable = (Pair<Double, Entity>)allRemoved[i];
-			AddEntityBackToGame(toReenable);
+			Pair<Double, Entity> toReenable = (Pair<Double, Entity>)removedEntities.get(removed);
+			AddEntityBackToGame((CombatEntity)removed, toReenable);
 		}
 		
 		boolean wonBattle = false;
