@@ -10,8 +10,6 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLiving;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.monster.EntityMob;
@@ -23,13 +21,13 @@ import net.minecraft.init.Items;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.world.EnumDifficulty;
 import net.minecraft.world.biome.BiomeGenBase;
 import net.minecraft.world.chunk.Chunk;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
-import net.minecraftforge.common.BiomeManager;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.EntityEvent;
 import net.minecraftforge.event.entity.living.LivingAttackEvent;
@@ -82,7 +80,6 @@ import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.gameevent.InputEvent;
-import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.NetworkRegistry;
 import cpw.mods.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import cpw.mods.fml.common.registry.EntityRegistry;
@@ -205,7 +202,6 @@ public class MainMod
 		}
 	}
 
-	@SideOnly(Side.CLIENT)
 	public void loadClient(FMLInitializationEvent evt)
 	{
 		syncPlayerDataHandler.registerMessage(SyncPlayerDataHandlerClient.class, NBTTagCompoundMessage.class, 0, Side.CLIENT);
@@ -300,14 +296,6 @@ public class MainMod
 //			SetQuestBattle(mc);
 //			mc.thePlayer.openGui(TBCMod.instance, 0, mc.thePlayer.worldObj, mc.thePlayer.serverPosX, mc.thePlayer.serverPosY, mc.thePlayer.serverPosZ);
 //		}
-	}
-
-	@SideOnly(Side.CLIENT)
-	private void SyncTagToServer(EntityPlayer playerEntity)
-	{
-		NBTTagCompoundMessage message = new NBTTagCompoundMessage();
-		message.tag = PlayerSaveData.GetPlayerTag(playerEntity);
-		syncPlayerDataHandler.sendToServer(message);
 	}
 
 	private void SetQuestBattle(Minecraft mc)
@@ -516,6 +504,13 @@ public class MainMod
 		if(e.entityLiving instanceof EntityPlayerMP)
 		{
 			enemy = (EntityLivingBase)sourceEntity;
+			if(sourceEntity instanceof EntityPlayerMP)
+			{
+				// PVP not currently supported
+				e.setCanceled(true);
+				return;
+			}
+			
 			isPlayerAttacker = false;
 			player = (EntityPlayerMP)e.entityLiving;
 		}
@@ -537,7 +532,7 @@ public class MainMod
 					return;
 				}
 
-				float currentTime = Minecraft.getSystemTime();
+				float currentTime = MinecraftServer.getServer().getSystemTimeMillis();
 				if(lastAttackTimes.containsKey(player) && lastAttackTimes.get(player) + 2000 > currentTime)
 				{
 					return;
@@ -553,6 +548,7 @@ public class MainMod
 				
 				Battle b = new Battle(lastBattleId++, player, enemy, isPlayerAttacker);
 				this.ServerBattles.put(b.id, b);
+				b.SpawnInWorld(player);
 				this.combatStartedHandler.sendTo(b.GetBattleStartMessage(), player);
 				b.DoNextTurn();
 			}
@@ -641,7 +637,7 @@ public class MainMod
 		GameRegistry.addShapelessRecipe(panaceaStack, Blocks.yellow_flower, Blocks.red_flower, Blocks.brown_mushroom, Blocks.red_mushroom, Items.dye);
 		LanguageRegistry.addName(panacea, "Panacea");
 		
-		Item pheonixDown = createItemCopy(Items.potionitem, "pheonixDown");
+		Item pheonixDown = createItemCopy(Items.potionitem, "phoenixDown");
 		ItemStack pheonixDownStack = new ItemStack(pheonixDown);
 		GameRegistry.addShapelessRecipe(pheonixDownStack, Items.feather, Items.lava_bucket);
 		LanguageRegistry.addName(pheonixDown, "Pheonix Down");

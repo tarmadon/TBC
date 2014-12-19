@@ -19,7 +19,7 @@ public class CloneItem extends Item
 	public CloneItem(Item originalItem)
 	{
 		this.originalItem = originalItem;
-		this.setCreativeTab(originalItem.getCreativeTab());
+		this.setCreativeTab(CreativeTabs.tabMisc);
 	}
 
 	@SideOnly(Side.CLIENT)

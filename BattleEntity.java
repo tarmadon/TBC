@@ -8,6 +8,8 @@ import net.minecraft.world.World;
 
 public class BattleEntity extends Entity
 {
+	private final double velocityRatio = 0;
+	private int numUpdates = 0; 
 	private long combatId;
 	
 	public BattleEntity(World world) 
@@ -43,17 +45,6 @@ public class BattleEntity extends Entity
 			this.kill();
 		}
 	}
-
-	@Override
-	public void onEntityUpdate() 
-	{
-		if(!MainMod.ServerBattles.containsKey(this.combatId))
-		{
-			this.kill();
-		}
-		
-		super.onEntityUpdate();
-	}
 	
 	@Override
 	public void writeEntityToNBT(NBTTagCompound p_70014_1_) 
@@ -81,12 +72,14 @@ public class BattleEntity extends Entity
 		return false;
 	}
 
-	private int numUpdates = 0; 
-	private double velocityRatio = 0.01;
-	
 	@Override
 	public void onUpdate() 
 	{
+		if(!this.worldObj.isRemote && !MainMod.ServerBattles.containsKey(this.combatId))
+		{
+			this.kill();
+		}
+		
 		super.onUpdate();
 		if(numUpdates == 4)
 		{

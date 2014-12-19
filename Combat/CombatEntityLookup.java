@@ -157,7 +157,7 @@ public class CombatEntityLookup
 	public CombatEntity GetCombatEntityForPlayer(EntityPlayer player)
 	{
 		String playerName = player.getDisplayName();
-		String lookupName = "Player" + playerName + Minecraft.getMinecraft().getIntegratedServer().getFolderName();
+		String lookupName = "Player" + playerName;
 		if(this.lookupByName.containsKey(lookupName))
 		{
 			CombatEntityTemplate template = this.lookupByName.get(lookupName);

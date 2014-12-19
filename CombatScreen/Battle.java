@@ -32,6 +32,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.Vec3;
@@ -68,10 +69,6 @@ public class Battle
 		Pair<Integer, CombatEntity> playerEntity = CombatEntity.GetCombatEntity(player);
 		CombatEntity enemyCombatEntity = CombatEntity.GetCombatEntity(enemyEntity.getEntityId(), enemyEntity, 1);
 
-		entityInWorld = new BattleEntity(world, id);
-		entityInWorld.setLocationAndAngles(player.posX, player.posY + 1.25, player.posZ, 0, 0);
-		this.world.spawnEntityInWorld(entityInWorld);
-		
 		players.add(player);
 		enemies.add(enemyCombatEntity);
 		this.allies = new ArrayList<CombatEntity>();
@@ -126,10 +123,9 @@ public class Battle
 		}
 		
 		this.allies = fixedAllies;
-		Vec3 position = enemyEntity.getPosition(1.0F);
-		double enemyX = position.xCoord;
-		double enemyY = position.yCoord;
-		double enemyZ = position.zCoord;
+		double enemyX = enemyEntity.posX;
+		double enemyY = enemyEntity.posY;
+		double enemyZ = enemyEntity.posZ;
 
 		int encounterRadius = 10;
 		AxisAlignedBB boundingBox = AxisAlignedBB.getBoundingBox(enemyX - encounterRadius, enemyY - encounterRadius, enemyZ - encounterRadius, enemyX + encounterRadius, enemyY + encounterRadius, enemyZ + encounterRadius);
@@ -178,6 +174,13 @@ public class Battle
 		this.levelingEngine = new LevelingEngine();
 	}
 
+	public void SpawnInWorld(EntityPlayerMP player)
+	{
+		entityInWorld = new BattleEntity(world, id);
+		entityInWorld.setLocationAndAngles(player.posX, player.posY + 1.25, player.posZ, 0, 0);
+		this.world.spawnEntityInWorld(entityInWorld);
+	}
+	
 	public Battle(long id, EntityPlayerMP player, ArrayList<Pair<String, String>> setEnemies, boolean isAttacker)
 	{
 //		player.worldObj.removeEntity(player);
@@ -380,7 +383,7 @@ public class Battle
 			MainMod.syncCombatDataHandler.sendTo(m, this.players.get(i));
 		}
 		
-		if(activeEnemies == 0 || activeAllies == 0)
+		if(activeEnemies == 0 || activeAllies == 0 || this.players.size() == 0)
 		{
 			EndCombat();
 			return true;
@@ -519,7 +522,7 @@ public class Battle
 
 		for(EntityPlayer p : this.players)
 		{
-			MainMod.lastAttackTimes.put(p, Minecraft.getSystemTime());
+			MainMod.lastAttackTimes.put(p, MinecraftServer.getServer().getSystemTimeMillis());
 		}
 		
 		MainMod.ServerBattles.remove(this.id);

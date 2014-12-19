@@ -1,0 +1,16 @@
+[
+{
+  "modid": "TBC",
+  "name": "TurnBasedCombat",
+  "description": "Replaces all combat with a turn-based version, including levels, jobs, location-scaled monsters, etc.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["tarmadon"],
+  "credits": "",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]
