@@ -52,6 +52,26 @@ public class ChooseTargetForAbilityMenuFunction implements IGenericAction
 			for(int i = 0; i< allPartyMembers.size(); i++)
 			{
 				StatMenuCharData target = allPartyMembers.get(i);
+				if(target.CombatEntity.currentHp == 0)
+				{
+					continue;
+				}
+				
+				ArrayList<StatMenuCharData> oneAllyTarget = new ArrayList<StatMenuCharData>();
+				oneAllyTarget.add(target);
+				displayItems.add(new GenericScrollBoxCellData(target.CombatEntity.GetName(), "HP: " + target.CombatEntity.currentHp + "/" + target.CombatEntity.GetMaxHp(), new UseAbilityFromStatsGuiAction(this.gui, this.user, this.ability, oneAllyTarget, this.cancelAction)));
+			}
+		}
+		else if(this.ability.GetAbilityTarget() == AbilityTargetType.OneDeadAlly)
+		{
+			for(int i = 0; i< allPartyMembers.size(); i++)
+			{
+				StatMenuCharData target = allPartyMembers.get(i);
+				if(target.CombatEntity.currentHp != 0)
+				{
+					continue;
+				}
+				
 				ArrayList<StatMenuCharData> oneAllyTarget = new ArrayList<StatMenuCharData>();
 				oneAllyTarget.add(target);
 				displayItems.add(new GenericScrollBoxCellData(target.CombatEntity.GetName(), "HP: " + target.CombatEntity.currentHp + "/" + target.CombatEntity.GetMaxHp(), new UseAbilityFromStatsGuiAction(this.gui, this.user, this.ability, oneAllyTarget, this.cancelAction)));

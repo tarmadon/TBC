@@ -1,0 +1,9 @@
+Job,Prereq Class,Prereq Level
+Fighter,,2
+Thief,,2
+Mage,,2
+Priest,,2
+Crusader,Fighter,5
+Crusader,Priest,3
+Bishop,Mage,4
+Bishop,Priest,4

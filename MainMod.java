@@ -48,6 +48,7 @@ import TBC.Combat.DistanceBasedLevelScaling;
 import TBC.Combat.EquippedItemManager;
 import TBC.Combat.ILevelScale;
 import TBC.Combat.ItemReplacementLookup;
+import TBC.Combat.JobLookup;
 import TBC.Combat.LevelingEngine;
 import TBC.Combat.TimeBasedLevelScaling;
 import TBC.Combat.Abilities.AbilityLookup;
@@ -130,6 +131,10 @@ public class MainMod
 		File itemConfigFile = this.loadFileFromJar("TBCItemTemplates.csv");
 		File spawnConfigFile = this.loadFileFromJar("TBCWorldMobData.csv");
 		File enchantedItemFile = this.loadFileFromJar("TBCEnchantedItems.csv");
+		
+		File jobPrereqsFile = this.loadFileFromJar("TBCJobPrereqs.csv");
+		File jobSkillsFile = this.loadFileFromJar("TBCJobSkills.csv");
+		File jobStatsFile = this.loadFileFromJar("TBCJobStats.csv");
 
 		Configuration config = new Configuration(evt.getSuggestedConfigurationFile());
 		config.load();
@@ -155,6 +160,10 @@ public class MainMod
 		ItemReplacementLookup.Instance.SetupItems();
 		EnchantedItemManager.Instance.Initialize(enchantedItemFile);
 
+		JobLookup.Instance.InitializeStats(jobStatsFile);
+		JobLookup.Instance.InitializeSkills(jobSkillsFile);
+		JobLookup.Instance.InitializePrereqs(jobPrereqsFile);
+		
 		CombatEntitySpawnLookup.Instance.LogUnknownEntities();
 	}
 
@@ -640,7 +649,7 @@ public class MainMod
 		Item pheonixDown = createItemCopy(Items.potionitem, "phoenixDown");
 		ItemStack pheonixDownStack = new ItemStack(pheonixDown);
 		GameRegistry.addShapelessRecipe(pheonixDownStack, Items.feather, Items.lava_bucket);
-		LanguageRegistry.addName(pheonixDown, "Pheonix Down");
+		LanguageRegistry.addName(pheonixDown, "Phoenix Down");
 
 		Item fireBomb = createItemCopy(Items.potionitem, "fireBomb");
 		ItemStack fireBombStack = new ItemStack(fireBomb);
