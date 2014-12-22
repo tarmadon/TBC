@@ -1,8 +1,9 @@
 Job,Level,HPGain,MPGain,AtkGain,DefGain,MAtkGain,MDefGain,SpeedGain,Description
-Adventurer,-,1,1,1,1,1,1,1,Basic job.  Bad at everything but has 50 innate HP and 5 bonus to all stats.
-Fighter,-,4,1,3,3,1,1,2,Front-line job with good attack and defense.
-Priest,-,3,2,1,1,3,3,2,Job with access to healing magic.
-Thief,-,3,1,3,1,1,2,4,Fast job with good attack power.
-Mage,-,2,3,1,1,4,2,2,Job with access to offensive magic.
-Crusader,-,3,3,3,3,3,3,2,Fighter/Priest hybrid with good attack and defense as well as access to low-level healing magic.
-Bishop,-,2,4,1,1,4,4,2,Mage/Priest hybrid with access to both healing and offensive magic.
+Adventurer,-,1,1,1,1,1,1,1,Baby's first job.  Low stat gain and no abilities but gets a starting bonus to all stats.
+Fighter,-,8,1,3,3,1,1,2,Front-line job with good attack and defense.
+Priest,-,4,2,1,1,3,3,2,Job with access to healing magic.
+Thief,-,6,1,3,1,1,2,4,Fast job with good attack power.
+Mage,-,3,3,1,1,4,2,2,Job with access to offensive magic.
+Crusader,-,6,3,3,3,3,3,2,Fighter/Priest hybrid with good attack and defense as well as access to low-level healing magic.
+Bishop,-,3,4,1,1,4,4,2,Mage/Priest hybrid with access to both healing and offensive magic.
+Monster,-,1,1,1,1,1,1,1,Job for monsters.

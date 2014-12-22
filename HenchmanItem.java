@@ -101,6 +101,10 @@ public class HenchmanItem extends Item
         	HenchmanItem item = (HenchmanItem)hench.getItem();
         	CombatEntityTemplate t = CombatEntityLookup.Instance.lookupByName.get(item.henchmanName);
         	CombatEntitySaveData d = new CombatEntitySaveData(t);
+        	d.CurrentJob = "Monster";
+        	d.JobLevels.add(new Pair<String, Integer>("Monster", 1));
+        	d.Level = 1;
+        	
         	HenchmanItem.SetCombatEntitySaveData(d, hench);
     	}
     	

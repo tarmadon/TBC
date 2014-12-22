@@ -24,7 +24,7 @@ public class SelectMainMenuFunction implements IGenericAction
 	public void Invoke() 
 	{
 		ArrayList<GenericScrollBoxCellData> buttons = new ArrayList<GenericScrollBoxCellData>();
-		buttons.add(new GenericScrollBoxCellData("Job", "", null));
+		buttons.add(new GenericScrollBoxCellData("Job", "", new SelectJobsMenuFunction(this.gui)));
 		buttons.add(new GenericScrollBoxCellData("Items", "", new ShowItemsMenuFunction(this.gui, this.gui.player, this.gui.partyMembers.get(0))));
 		buttons.add(new GenericScrollBoxCellData("Abilities", "", new SelectAbilitiesMenuFunction(this.gui)));
 		buttons.add(new GenericScrollBoxCellData("Equip", "", new SelectEquipmentMenuFunction(this.gui)));

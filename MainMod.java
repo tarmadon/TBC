@@ -277,7 +277,7 @@ public class MainMod
 
 		if(!loadedProgress)
 		{
-			questProgress = LevelingEngine.Instance.GetXpDataForPlayer(mc.thePlayer).QuestProgress;
+			questProgress = LevelingEngine.Instance.GetPlayerSaveData(mc.thePlayer).QuestProgress;
 			loadedProgress = true;
 		}
 

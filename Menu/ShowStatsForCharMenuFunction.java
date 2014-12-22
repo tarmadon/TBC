@@ -27,7 +27,7 @@ public class ShowStatsForCharMenuFunction implements IGenericAction, ICustomMenu
 	{
 		if(this.player.Player != null)
 		{
-			xpData = LevelingEngine.Instance.GetXpDataForPlayer(this.player.Player);
+			xpData = LevelingEngine.Instance.GetPlayerSaveData(this.player.Player);
 		}
 		else
 		{

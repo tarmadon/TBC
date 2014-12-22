@@ -1,8 +1,11 @@
 package TBC;
 
 import java.util.ArrayList;
+import java.util.List;
 
-public class ArrayExtensions 
+import TBC.Combat.Effects.IEffect;
+
+public class ArrayExtensions
 {
 	public static ArrayList<String> GetArray(String... pieces)
 	{
@@ -10,6 +13,17 @@ public class ArrayExtensions
 		for(String piece : pieces)
 		{
 			list.add(piece);
+		}
+		
+		return list;
+	}
+	
+	public static List<IEffect> MergeLists(List<IEffect>... pieces)
+	{
+		ArrayList<IEffect> list = new ArrayList<IEffect>();
+		for(List<IEffect> piece : pieces)
+		{
+			list.addAll(piece);
 		}
 		
 		return list;

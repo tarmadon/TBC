@@ -7,7 +7,6 @@ import net.minecraft.nbt.NBTTagCompound;
 
 public class CombatEndedMessage extends ObjectMessage implements Serializable
 {
-	public CombatEntitySaveData PlayerData;
 	public boolean Won;
 	public boolean GainedLevel;
 	public boolean GainedSkill;
@@ -20,7 +19,6 @@ public class CombatEndedMessage extends ObjectMessage implements Serializable
 		if(message instanceof CombatEndedMessage)
 		{
 			CombatEndedMessage m = (CombatEndedMessage)message; 
-			PlayerData = m.PlayerData;
 			Won = m.Won;
 			GainedLevel = m.GainedLevel;
 			XPGained = m.XPGained;

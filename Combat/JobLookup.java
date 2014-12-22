@@ -8,9 +8,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 
 import org.apache.logging.log4j.Level;
 
+import TBC.CombatEntitySaveData;
 import TBC.Pair;
 import TBC.Combat.Abilities.AbilityLookup;
 import TBC.Combat.Abilities.ICombatAbility;
@@ -211,5 +213,84 @@ public class JobLookup
 				}
 			}
 		}
+	}
+
+	public List<Job> GetAvailableJobs(CombatEntitySaveData saveData)
+	{
+		ArrayList<Job> availableJobs = new ArrayList<Job>();
+		for(Job job : this.lookupByName.values())
+		{
+			boolean hasPrereqs = true;
+			for(JobPrerequisite prereq : job.Prereqs)
+			{
+				if(prereq.JobRequired.isEmpty())
+				{
+					if(prereq.LevelRequired > saveData.Level)
+					{
+						hasPrereqs = false;
+						break;
+					}
+				}
+				else 
+				{
+					boolean foundJob = false;
+					for(Pair<String, Integer> jobLevel : saveData.JobLevels)
+					{
+						if(jobLevel.item1.equals(prereq.JobRequired) && jobLevel.item2 >= prereq.LevelRequired)
+						{
+							foundJob = true;
+							break;
+						}
+					}
+					
+					if(!foundJob)
+					{
+						hasPrereqs = false;
+						break;
+					}
+				}
+			}
+			
+			if(hasPrereqs)
+			{
+				availableJobs.add(job);
+			}
+		}
+		
+		return availableJobs;
+	}
+	
+	public List<ICombatAbility> GetJobAbilities(String jobName, int jobLevel, boolean isPrimary)
+	{
+		ArrayList<ICombatAbility> foundAbilities = new ArrayList<ICombatAbility>();
+		Job foundJob = lookupByName.get(jobName);
+		for(JobSkillGain g : foundJob.SkillGains)
+		{
+			if(g.StartingAtLevel <= jobLevel && (isPrimary || g.AbilityType.equals(JobSkillGain.SECONDARY)))
+			{
+				ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(g.AbilityName);
+				if(ability != null)
+				{
+					foundAbilities.add(ability);
+				}
+			}
+		}
+		
+		return foundAbilities;
+	}
+	
+	public CombatEntityTemplate RecalculateStats(String jobName, int charLevel)
+	{
+		Job foundJob = lookupByName.get(jobName);
+		JobStatGain stats = foundJob.StatGains.get(0);
+		CombatEntityTemplate t = new CombatEntityTemplate();
+		t.attack = stats.AtkGain * charLevel;
+		t.defense = stats.DefGain * charLevel;
+		t.mAttack = stats.MAtkGain * charLevel;
+		t.mDefense = stats.MDefGain * charLevel;
+		t.speed = stats.SpeedGain * charLevel;
+		t.maxHp = stats.HPGain * charLevel;
+		t.maxMp = stats.MPGain * charLevel;
+		return t;
 	}
 }

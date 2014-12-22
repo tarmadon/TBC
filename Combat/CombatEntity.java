@@ -11,6 +11,8 @@ import TBC.HenchmanItem;
 import TBC.Pair;
 import TBC.CombatEntitySaveData;
 import TBC.PlayerSaveData;
+import TBC.Combat.Abilities.AbilityLookup;
+import TBC.Combat.Abilities.ConstantAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Effects.StatChangeStatus;
 
@@ -43,6 +45,7 @@ public class CombatEntity implements Serializable
 		this.entityType = entityType;
 		this.baseStats = baseStats;
 		this.tag = tag;
+		this.ongoingEffects = GetStartingConstantEffects();
 		PopulateWithBaseStats();
 	}
 
@@ -114,13 +117,13 @@ public class CombatEntity implements Serializable
 		CombatEntitySaveData s = new CombatEntitySaveData();
 		s.loadNBTData(PlayerSaveData.GetPlayerTag(entity));
 		String name = entity.getDisplayName();
-		CombatEntityTemplate t = new CombatEntityTemplate(name, s);
+		CombatEntityTemplate t = CombatEntityTemplate.GetCombatEntityTemplateFromSaveData(name, s);
 		CombatEntity e = new CombatEntity(entity.getEntityId(), null, t, PlayerSaveData.GetPlayerTag(entity));
 		e.name = t.name;
 		e.isFrontLine = s.IsFrontRow > 0 ? true : false;
 		
 		float currentHpPercentage = (float)entity.getHealth() / entity.getMaxHealth();
-		e.currentHp = Math.round(currentHpPercentage * e.baseStats.maxHp);
+		e.currentHp = Math.round(currentHpPercentage * e.GetMaxHp());
 		if(e.currentHp < 1)
 		{
 			e.currentHp = 1;
@@ -140,7 +143,7 @@ public class CombatEntity implements Serializable
 		HenchmanItem h = (HenchmanItem)henchmanStack.getItem();
 		CombatEntitySaveData s = HenchmanItem.GetCombatEntitySaveData(henchmanStack);
 		String name = h.henchmanName;
-		CombatEntityTemplate t = new CombatEntityTemplate(name, s);
+		CombatEntityTemplate t = CombatEntityTemplate.GetCombatEntityTemplateFromSaveData(name, s);
 		CombatEntity henchmanEntity = new CombatEntity(entityId, null, t, HenchmanItem.GetTag(henchmanStack));
 		henchmanEntity.name = name;
 		henchmanEntity.entityType = h.henchmanType;
@@ -243,37 +246,6 @@ public class CombatEntity implements Serializable
 		return this.baseStats.apValue;
 	}
 
-	public void ApplyLevelUp(
-			int gainedHp,
-			int gainedMp,
-			int gainedAttack,
-			int gainedDefense,
-			int gainedMAttack,
-			int gainedMDefense,
-			int gainedSpeed)
-	{
-		this.baseStats.maxHp += gainedHp;
-		this.baseStats.maxMp += gainedMp;
-		this.baseStats.attack += gainedAttack;
-		this.baseStats.defense += gainedDefense;
-		this.baseStats.mAttack += gainedMAttack;
-		this.baseStats.mDefense += gainedMDefense;
-		this.baseStats.speed += gainedSpeed;
-		this.PopulateWithBaseStats();
-	}
-
-	public void ApplySkillLevelUp(ICombatAbility newSkill)
-	{
-		Pair<Integer, ICombatAbility>[] newArray = new Pair[this.baseStats.abilities.length + 1];
-		for(int i = 0; i< this.baseStats.abilities.length; i++)
-		{
-			newArray[i] = this.baseStats.abilities[i];
-		}
-
-		newArray[newArray.length - 1] = new Pair<Integer, ICombatAbility>(1, newSkill);
-		this.baseStats.abilities = newArray;
-	}
-
 	public CombatEntityTemplate GetBaseStats()
 	{
 		return this.baseStats;
@@ -322,8 +294,34 @@ public class CombatEntity implements Serializable
 
 	private void PopulateWithBaseStats()
 	{
-		this.currentHp = this.baseStats.maxHp;
-		this.currentMp = this.baseStats.maxMp;
+		this.currentHp = this.GetMaxHp();
+		this.currentMp = this.GetMaxMp();
 		this.name = this.baseStats.name;
+	}
+	
+	private List GetStartingConstantEffects()
+	{
+		List constantEffects = new ArrayList();
+		for(Pair<Integer, ICombatAbility> ability : this.GetAbilities())
+		{
+			if(ability.item2 instanceof ConstantAbility)
+			{
+				constantEffects.addAll(((ConstantAbility)ability.item2).GetConstantEffects());
+			}
+		}
+
+		if(this.tag != null)
+		{
+			ArrayList<ICombatAbility> equipmentAbilities = EquippedItemManager.Instance.GetAbilitiesFromEquippedItems(this.tag);
+			for(ICombatAbility equipmentAbility : equipmentAbilities)
+			{
+				if(equipmentAbility instanceof ConstantAbility)
+				{
+					constantEffects.addAll(((ConstantAbility)equipmentAbility).GetConstantEffects());
+				}
+			}
+		}
+		
+		return constantEffects;
 	}
 }

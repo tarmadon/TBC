@@ -8,12 +8,14 @@ import scala.actors.threadpool.Arrays;
 
 import TBC.ArrayExtensions;
 import TBC.Combat.DamageType;
+import TBC.Combat.IStatusChange;
 import TBC.Combat.Effects.ApplyStatusEffect;
 import TBC.Combat.Effects.DeathEffect;
 import TBC.Combat.Effects.DelayTurnEffect;
 import TBC.Combat.Effects.FlatDamageEffect;
 import TBC.Combat.Effects.FlatManaEffect;
 import TBC.Combat.Effects.HealEffect;
+import TBC.Combat.Effects.IEffect;
 import TBC.Combat.Effects.IOneTimeEffect;
 import TBC.Combat.Effects.LifeStealEffect;
 import TBC.Combat.Effects.MagicDamageEffect;
@@ -45,10 +47,19 @@ public class AbilityLookup
 	
 	public void Initialize()
 	{
-		lookup.put("BasicCounter", this.BuildStandardAbility("", "", AbilityTargetType.OneEnemy, 0, false, false, new PhysicalDamageEffect(0).SetAdditionalDamageTypes(DamageType.Uncounterable)));
-		lookup.put("Ranged", this.BuildConstantAbility("Ranged Attacks", "All basic attacks become ranged", new RangedAttacksTriggeredEffect()));
-		
 		lookup.put("Default", new DefaultAttackAbility());
+		lookup.put("BasicCounter", this.BuildStandardAbility("", "", AbilityTargetType.OneEnemy, 0, false, false, new PhysicalDamageEffect(0).SetAdditionalDamageTypes(DamageType.Uncounterable)));
+		
+		// Adventurer skills
+		lookup.put("beginnerBoostPrimary", this.BuildConstantAbility("Beginner Boost II", "Increases all stats passively", ArrayExtensions.MergeLists(
+				BuildConstantFlatStatChange("beginnerBoost", 5, StatChangeStatus.AttackChange, StatChangeStatus.DefenseChange, StatChangeStatus.MagicChange, StatChangeStatus.MagicDefenseChange, StatChangeStatus.SpeedChange),
+				BuildConstantFlatStatChange("beginnerBoost", 50, StatChangeStatus.HpChange))));
+		lookup.put("beginnerBoostSecondary", this.BuildConstantAbility("Beginner Boost I", "Increases all stats passively", ArrayExtensions.MergeLists(
+				BuildConstantFlatStatChange("beginnerBoost", 2, StatChangeStatus.AttackChange, StatChangeStatus.DefenseChange, StatChangeStatus.MagicChange, StatChangeStatus.MagicDefenseChange, StatChangeStatus.SpeedChange),
+				BuildConstantFlatStatChange("beginnerBoost", 20, StatChangeStatus.HpChange))));
+		
+		
+		lookup.put("Ranged", this.BuildConstantAbility("Ranged Attacks", "All basic attacks become ranged", new RangedAttacksTriggeredEffect()));
 		lookup.put("Bleed", this.BuildStandardAbility("Bleed", "Causes physical damage over time", AbilityTargetType.OneEnemy, 0, false, false, new ApplyStatusEffect(new DamageOverTimeEffect(10, DamageType.Physical, 5, -1))));
 		lookup.put("Lifesteal", this.BuildConstantAbility("Lifesteal", "Heals a little when causing physical damage", new LifeStealConstantEffect(DamageType.Physical, 0.1F)));
 
@@ -232,17 +243,39 @@ public class AbilityLookup
 		return new StandardAbility(effects, abilityName, targetType, mpCost, usableOutOfCombat, isSpell, descriptions);
 	}
 
-	public ICombatAbility BuildConstantAbility(String abilityName, String description, ITriggeredEffect... effects)
+	public ICombatAbility BuildConstantAbility(String abilityName, String description, IEffect... effects)
 	{
 		ArrayList<String> descriptions = new ArrayList<String>();
 		descriptions.add(description);
 		
 		List effectList = new ArrayList();
-		for(ITriggeredEffect effect : effects)
+		for(IEffect effect : effects)
 		{
 			effectList.add(effect);
 		}
 
 		return new ConstantAbility(abilityName, effectList, descriptions);
+	}
+	
+	public ICombatAbility BuildConstantAbility(String abilityName, String description, List<IEffect> effects)
+	{
+		ArrayList<String> descriptions = new ArrayList<String>();
+		descriptions.add(description);
+		
+		List<IEffect> effectList = new ArrayList<IEffect>();
+		effectList.addAll(effects);
+
+		return new ConstantAbility(abilityName, effectList, descriptions);
+	}
+	
+	public List<IEffect> BuildConstantFlatStatChange(String category, int statAmount, int... statTypes)
+	{
+		List<IEffect> changes = new ArrayList<IEffect>();
+		for(int statType : statTypes)
+		{
+			changes.add(new StatChangeStatus("beginnerBoost", statType, statAmount, 1, -1, -1));
+		}
+		
+		return changes;
 	}
 }

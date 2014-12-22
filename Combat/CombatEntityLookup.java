@@ -13,6 +13,7 @@ import java.util.AbstractMap.SimpleEntry;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -26,6 +27,7 @@ import TBC.Pair;
 import TBC.CombatEntitySaveData;
 import TBC.PlayerSaveData;
 import TBC.Combat.Abilities.AbilityLookup;
+import TBC.Combat.Abilities.ConstantAbility;
 import TBC.Combat.Abilities.DefaultAttackAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 
@@ -164,7 +166,9 @@ public class CombatEntityLookup
 			return new CombatEntity(player.getEntityId(), null, template, PlayerSaveData.GetPlayerTag(player));
 		}
 
-		CombatEntityTemplate playerTemplate = LevelingEngine.Instance.GetPlayerEntityFromSavedData(player, playerName);
+		CombatEntitySaveData data = LevelingEngine.Instance.GetPlayerSaveData(player);
+		CombatEntityTemplate playerTemplate = CombatEntityTemplate.GetCombatEntityTemplateFromSaveData(playerName, data);
+		
 		lookupByName.put(lookupName, playerTemplate);
 		return new CombatEntity(player.getEntityId(), null, playerTemplate, PlayerSaveData.GetPlayerTag(player));
 	}

@@ -1,9 +1,14 @@
 Job,Prereq Class,Prereq Level
 Fighter,,2
+Fighter,Adventurer,1
 Thief,,2
+Thief,Adventurer,1
 Mage,,2
+Mage,Adventurer,1
 Priest,,2
+Priest,Adventurer,1
 Crusader,Fighter,5
 Crusader,Priest,3
 Bishop,Mage,4
 Bishop,Priest,4
+Monster,Monster,1

@@ -54,14 +54,12 @@ public class CombatEngine
 		for(int i = 0; i<this.allies.size(); i++)
 		{
 			CombatEntity ally = this.allies.get(i);
-			ally.ongoingEffects = GetStartingConstantEffects(ally);
 			turnTimings.put(this.allies.get(i), allyStartTime);
 		}
 
 		for(int i = 0; i<this.enemies.size(); i++)
 		{
 			CombatEntity enemy = this.enemies.get(i);
-			enemy.ongoingEffects = GetStartingConstantEffects(enemy);
 			turnTimings.put(this.enemies.get(i), enemyStartTime);
 		}
 	}
@@ -348,35 +346,8 @@ public class CombatEngine
 			this.enemies.add(toAdd);
 		}
 
-		toAdd.ongoingEffects = GetStartingConstantEffects(toAdd);
 		this.turnTimings.put(toAdd, 0F);
 		return true;
-	}
-
-	private List GetStartingConstantEffects(CombatEntity ally)
-	{
-		List constantEffects = new ArrayList();
-		for(Pair<Integer, ICombatAbility> ability : ally.GetAbilities())
-		{
-			if(ability.item2 instanceof ConstantAbility)
-			{
-				constantEffects.addAll(((ConstantAbility)ability.item2).GetConstantEffects());
-			}
-		}
-
-		if(ally.tag != null)
-		{
-			ArrayList<ICombatAbility> equipmentAbilities = EquippedItemManager.Instance.GetAbilitiesFromEquippedItems(ally.tag);
-			for(ICombatAbility equipmentAbility : equipmentAbilities)
-			{
-				if(equipmentAbility instanceof ConstantAbility)
-				{
-					constantEffects.addAll(((ConstantAbility)equipmentAbility).GetConstantEffects());
-				}
-			}
-		}
-		
-		return constantEffects;
 	}
 	
 	private ArrayList<CombatEntity> ChooseTargetForEnemy(CombatEntity enemy, ICombatAbility ability)

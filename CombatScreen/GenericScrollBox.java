@@ -24,6 +24,7 @@ public class GenericScrollBox extends GuiButton
 {
 	public static final int ySpacing = 10;
 	private int xSpacing = 80;
+	private int contantItemXSpacing = 60;
 	private ArrayList<GenericScrollBoxCellData> items;
 	private ArrayList<GenericScrollBoxCellData> constantItems;
 	private ArrayList<Triplet<Integer, Integer, Integer>> positions;
@@ -76,11 +77,26 @@ public class GenericScrollBox extends GuiButton
 			}
 		}
 
+		int maxConstantStringLength = 0;
+		for(GenericScrollBoxCellData i : constantItems)
+		{
+			int stringLength = fontRenderer.getStringWidth(i.Text);
+			if(stringLength > maxStringLength)
+			{
+				maxConstantStringLength = stringLength;
+			}
+		}
+
+		if(maxConstantStringLength > 60)
+		{
+			contantItemXSpacing = maxConstantStringLength + 20;
+		}
+		
 		curCol = 0;
 		constantPositions = new ArrayList<Triplet<Integer,Integer,Integer>>();
 		for(int i = 0; i < constantItems.size(); i++)
 		{
-			constantPositions.add(new Triplet<Integer, Integer, Integer>(curCol * xSpacing, numRows * ySpacing, i));
+			constantPositions.add(new Triplet<Integer, Integer, Integer>(curCol * contantItemXSpacing, numRows * ySpacing, i));
 			curCol++;
 		}
 
@@ -195,7 +211,7 @@ public class GenericScrollBox extends GuiButton
 		{
 			int positionYPos = constantPositions.get(i).item2;
 			int positionsXPos = constantPositions.get(i).item1;
-			if(mouseXPos < positionsXPos + xSpacing && mouseXPos > positionsXPos && mouseYPos < positionYPos + ySpacing && mouseYPos > positionYPos)
+			if(mouseXPos < positionsXPos + contantItemXSpacing && mouseXPos > positionsXPos && mouseYPos < positionYPos + ySpacing && mouseYPos > positionYPos)
 			{
 				int itemIndex = constantPositions.get(i).item3;
 				if(itemIndex == -1)

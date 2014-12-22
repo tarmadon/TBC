@@ -478,13 +478,22 @@ public class Battle
 			for(CombatEntity e : this.allies)
 			{
 				EntityPlayerMP owner = this.owners.get(e);
-				Pair<Boolean, Boolean> gainedLevelOrSkill = LevelingEngine.Instance.GainXP(this.world, e, rewards.getKey(), rewards.getValue(), messageQueue);
 				if(!levelUps.containsKey(owner))
 				{
 					levelUps.put(owner, new ArrayList<Pair<Boolean,Boolean>>());
 				}
-			
-				levelUps.get(owner).add(gainedLevelOrSkill);
+				
+				Pair<Boolean, Boolean> gainedLevelOrSkill;
+				if(e.entityType == null)
+				{
+					gainedLevelOrSkill = LevelingEngine.Instance.GainXP(e, owner, rewards.getKey(), rewards.getValue(), messageQueue);
+					levelUps.get(owner).add(gainedLevelOrSkill);
+				}
+				else if(henchmanLookup.containsKey(e))
+				{
+					gainedLevelOrSkill = LevelingEngine.Instance.GainXP(e, henchmanLookup.get(e), rewards.getKey(), rewards.getValue(), messageQueue);
+					levelUps.get(owner).add(gainedLevelOrSkill);
+				}
 			}
 			
 			for(EntityPlayerMP toNotify : this.players)
@@ -496,7 +505,6 @@ public class Battle
 				m.GainedLevel = levelUpsForPlayer.get(0).item1;
 				m.GainedSkill = levelUpsForPlayer.get(0).item2;
 				m.Won = true;
-				m.PlayerData = LevelingEngine.Instance.GetXpDataForPlayer(toNotify);
 				MainMod.combatEndedHandler.sendTo(m, toNotify);
 			}
 		}
