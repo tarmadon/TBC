@@ -580,6 +580,31 @@ public class MainMod
 	{
 		EntityRegistry.registerModEntity(BattleEntity.class, "Battle", 1, TBCMod.instance, 40, 1, false);
 		
+		Item clothArmor = createItemCopy(Items.leather_chestplate, "clothArmor");
+		ItemStack clothArmorStack = new ItemStack(clothArmor);
+		GameRegistry.addShapelessRecipe(clothArmorStack, Blocks.wool, Blocks.wool, Items.leather_chestplate, Blocks.wool);
+		LanguageRegistry.addName(clothArmorStack, "Cloth Armor");
+		
+		Item leatherArmor = createItemCopy(Items.leather_chestplate, "leatherArmor");
+		ItemStack leatherArmorStack = new ItemStack(leatherArmor);
+		GameRegistry.addShapelessRecipe(leatherArmorStack, Items.leather_boots, Items.leather_leggings, Items.leather_chestplate, Items.leather_helmet);
+		LanguageRegistry.addName(leatherArmorStack, "Leather Armor");
+		
+		Item ironArmor = createItemCopy(Items.iron_chestplate, "ironArmor");
+		ItemStack ironArmorStack = new ItemStack(ironArmor);
+		GameRegistry.addShapelessRecipe(ironArmorStack, Items.iron_boots, Items.iron_leggings, Items.iron_chestplate, Items.iron_helmet);
+		LanguageRegistry.addName(ironArmorStack, "Iron Armor");
+		
+		Item goldArmor = createItemCopy(Items.golden_chestplate, "goldArmor");
+		ItemStack goldArmorStack = new ItemStack(goldArmor);
+		GameRegistry.addShapelessRecipe(goldArmorStack, Items.golden_boots, Items.golden_leggings, Items.golden_chestplate, Items.golden_helmet);
+		LanguageRegistry.addName(goldArmorStack, "Gold Armor");
+		
+		Item diamondArmor = createItemCopy(Items.iron_chestplate, "diamondArmor");
+		ItemStack diamondArmorStack = new ItemStack(diamondArmor);
+		GameRegistry.addShapelessRecipe(diamondArmorStack, Items.diamond_boots, Items.diamond_leggings, Items.diamond_chestplate, Items.diamond_helmet);
+		LanguageRegistry.addName(diamondArmorStack, "Diamond Armor");
+		
 		Item smallHealthPotion = createItemCopy(Items.potionitem, "smallPotion");
 		ItemStack smallHealthPotionStack = new ItemStack(smallHealthPotion);
 		GameRegistry.addShapelessRecipe(smallHealthPotionStack, Items.apple);

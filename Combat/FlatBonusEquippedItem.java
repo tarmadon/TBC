@@ -11,14 +11,9 @@ public class FlatBonusEquippedItem extends EquippedItem
 	private String itemSlot;
 	private Boolean doesRequireWorn;
 
-	public FlatBonusEquippedItem(int effectType, int effectStrength, String slot, ArrayList<String> description)
+	public FlatBonusEquippedItem(int effectType, int effectStrength, String slot, ArrayList<String> description, ArrayList<String> proficiencies)
 	{
-		this(effectType, effectStrength, slot, false, description);
-	}
-
-	public FlatBonusEquippedItem(int effectType, int effectStrength, String slot, Boolean doesRequireWorn, ArrayList<String> description)
-	{
-		super(description);
+		super(description, proficiencies);
 		this.itemEffectType = effectType;
 		this.itemEffectStrength = effectStrength;
 		this.itemSlot = slot;
@@ -38,11 +33,6 @@ public class FlatBonusEquippedItem extends EquippedItem
 	public String GetSlot()
 	{
 		return this.itemSlot;
-	}
-
-	public Boolean DoesRequireWorn()
-	{
-		return this.doesRequireWorn;
 	}
 
 	public String GetDisplayString()

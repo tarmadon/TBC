@@ -54,7 +54,7 @@ public class CombatEntityTemplate implements Serializable
 		}
 
 		int primaryJobLevel = data.GetJobLevelMin1(data.CurrentJob);
-		List<ICombatAbility> jobAbilities = JobLookup.Instance.GetJobAbilities(data.CurrentJob, primaryJobLevel, true);
+		List<ICombatAbility> jobAbilities = JobLookup.Instance.GetJobAbilities(data.CurrentJob, primaryJobLevel, true, false);
 		for(ICombatAbility ability : jobAbilities)
 		{
 			abilities.add(new Pair<Integer, ICombatAbility>(1, ability));
@@ -63,7 +63,7 @@ public class CombatEntityTemplate implements Serializable
 		if(!data.SecondaryJob.isEmpty())
 		{
 			int secondaryJobLevel = data.GetJobLevelMin1(data.SecondaryJob);
-			List<ICombatAbility> secondaryJobAbilities = JobLookup.Instance.GetJobAbilities(data.SecondaryJob, secondaryJobLevel, false);
+			List<ICombatAbility> secondaryJobAbilities = JobLookup.Instance.GetJobAbilities(data.SecondaryJob, secondaryJobLevel, false, false);
 			for(ICombatAbility ability : secondaryJobAbilities)
 			{
 				abilities.add(new Pair<Integer, ICombatAbility>(1, ability));

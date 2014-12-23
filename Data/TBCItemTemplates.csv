@@ -1,42 +1,25 @@
-ItemName,ItemType,Slot,RequiresWorn,StatType,StatValue,Ability,DamageFromUse,Description
-swordWood,flat,MainHand,FALSE,1,3,,,+3 Attack
-swordStone,flat;use,MainHand,FALSE,1,6,Smite,10,+6 Attack
-swordIron,flat,MainHand,FALSE,1,13,,,+13 Attack
-swordGold,flat,MainHand,FALSE,1,20,,,+20 Attack
-swordDiamond,flat,MainHand,FALSE,1,30,,,+30 Attack
-bloodSword,flat;use,MainHand,FALSE,1,6,Lifesteal,0,+6 Attack;Lifesteal
+ItemName,ItemType,Slot,Proficiency,StatType,StatValue,Ability,DamageFromUse,Description
+swordWood,flat,MainHand,,1,3,,,+3 Attack
+swordStone,flat,MainHand,,1,6,,,+6 Attack
+swordIron,flat,MainHand,Sword,1,13,,,+13 Attack
+swordGold,flat,MainHand,Sword,1,20,,,+20 Attack
+swordDiamond,flat,MainHand,Sword,1,30,,,+30 Attack
+bloodSword,flat;use,MainHand,Sword,1,6,Lifesteal,0,+6 Attack;Lifesteal
 ,,,,,,,,
-hatchetWood,flat,MainHand,FALSE,1,2,,,+2 Attack
-hatchetStone,flat,MainHand,FALSE,1,5,,,+5 Attack
-hatchetIron,flat,MainHand,FALSE,1,11,,,+11 Attack
-hatchetGold,flat,MainHand,FALSE,1,17,,,+17 Attack
-hatchetDiamond,flat,MainHand,FALSE,1,25,,,+25 Attack
+hatchetWood,flat,MainHand,Axe,1,2,,,+2 Attack
+hatchetStone,flat,MainHand,Axe,1,5,,,+5 Attack
+hatchetIron,flat,MainHand,Axe,1,11,,,+11 Attack
+hatchetGold,flat,MainHand,Axe,1,17,,,+17 Attack
+hatchetDiamond,flat,MainHand,Axe,1,25,,,+25 Attack
 ,,,,,,,,
-bow,flat;use,MainHand,FALSE,1,15,Ranged,0,+15 Attack;Ranged
+bow,flat;use,MainHand,Bow,1,15,Ranged,0,+15 Attack;Ranged
 ,,,,,,,,
-chestplateCloth,flat,Torso,TRUE,2,4,,,+4 Defense
-chestplateIron,flat,Torso,TRUE,2,6,,,+6 Defense
-chestplateChain,flat,Torso,TRUE,2,6,,,+6 Defense
-chestplateGold,flat,Torso,TRUE,2,8,,,+8 Defense
-chestplateDiamond,flat,Torso,TRUE,2,12,,,+12 Defense
-,,,,,,,,
-helmetCloth,flat,Head,TRUE,2,2,,,+2 Defense
-helmetIron,flat,Head,TRUE,2,3,,,+3 Defense
-helmetChain,flat,Head,TRUE,2,3,,,+3 Defense
-helmetGold,flat,Head,TRUE,2,4,,,+4 Defense
-helmetDiamond,flat,Head,TRUE,2,6,,,+6 Defense
-,,,,,,,,
-bootsCloth,flat;use,Foot,TRUE,2,2,Heal,-1,+2 Defense
-bootsIron,flat,Foot,TRUE,2,3,,,+3 Defense
-bootsChain,flat,Foot,TRUE,2,3,,,+3 Defense
-bootsGold,flat,Foot,TRUE,2,4,,,+4 Defense
-bootsDiamond,flat,Foot,TRUE,2,6,,,+6 Defense
-,,,,,,,,
-leggingsCloth,flat,Legs,TRUE,2,2,,,+2 Defense
-leggingsIron,flat,Legs,TRUE,2,4,,,+4 Defense
-leggingsChain,flat,Legs,TRUE,2,4,,,+4 Defense
-leggingsGold,flat,Legs,TRUE,2,6,,,+6 Defense
-leggingsDiamond,flat,Legs,TRUE,2,8,,,+8 Defense
+clothArmor,flat,Armor,Cloth,2,6,,,+6 Defense
+leatherArmor,flat,Armor,Leather,2,10,,,+10 Defense
+ironArmor,flat,Armor,Plate,2,16,,,+16 Defense
+chainArmor,flat,Armor,Plate,2,16,,,+16 Defense
+goldArmor,flat,Armor,Plate,2,22,,,+22 Defense
+diamondArmor,flat,Armor,Plate,2,32,,,+32 Defense
 ,,,,,,,,
 smallPotion,use,,,,,smallPotion,-1,Restores 20 HP
 medPotion,use,,,,,medPotion,-1,Restores 50 HP

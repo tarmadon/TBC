@@ -40,10 +40,9 @@ import net.minecraft.nbt.NBTTagCompound;
 public class EquippedItemManager
 {
 	public static final String MainHandItemSlot = "MainHand";
-	public static final String TorsoItemSlot = "Torso";
-	public static final String FootItemSlot = "Foot";
-	public static final String HeadItemSlot = "Head";
-	public static final String LegsItemSlot = "Legs";
+	public static final String OffHandItemSlot = "OffHand";
+	public static final String ArmorItemSlot = "Armor";
+	public static final String AccItemSlot = "Acc";
 
 	public static EquippedItemManager Instance = new EquippedItemManager();
 	public Hashtable<String, EquippedItem> lookup = new Hashtable<String, EquippedItem>();
@@ -72,40 +71,44 @@ public class EquippedItemManager
 				}
 
 				String[] split = nextLine.split(",");
-				if(split.length < 5)
+				if(split.length < 3)
 				{
 					continue;
 				}
-
+				
 				ArrayList<String> descriptions = new ArrayList<String>();
 				if(split.length >= 9)
 				{
-					String descriptionRawString = split[8].trim();
-					String[] descriptionSplit = descriptionRawString.split(";");
-					for(String description : descriptionSplit)
-					{
-						descriptions.add(description);
-					}
+					descriptions = SplitString(split[8].trim());
 				}
 				
 				if(split[1].trim().toLowerCase().contains("flat"))
 				{
+					if(split.length < 6)
+					{
+						continue;
+					}
+					
 					int effectType = Integer.parseInt(split[4].trim());
 					int effectStrength = Integer.parseInt(split[5].trim());
 					String slot = split[2].trim();
-					boolean requiresWorn = Boolean.parseBoolean(split[3].trim());
-					
-					
-					lookup.put(split[0].trim(), new FlatBonusEquippedItem(effectType, effectStrength, slot, requiresWorn, descriptions));
+					ArrayList<String> proficiencies = SplitString(split[3].trim());
+					lookup.put(split[0].trim(), new FlatBonusEquippedItem(effectType, effectStrength, slot, descriptions, proficiencies));
 				}
 
 				if(split[1].trim().toLowerCase().contains("use"))
 				{
+					if(split.length < 7)
+					{
+						continue;
+					}
+					
 					String abilityName = split[6].trim();
 					ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(abilityName);
+					ArrayList<String> proficiencies = SplitString(split[3].trim());
 					if(ability != null)
 					{
-						usableLookup.put(split[0].trim(), new UsableItem(ability, Integer.parseInt(split[7].trim()), descriptions));
+						usableLookup.put(split[0].trim(), new UsableItem(ability, Integer.parseInt(split[7].trim()), descriptions, proficiencies));
 					}
 				}
 			}
@@ -133,6 +136,21 @@ public class EquippedItemManager
 		}
 	}
 
+	public ArrayList<String> SplitString(String original)
+	{
+		ArrayList<String> split = new ArrayList<String>();
+		String[] asArray = original.split(";");
+		for(String item : asArray)
+		{
+			if(!item.isEmpty())
+			{
+				split.add(item);
+			}
+		}
+		
+		return split;
+	}
+	
 	public ArrayList<Pair<ICombatAbility, Integer>> GetUsableItemsForPlayer(Minecraft mc, EntityPlayer player)
 	{
 		ArrayList<Pair<ICombatAbility, Integer>> usableItems = new ArrayList<Pair<ICombatAbility, Integer>>();
@@ -327,8 +345,12 @@ public class EquippedItemManager
 	
     public static void SetItem(int slot, ItemStack item, NBTTagCompound tag)
     {
-    	NBTTagCompound itemTag = new NBTTagCompound();
-    	itemTag = item.writeToNBT(itemTag);
-    	tag.setTag("TBCslot" + slot, itemTag);
+		NBTTagCompound itemTag = new NBTTagCompound();
+		if(item != null)
+		{
+			itemTag = item.writeToNBT(itemTag);
+		}
+		
+		tag.setTag("TBCslot" + slot, itemTag);
     }
 }

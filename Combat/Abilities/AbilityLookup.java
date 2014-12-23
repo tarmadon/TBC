@@ -47,6 +47,17 @@ public class AbilityLookup
 	
 	public void Initialize()
 	{
+		lookup.put("profClothArmor", new PlaceholderAbility("Cloth Armor Prof.", ArrayExtensions.GetArray("Allows equipping cloth armor."), "Cloth"));
+		lookup.put("profLeatherArmor", new PlaceholderAbility("Leather Armor Prof.", ArrayExtensions.GetArray("Allows equipping leather armor."), "Leather"));
+		
+		lookup.put("profFighterWeapons", new PlaceholderAbility("Fighter Weapon Prof.", ArrayExtensions.GetArray("Allows equipping fighter weapons."), "GSword;Sword;Dagger;Axe;Bow;Shield"));
+		lookup.put("profFighterArmors", new PlaceholderAbility("Fighter Armor Prof.", ArrayExtensions.GetArray("Allows equipping leather and plate armor."), "Leather;Plate"));
+		lookup.put("profThiefWeapons", new PlaceholderAbility("Thief Weapon Prof.", ArrayExtensions.GetArray("Allows equipping thief weapons."), "Sword;Dagger;Bow"));
+		lookup.put("profPriestWeapons", new PlaceholderAbility("Priest Weapon Prof.", ArrayExtensions.GetArray("Allows equipping maces and staves."), "Mace;Staff"));
+		lookup.put("profMageWeapons", new PlaceholderAbility("Mage Weapon Prof.", ArrayExtensions.GetArray("Allows equipping wands and staves."), "Staff;Wand"));
+		lookup.put("profMonsterWeapons", new PlaceholderAbility("Monster Weapon Prof.", ArrayExtensions.GetArray("Allows equipping claws."), "Claw"));
+		lookup.put("profMonsterArmors", new PlaceholderAbility("Monster Armor Prof.", ArrayExtensions.GetArray("Allows equipping skins."), "Skin"));
+		
 		lookup.put("Default", new DefaultAttackAbility());
 		lookup.put("BasicCounter", this.BuildStandardAbility("", "", AbilityTargetType.OneEnemy, 0, false, false, new PhysicalDamageEffect(0).SetAdditionalDamageTypes(DamageType.Uncounterable)));
 		

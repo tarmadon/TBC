@@ -39,7 +39,7 @@ public class ShowJobInfoMenuFunction implements IGenericAction
 		}
 		
 		int jobLevel = saveData.GetJobLevelMin1(jobName);
-		List<ICombatAbility> abilities = JobLookup.Instance.GetJobAbilities(jobName, jobLevel, true);
+		List<ICombatAbility> abilities = JobLookup.Instance.GetJobAbilities(jobName, jobLevel, true, true);
 		ArrayList<GenericScrollBoxCellData> abilitiesToDisplay = new ArrayList<GenericScrollBoxCellData>();
 		for(ICombatAbility ability : abilities)
 		{

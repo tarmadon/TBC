@@ -16,6 +16,7 @@ import TBC.CombatEntitySaveData;
 import TBC.Pair;
 import TBC.Combat.Abilities.AbilityLookup;
 import TBC.Combat.Abilities.ICombatAbility;
+import TBC.Combat.Abilities.PlaceholderAbility;
 import cpw.mods.fml.common.FMLLog;
 
 public class JobLookup 
@@ -260,12 +261,17 @@ public class JobLookup
 		return availableJobs;
 	}
 	
-	public List<ICombatAbility> GetJobAbilities(String jobName, int jobLevel, boolean isPrimary)
+	public List<ICombatAbility> GetJobAbilities(String jobName, int jobLevel, boolean isPrimary, boolean includeProficiencies)
 	{
 		ArrayList<ICombatAbility> foundAbilities = new ArrayList<ICombatAbility>();
 		Job foundJob = lookupByName.get(jobName);
 		for(JobSkillGain g : foundJob.SkillGains)
 		{
+			if(!includeProficiencies && g.AbilityName.startsWith("prof"))
+			{
+				continue;
+			}
+			
 			if(g.StartingAtLevel <= jobLevel && (isPrimary || g.AbilityType.equals(JobSkillGain.SECONDARY)))
 			{
 				ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(g.AbilityName);
@@ -277,6 +283,25 @@ public class JobLookup
 		}
 		
 		return foundAbilities;
+	}
+	
+	public List<String> GetProficiencies(String jobName, int jobLevel, boolean isPrimary)
+	{
+		ArrayList<String> proficiencies = new ArrayList<String>();
+		List<ICombatAbility> allAbilities = GetJobAbilities(jobName, jobLevel, isPrimary, true);
+		for(ICombatAbility ability : allAbilities)
+		{
+			if(ability instanceof PlaceholderAbility)
+			{
+				String[] proficienciesForAbility = ((PlaceholderAbility)ability).GetPayload().split(";");
+				for(String s : proficienciesForAbility)
+				{
+					proficiencies.add(s);
+				}
+			}
+		}
+		
+		return proficiencies;
 	}
 	
 	public CombatEntityTemplate RecalculateStats(String jobName, int charLevel)

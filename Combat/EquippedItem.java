@@ -5,10 +5,12 @@ import java.util.ArrayList;
 public class EquippedItem
 {
 	private ArrayList<String> descriptions;
+	private ArrayList<String> proficiencies;
 	
-	public EquippedItem(ArrayList<String> descriptions)
+	public EquippedItem(ArrayList<String> descriptions, ArrayList<String> proficiencies)
 	{
 		this.descriptions = descriptions;
+		this.proficiencies = proficiencies;
 	}
 	
 	public Boolean HasEffect(int effectType)
@@ -39,5 +41,10 @@ public class EquippedItem
 	public ArrayList<String> DescriptionStrings()
 	{
 		return descriptions;
+	}
+	
+	public ArrayList<String> RequiredProficiencies()
+	{
+		return proficiencies;
 	}
 }

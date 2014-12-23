@@ -27,7 +27,7 @@ public class SelectEquipmentMenuFunction implements IGenericAction
 		for(int i = 0; i < this.gui.partyMembers.size(); i++)
 		{
 			StatMenuCharData partyMember = this.gui.partyMembers.get(i);
-			buttons.add(new GenericScrollBoxCellData(partyMember.CombatEntity.name, "", new ShowEquipmentForCharMenuFunction(this.gui, partyMember, "")));
+			buttons.add(new GenericScrollBoxCellData(partyMember.CombatEntity.name, "", new ShowEquipmentForCharMenuFunction(this.gui, partyMember, null)));
 		}
 		
 		ArrayList<GenericScrollBoxCellData> constantButtons = new ArrayList<GenericScrollBoxCellData>();

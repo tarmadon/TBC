@@ -22,30 +22,35 @@ public class ChangeEquipmentMenuFunction implements IGenericAction
 	private StatsGui gui;
 	private StatMenuCharData user;
 	private Quintuplet<Integer, Integer, Item, EquippedItem> item;
+	private int slotNumber;
 	
-	public ChangeEquipmentMenuFunction(StatsGui gui, StatMenuCharData user, Quintuplet<Integer, Integer, Item, EquippedItem> item)
+	public ChangeEquipmentMenuFunction(StatsGui gui, StatMenuCharData user, Quintuplet<Integer, Integer, Item, EquippedItem> item, int slotNumber)
 	{
 		this.gui = gui;
 		this.user = user;
 		this.item = item;
+		this.slotNumber = slotNumber;
 	}
 
 	public void Invoke() 
 	{
-		ItemStack inventoryItem;
-		StringMessage syncToServer = new StringMessage();
-		syncToServer.Data = this.item.item1 + "," + this.item.item2 + "," + -1;
-		MainMod.removeItemHandler.sendToServer(syncToServer);
-		
-		if(item.item1 == RemoveItemAbility.ArmorInventory)
+		ItemStack inventoryItem = null;
+		if(item != null)
 		{
-			inventoryItem = this.gui.player.inventory.armorInventory[item.item2];
-			this.gui.player.inventory.armorInventory[item.item2] = null;
-		}
-		else
-		{
-			inventoryItem = this.gui.player.inventory.mainInventory[item.item2];
-			this.gui.player.inventory.mainInventory[item.item2] = null;
+			StringMessage syncToServer = new StringMessage();
+			syncToServer.Data = this.item.item1 + "," + this.item.item2 + "," + -1;
+			MainMod.removeItemHandler.sendToServer(syncToServer);
+			
+			if(item.item1 == RemoveItemAbility.ArmorInventory)
+			{
+				inventoryItem = this.gui.player.inventory.armorInventory[item.item2];
+				this.gui.player.inventory.armorInventory[item.item2] = null;
+			}
+			else
+			{
+				inventoryItem = this.gui.player.inventory.mainInventory[item.item2];
+				this.gui.player.inventory.mainInventory[item.item2] = null;
+			}
 		}
 		
 		ItemStack[] existingEquipped;
@@ -58,7 +63,7 @@ public class ChangeEquipmentMenuFunction implements IGenericAction
 			existingEquipped = HenchmanItem.GetItems(this.user.Item);
 		}
 		
-		int index = GetIndexForSlot(item.item4.GetSlot());
+		int index = this.slotNumber;
 		if(existingEquipped[index] != null)
 		{
 			this.gui.player.inventory.addItemStackToInventory(existingEquipped[index]);
@@ -82,34 +87,6 @@ public class ChangeEquipmentMenuFunction implements IGenericAction
 			MainMod.setItemDataHandler.sendToServer(m);
 		}
 		
-		new ShowEquipmentForCharMenuFunction(this.gui, this.user, item.item4.GetSlot()).Invoke();
-	}
-	
-	private int GetIndexForSlot(String slot)
-	{
-		if(slot.equals(EquippedItemManager.MainHandItemSlot))
-		{
-			return 0;
-		}
-		else if(slot.equals(EquippedItemManager.HeadItemSlot))
-		{
-			return 1;
-		}
-		else if(slot.equals(EquippedItemManager.TorsoItemSlot))
-		{
-			return 2;
-		}
-		else if(slot.equals(EquippedItemManager.LegsItemSlot))
-		{
-			return 3;
-		}
-		else if(slot.equals(EquippedItemManager.FootItemSlot))
-		{
-			return 4;
-		}
-		else
-		{
-			return 0;
-		}
+		new ShowEquipmentForCharMenuFunction(this.gui, this.user, null).Invoke();
 	}
 }

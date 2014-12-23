@@ -40,10 +40,10 @@ public class ShowJobsForCharMenuFunction implements IGenericAction
 		
 		List<Job> available = JobLookup.Instance.GetAvailableJobs(saveData);
 		ArrayList<GenericScrollBoxCellData> jobsToDisplay = new ArrayList<GenericScrollBoxCellData>();
-		jobsToDisplay.add(new GenericScrollBoxCellData("Current Primary: " + saveData.CurrentJob + " Level: " + saveData.GetJobLevelMin1(saveData.CurrentJob), "", null));
+		jobsToDisplay.add(new GenericScrollBoxCellData("Primary: " + saveData.CurrentJob + " Level: " + saveData.GetJobLevelMin1(saveData.CurrentJob), "", null));
 		if(!saveData.SecondaryJob.isEmpty())
 		{
-			jobsToDisplay.add(new GenericScrollBoxCellData("Current Secondary: " + saveData.SecondaryJob + " Level: " + saveData.GetJobLevelMin1(saveData.SecondaryJob), "", null));
+			jobsToDisplay.add(new GenericScrollBoxCellData("Secondary: " + saveData.SecondaryJob + " Level: " + saveData.GetJobLevelMin1(saveData.SecondaryJob), "", null));
 		}
 		
 		for(Job job : available)
@@ -58,7 +58,15 @@ public class ShowJobsForCharMenuFunction implements IGenericAction
 			}
 		}
 		
-		jobsToDisplay.add(new GenericScrollBoxCellData("Remove", "", null));
+		if(selectedJobName.equals("Remove"))
+		{
+			jobsToDisplay.add(new GenericScrollBoxCellData("Remove", "", null));
+		}
+		else
+		{
+			jobsToDisplay.add(new GenericScrollBoxCellData("Remove", "", new ShowJobsForCharMenuFunction(gui, player, "Remove")));
+		}
+		
 		ArrayList<GenericScrollBoxCellData> constantButtons = new ArrayList<GenericScrollBoxCellData>();
 		constantButtons.add(new GenericScrollBoxCellData("Back", "", new SelectJobsMenuFunction(this.gui)));
 		if(selectedJobName.isEmpty())
