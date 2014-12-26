@@ -226,7 +226,7 @@ public class CombatEngine
 
 	public ArrayList<ICombatAbility> GetChoosableAbilitiesForEntity(CombatEntity entity)
 	{
-		Pair<Integer, ICombatAbility>[] abilities = entity.GetAbilities();
+		Pair<Integer, ICombatAbility>[] abilities = entity.GetCombatAbilities();
 		ArrayList<ICombatAbility> allowed = new ArrayList<ICombatAbility>();
 		for(Pair<Integer, ICombatAbility> ability : abilities)
 		{
@@ -292,11 +292,11 @@ public class CombatEngine
 	{
 		int totalWeight = 0;
 		ArrayList<Pair<Integer, ICombatAbility>> usableAbilities = new ArrayList<Pair<Integer, ICombatAbility>>();
-		for(int i = 0; i<enemy.GetAbilities().length; i++)
+		for(int i = 0; i<enemy.GetCombatAbilities().length; i++)
 		{
-			if(enemy.GetAbilities()[i].item2.GetMpCost() <= enemy.currentMp)
+			if(enemy.GetCombatAbilities()[i].item2.GetMpCost() <= enemy.currentMp)
 			{
-				usableAbilities.add(enemy.GetAbilities()[i]);
+				usableAbilities.add(enemy.GetCombatAbilities()[i]);
 			}
 		}
 

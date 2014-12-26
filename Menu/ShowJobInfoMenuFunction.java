@@ -8,6 +8,7 @@ import TBC.HenchmanItem;
 import TBC.Combat.Job;
 import TBC.Combat.JobLookup;
 import TBC.Combat.LevelingEngine;
+import TBC.Combat.Abilities.IAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.CombatScreen.GenericScrollBoxCellData;
 import TBC.CombatScreen.IGenericAction;
@@ -39,9 +40,9 @@ public class ShowJobInfoMenuFunction implements IGenericAction
 		}
 		
 		int jobLevel = saveData.GetJobLevelMin1(jobName);
-		List<ICombatAbility> abilities = JobLookup.Instance.GetJobAbilities(jobName, jobLevel, true, true);
+		List<IAbility> abilities = JobLookup.Instance.GetJobAbilities(jobName, jobLevel, true, true);
 		ArrayList<GenericScrollBoxCellData> abilitiesToDisplay = new ArrayList<GenericScrollBoxCellData>();
-		for(ICombatAbility ability : abilities)
+		for(IAbility ability : abilities)
 		{
 			abilitiesToDisplay.add(new GenericScrollBoxCellData(ability.GetAbilityName(), "", null, ability.GetDescription()));
 		}

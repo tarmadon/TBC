@@ -29,6 +29,7 @@ import TBC.PlayerSaveData;
 import TBC.Combat.Abilities.AbilityLookup;
 import TBC.Combat.Abilities.ConstantAbility;
 import TBC.Combat.Abilities.DefaultAttackAbility;
+import TBC.Combat.Abilities.IAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 
 import net.minecraft.client.Minecraft;
@@ -104,10 +105,10 @@ public class CombatEntityLookup
 						}
 
 						int weight = Integer.parseInt(abilityAndWeight[0]);
-						ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(abilityAndWeight[1]);
+						IAbility ability = AbilityLookup.Instance.GetAbilityWithName(abilityAndWeight[1]);
 						if(ability != null)
 						{
-							abilities.add(new Pair<Integer, ICombatAbility>(weight, ability));
+							abilities.add(new Pair<Integer, IAbility>(weight, ability));
 						}
 						else
 						{
@@ -115,7 +116,7 @@ public class CombatEntityLookup
 						}
 					}
 
-					Pair<Integer, ICombatAbility>[] abilitiesArray = new Pair[abilities.size()];
+					Pair<Integer, IAbility>[] abilitiesArray = new Pair[abilities.size()];
 					baseTemplate.abilities = abilities.toArray(abilitiesArray);
 				}
 

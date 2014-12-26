@@ -21,6 +21,8 @@ import TBC.PlayerSaveData;
 import TBC.Quintuplet;
 import TBC.Triplet;
 import TBC.Combat.Abilities.AbilityLookup;
+import TBC.Combat.Abilities.ConstantAbility;
+import TBC.Combat.Abilities.IAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Abilities.RemoveItemAbility;
 import TBC.Combat.Effects.StatChangeStatus;
@@ -47,6 +49,7 @@ public class EquippedItemManager
 	public static EquippedItemManager Instance = new EquippedItemManager();
 	public Hashtable<String, EquippedItem> lookup = new Hashtable<String, EquippedItem>();
 	public Hashtable<String, UsableItem> usableLookup = new Hashtable<String, UsableItem>();
+	public Hashtable<String, ConstantItem> constantLookup = new Hashtable<String, ConstantItem>();
 
 	private File file;
 
@@ -89,11 +92,23 @@ public class EquippedItemManager
 						continue;
 					}
 					
-					int effectType = Integer.parseInt(split[4].trim());
-					int effectStrength = Integer.parseInt(split[5].trim());
+					ArrayList<String> effectTypeSplit = SplitString(split[4].trim());
+					ArrayList<String> effectStrengthSplit = SplitString(split[5].trim());
+					ArrayList<Pair<Integer, Integer>> modifiers = new ArrayList<Pair<Integer,Integer>>();
+					for(int i = 0; i < effectTypeSplit.size(); i++)
+					{
+						int effectType = Integer.parseInt(effectTypeSplit.get(i));
+						String effectStrengthString = effectStrengthSplit.get(i);
+						if(!effectStrengthString.isEmpty())
+						{
+							int effectStrength = Integer.parseInt(effectStrengthString);
+							modifiers.add(new Pair<Integer, Integer>(effectType, effectStrength));
+						}
+					}
+					
 					String slot = split[2].trim();
 					ArrayList<String> proficiencies = SplitString(split[3].trim());
-					lookup.put(split[0].trim(), new FlatBonusEquippedItem(effectType, effectStrength, slot, descriptions, proficiencies));
+					lookup.put(split[0].trim(), new FlatBonusEquippedItem(modifiers, slot, descriptions, proficiencies));
 				}
 
 				if(split[1].trim().toLowerCase().contains("use"))
@@ -105,20 +120,33 @@ public class EquippedItemManager
 					
 					String abilityName = split[6].trim();
 					ArrayList<String> splitAbilityNames = SplitString(abilityName);
-					ArrayList<ICombatAbility> abilities = new ArrayList<ICombatAbility>();
+					ArrayList<ICombatAbility> usableAbilities = new ArrayList<ICombatAbility>();
+					ArrayList<ConstantAbility> constantAbilities = new ArrayList<ConstantAbility>();
 					for(String splitAbilityName : splitAbilityNames)
 					{
-						ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(splitAbilityName);
+						IAbility ability = AbilityLookup.Instance.GetAbilityWithName(splitAbilityName);
 						if(ability != null)
 						{
-							abilities.add(ability);
+							if(ability instanceof ICombatAbility)
+							{
+								usableAbilities.add((ICombatAbility)ability);
+							}
+							else if(ability instanceof ConstantAbility)
+							{
+								constantAbilities.add((ConstantAbility)ability);	
+							}
 						}
 					}
 					
 					ArrayList<String> proficiencies = SplitString(split[3].trim());
-					if(abilities.size() > 0)
+					if(usableAbilities.size() > 0)
 					{
-						usableLookup.put(split[0].trim(), new UsableItem(abilities, Integer.parseInt(split[7].trim()), descriptions, proficiencies));
+						usableLookup.put(split[0].trim(), new UsableItem(usableAbilities, Integer.parseInt(split[7].trim()), descriptions, proficiencies));
+					}
+					
+					if(constantAbilities.size() > 0)
+					{
+						constantLookup.put(split[0].trim(), new ConstantItem(descriptions, proficiencies, constantAbilities));
 					}
 				}
 			}
@@ -259,6 +287,11 @@ public class EquippedItemManager
 					EquippedItem item = lookup.get(effectiveItemName);
 					usableItems.add(new Quintuplet(s.getItem(), item, null, 1));
 				}
+				else if(constantLookup.containsKey(effectiveItemName))
+				{
+					ConstantItem item = constantLookup.get(effectiveItemName);
+					usableItems.add(new Quintuplet(s.getItem(), item, null, 1));
+				}
 			}
 		}
 
@@ -279,25 +312,30 @@ public class EquippedItemManager
 					EquippedItem item = lookup.get(effectiveItemName);
 					usableItems.add(new Quintuplet(s.getItem(), item, null, s.stackSize));
 				}
+				else if(constantLookup.containsKey(effectiveItemName))
+				{
+					ConstantItem item = constantLookup.get(effectiveItemName);
+					usableItems.add(new Quintuplet(s.getItem(), item, null, s.stackSize));
+				}
 			}
 		}
 
 		return usableItems;
 	}
 
-	public ArrayList<ICombatAbility> GetAbilitiesFromEquippedItems(NBTTagCompound tag)
+	public ArrayList<ConstantAbility> GetConstantAbilitiesFromEquippedItems(NBTTagCompound tag)
 	{
-		ArrayList<ICombatAbility> equippedItems = new ArrayList<ICombatAbility>();
+		ArrayList<ConstantAbility> equippedItems = new ArrayList<ConstantAbility>();
 		ItemStack[] items = this.GetEquippedItems(tag);
 		for(ItemStack s : items)
 		{
 			if(s != null)
 			{
 				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
-				if(usableLookup.containsKey(effectiveItemName))
+				if(constantLookup.containsKey(effectiveItemName))
 				{
-					UsableItem ability = usableLookup.get(effectiveItemName);
-					equippedItems.addAll(ability.GetUseAbility());
+					ConstantItem ability = constantLookup.get(effectiveItemName);
+					equippedItems.addAll(ability.GetConstantAbilities());
 				}
 			}
 		}
@@ -332,7 +370,7 @@ public class EquippedItemManager
 			EquippedItem foundItem = lookup.get(effectiveItemName);
 			if(foundItem.HasEffect(statType))
 			{
-				return foundItem.GetModifiedValue(currentStat);
+				return foundItem.GetModifiedValue(statType, currentStat);
 			}
 		}
 

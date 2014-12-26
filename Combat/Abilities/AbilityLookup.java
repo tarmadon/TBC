@@ -44,8 +44,8 @@ public class AbilityLookup
 {
 	public static AbilityLookup Instance = new AbilityLookup();
 
-	public Hashtable<String, ICombatAbility> lookup = new Hashtable<String, ICombatAbility>();
-	public Hashtable<ICombatAbility, String> reverseLookup = new Hashtable<ICombatAbility, String>();
+	public Hashtable<String, IAbility> lookup = new Hashtable<String, IAbility>();
+	public Hashtable<IAbility, String> reverseLookup = new Hashtable<IAbility, String>();
 	
 	public void Initialize()
 	{
@@ -61,16 +61,9 @@ public class AbilityLookup
 		lookup.put("profMonsterArmors", new PlaceholderAbility("Monster Armor Prof.", ArrayExtensions.GetArray("Allows equipping skins."), "Skin"));
 		
 		lookup.put("Default", new DefaultAttackAbility());
-		lookup.put("BasicCounter", this.BuildStandardAbility("", "", AbilityTargetType.OneEnemy, 0, false, false, new PhysicalDamageEffect(0).SetAdditionalDamageTypes(DamageType.Uncounterable)));
+		ICombatAbility basicCounter = this.BuildStandardAbility("", "", AbilityTargetType.OneEnemy, 0, false, false, new PhysicalDamageEffect(0).SetAdditionalDamageTypes(DamageType.Uncounterable));
+		lookup.put("BasicCounter", basicCounter);
 		lookup.put("MissChance20", this.BuildConstantAbility("Miss Chance 20%", "Chance to miss on all physical attacks", new MissChanceTriggeredEffect(.2F)));
-		lookup.put("MpUp5", this.BuildConstantAbility("+5 MP", "Increases max MP by 5", BuildConstantFlatStatChange("", 5, StatChangeStatus.MpChange)));
-		lookup.put("MpUp10", this.BuildConstantAbility("+10 MP", "Increases max MP by 10", BuildConstantFlatStatChange("", 10, StatChangeStatus.MpChange)));
-		lookup.put("MpUp20", this.BuildConstantAbility("+20 MP", "Increases max MP by 20", BuildConstantFlatStatChange("", 20, StatChangeStatus.MpChange)));
-		lookup.put("MpUp40", this.BuildConstantAbility("+40 MP", "Increases max MP by 40", BuildConstantFlatStatChange("", 40, StatChangeStatus.MpChange)));
-		lookup.put("MAtkUp3", this.BuildConstantAbility("+3 Magic", "Increases magic by 3", BuildConstantFlatStatChange("", 3, StatChangeStatus.MagicChange)));
-		lookup.put("MAtkUp6", this.BuildConstantAbility("+6 Magic", "Increases magic by 6", BuildConstantFlatStatChange("", 6, StatChangeStatus.MagicChange)));
-		lookup.put("MAtkUp9", this.BuildConstantAbility("+9 Magic", "Increases magic by 9", BuildConstantFlatStatChange("", 9, StatChangeStatus.MagicChange)));
-		lookup.put("MAtkUp15", this.BuildConstantAbility("+15 Magic", "Increases magic by 15", BuildConstantFlatStatChange("", 15, StatChangeStatus.MagicChange)));
 		lookup.put("SpeedAttackBoost", this.BuildConstantAbility("Quick Attack", "Increases attack based on speed", new CrossStatChangeStatus("", StatChangeStatus.AttackChange, StatChangeStatus.SpeedChange, 0, .2F, -1, -1)));
 		lookup.put("MagicAttackBoost", this.BuildConstantAbility("Enchanted Attack", "Increases attack based on magic", new CrossStatChangeStatus("", StatChangeStatus.AttackChange, StatChangeStatus.MagicChange, 0, .2F, -1, -1)));
 		
@@ -242,7 +235,7 @@ public class AbilityLookup
 		lookup.put("iceCrystal", this.BuildStandardAbility("", "", AbilityTargetType.OneEnemy, 0, false, false, new MagicDamageEffect(30, 0, DamageType.Ice)));
 		lookup.put("lightningRod", this.BuildStandardAbility("", "", AbilityTargetType.OneEnemy, 0, false, false, new MagicDamageEffect(30, 0, DamageType.Lightning)));
 
-		lookup.put("Counter", this.BuildConstantAbility("Counter", "Chance to counter when attacked", new CounterattackEffect(50, lookup.get("BasicCounter"))));
+		lookup.put("Counter", this.BuildConstantAbility("Counter", "Chance to counter when attacked", new CounterattackEffect(50, basicCounter)));
 		
 		for(String key : this.lookup.keySet())
 		{
@@ -250,12 +243,12 @@ public class AbilityLookup
 		}
 	}
 
-	public ICombatAbility GetAbilityWithName(String abilityName)
+	public IAbility GetAbilityWithName(String abilityName)
 	{
 		return lookup.get(abilityName);
 	}
 	
-	public String GetLookupNameForAbility(ICombatAbility ability)
+	public String GetLookupNameForAbility(IAbility ability)
 	{
 		return reverseLookup.get(ability);
 	}
@@ -267,7 +260,7 @@ public class AbilityLookup
 		return new StandardAbility(effects, abilityName, targetType, mpCost, usableOutOfCombat, isSpell, descriptions);
 	}
 
-	public ICombatAbility BuildConstantAbility(String abilityName, String description, IEffect... effects)
+	public IAbility BuildConstantAbility(String abilityName, String description, IEffect... effects)
 	{
 		ArrayList<String> descriptions = new ArrayList<String>();
 		descriptions.add(description);
@@ -281,7 +274,7 @@ public class AbilityLookup
 		return new ConstantAbility(abilityName, effectList, descriptions);
 	}
 	
-	public ICombatAbility BuildConstantAbility(String abilityName, String description, List<IEffect> effects)
+	public IAbility BuildConstantAbility(String abilityName, String description, List<IEffect> effects)
 	{
 		ArrayList<String> descriptions = new ArrayList<String>();
 		descriptions.add(description);

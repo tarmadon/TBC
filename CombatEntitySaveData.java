@@ -10,6 +10,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import TBC.Combat.CombatEntityTemplate;
 import TBC.Combat.Abilities.AbilityLookup;
+import TBC.Combat.Abilities.IAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 
 public class CombatEntitySaveData implements Serializable
@@ -49,7 +50,7 @@ public class CombatEntitySaveData implements Serializable
 		this.BonusSpeed = data.speed;
 
 		this.Abilities = new ArrayList<String>();
-		for(Pair<Integer, ICombatAbility> s : data.abilities)
+		for(Pair<Integer, IAbility> s : data.abilities)
 		{
 			this.Abilities.add(AbilityLookup.Instance.GetLookupNameForAbility(s.item2));
 		}

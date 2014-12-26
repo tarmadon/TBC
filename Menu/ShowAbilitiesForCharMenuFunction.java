@@ -28,7 +28,7 @@ public class ShowAbilitiesForCharMenuFunction implements IGenericAction
 	public void Invoke() 
 	{
 		ArrayList<GenericScrollBoxCellData> displayAbilities = new ArrayList<GenericScrollBoxCellData>();
-		Pair<Integer, ICombatAbility>[] abilities = user.CombatEntity.GetAbilities();
+		Pair<Integer, ICombatAbility>[] abilities = user.CombatEntity.GetCombatAbilities();
 		for(int i = 0; i < abilities.length; i++)
 		{
 			IGenericAction action = null;

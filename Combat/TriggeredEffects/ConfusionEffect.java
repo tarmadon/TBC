@@ -38,7 +38,7 @@ public class ConfusionEffect extends DurationTriggeredEffect implements INonStac
 		int randomTarget = CombatRandom.GetRandom().nextInt(allLive.size());
 		ArrayList<CombatEntity> chosen = new ArrayList<CombatEntity>();
 		chosen.add(allLive.get(randomTarget));
-		return new Pair<ICombatAbility, ArrayList<CombatEntity>>(user.GetAbilities()[0].item2, chosen);
+		return new Pair<ICombatAbility, ArrayList<CombatEntity>>(user.GetCombatAbilities()[0].item2, chosen);
 	}
 
 	public String GetEffectName()

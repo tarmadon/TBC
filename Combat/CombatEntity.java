@@ -13,6 +13,7 @@ import TBC.CombatEntitySaveData;
 import TBC.PlayerSaveData;
 import TBC.Combat.Abilities.AbilityLookup;
 import TBC.Combat.Abilities.ConstantAbility;
+import TBC.Combat.Abilities.IAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Effects.StatChangeStatus;
 
@@ -243,11 +244,37 @@ public class CombatEntity implements Serializable
 		return effectiveStat;
 	}
 
-	public Pair<Integer, ICombatAbility>[] GetAbilities()
+	public Pair<Integer, ICombatAbility>[] GetCombatAbilities()
 	{
-		return this.baseStats.abilities;
+		ArrayList<Pair<Integer, ICombatAbility>> combatAbilitiesList = new ArrayList<Pair<Integer,ICombatAbility>>(); 
+		for(Pair<Integer, IAbility> ability : this.baseStats.abilities)
+		{
+			if(ability.item2 instanceof ICombatAbility)
+			{
+				Pair<Integer, ICombatAbility> combatAbility = new Pair<Integer, ICombatAbility>(ability.item1, (ICombatAbility)ability.item2);
+				combatAbilitiesList.add(combatAbility);
+			}
+		}
+		
+		Pair<Integer, ICombatAbility>[] combatAbilities = new Pair[combatAbilitiesList.size()];
+		combatAbilitiesList.toArray(combatAbilities);
+		return combatAbilities;
 	}
 
+	public ArrayList<ConstantAbility> GetConstantAbilities()
+	{
+		ArrayList<ConstantAbility> contantAbilities = new ArrayList<ConstantAbility>(); 
+		for(Pair<Integer, IAbility> ability : this.baseStats.abilities)
+		{
+			if(ability.item2 instanceof ConstantAbility)
+			{
+				contantAbilities.add((ConstantAbility)ability.item2);
+			}
+		}
+		
+		return contantAbilities;
+	}
+	
 	public int GetXpValue()
 	{
 		return this.baseStats.xpValue;
@@ -314,23 +341,17 @@ public class CombatEntity implements Serializable
 	private List GetStartingConstantEffects()
 	{
 		List constantEffects = new ArrayList();
-		for(Pair<Integer, ICombatAbility> ability : this.GetAbilities())
+		for(ConstantAbility ability : this.GetConstantAbilities())
 		{
-			if(ability.item2 instanceof ConstantAbility)
-			{
-				constantEffects.addAll(((ConstantAbility)ability.item2).GetConstantEffects());
-			}
+			constantEffects.addAll(ability.GetConstantEffects());
 		}
 
 		if(this.tag != null)
 		{
-			ArrayList<ICombatAbility> equipmentAbilities = EquippedItemManager.Instance.GetAbilitiesFromEquippedItems(this.tag);
-			for(ICombatAbility equipmentAbility : equipmentAbilities)
+			ArrayList<ConstantAbility> equipmentAbilities = EquippedItemManager.Instance.GetConstantAbilitiesFromEquippedItems(this.tag);
+			for(ConstantAbility equipmentAbility : equipmentAbilities)
 			{
-				if(equipmentAbility instanceof ConstantAbility)
-				{
-					constantEffects.addAll(((ConstantAbility)equipmentAbility).GetConstantEffects());
-				}
+				constantEffects.addAll(((ConstantAbility)equipmentAbility).GetConstantEffects());
 			}
 		}
 		

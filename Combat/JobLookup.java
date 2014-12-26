@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Level;
 import TBC.CombatEntitySaveData;
 import TBC.Pair;
 import TBC.Combat.Abilities.AbilityLookup;
+import TBC.Combat.Abilities.IAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Abilities.PlaceholderAbility;
 import cpw.mods.fml.common.FMLLog;
@@ -261,9 +262,9 @@ public class JobLookup
 		return availableJobs;
 	}
 	
-	public List<ICombatAbility> GetJobAbilities(String jobName, int jobLevel, boolean isPrimary, boolean includeProficiencies)
+	public List<IAbility> GetJobAbilities(String jobName, int jobLevel, boolean isPrimary, boolean includeProficiencies)
 	{
-		ArrayList<ICombatAbility> foundAbilities = new ArrayList<ICombatAbility>();
+		ArrayList<IAbility> foundAbilities = new ArrayList<IAbility>();
 		Job foundJob = lookupByName.get(jobName);
 		for(JobSkillGain g : foundJob.SkillGains)
 		{
@@ -274,7 +275,7 @@ public class JobLookup
 			
 			if(g.StartingAtLevel <= jobLevel && (isPrimary || g.AbilityType.equals(JobSkillGain.SECONDARY)))
 			{
-				ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(g.AbilityName);
+				IAbility ability = AbilityLookup.Instance.GetAbilityWithName(g.AbilityName);
 				if(ability != null)
 				{
 					foundAbilities.add(ability);
@@ -288,8 +289,8 @@ public class JobLookup
 	public List<String> GetProficiencies(String jobName, int jobLevel, boolean isPrimary)
 	{
 		ArrayList<String> proficiencies = new ArrayList<String>();
-		List<ICombatAbility> allAbilities = GetJobAbilities(jobName, jobLevel, isPrimary, true);
-		for(ICombatAbility ability : allAbilities)
+		List<IAbility> allAbilities = GetJobAbilities(jobName, jobLevel, isPrimary, true);
+		for(IAbility ability : allAbilities)
 		{
 			if(ability instanceof PlaceholderAbility)
 			{

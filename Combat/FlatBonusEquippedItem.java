@@ -2,31 +2,47 @@ package TBC.Combat;
 
 import java.util.ArrayList;
 
+import TBC.Pair;
 import TBC.Combat.Effects.StatChangeStatus;
 
 public class FlatBonusEquippedItem extends EquippedItem
 {
-	private int itemEffectType;
-	private int itemEffectStrength;
+	private ArrayList<Pair<Integer, Integer>> modifiers;
 	private String itemSlot;
 	private Boolean doesRequireWorn;
 
-	public FlatBonusEquippedItem(int effectType, int effectStrength, String slot, ArrayList<String> description, ArrayList<String> proficiencies)
+	public FlatBonusEquippedItem(ArrayList<Pair<Integer, Integer>> modifiers, String slot, ArrayList<String> description, ArrayList<String> proficiencies)
 	{
 		super(description, proficiencies);
-		this.itemEffectType = effectType;
-		this.itemEffectStrength = effectStrength;
+		this.modifiers = modifiers;
 		this.itemSlot = slot;
 	}
 
 	public Boolean HasEffect(int effectType)
 	{
-		return this.itemEffectType == effectType;
+		boolean foundModifier = false;
+		for(Pair<Integer, Integer> modifier : modifiers)
+		{
+			if(modifier.item1 == effectType)
+			{
+				foundModifier = true;
+			}
+		}
+		
+		return foundModifier;
 	}
 
-	public int GetModifiedValue(int baseValue)
+	public int GetModifiedValue(int effectType, int baseValue)
 	{
-		return baseValue + this.itemEffectStrength;
+		for(Pair<Integer, Integer> modifier : modifiers)
+		{
+			if(modifier.item1 == effectType)
+			{
+				return baseValue + modifier.item2;
+			}
+		}
+		
+		return baseValue;
 	}
 
 	public String GetSlot()

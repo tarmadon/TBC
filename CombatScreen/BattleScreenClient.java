@@ -166,7 +166,7 @@ public class BattleScreenClient extends GuiScreen
 	{
 		if(this.entityForCurrentTurn != null)
 		{
-			this.UseAbilityCommand(this.entityForCurrentTurn.GetAbilities()[0].item2);
+			this.UseAbilityCommand(this.entityForCurrentTurn.GetCombatAbilities()[0].item2);
 		}
 	}
 

@@ -12,13 +12,12 @@ import TBC.CombatScreen.BattleScreenDrawer;
 import TBC.CombatScreen.TurnState;
 import net.minecraft.entity.EntityLiving;
 
-public interface ICombatAbility extends Serializable
+public interface ICombatAbility extends IAbility, Serializable
 {
 	Boolean IsSpell();
 	Boolean IsUsableOutOfCombat();
-	String GetAbilityName();
+	Boolean IsUsableInCombat();
 	int GetAbilityTarget();
-	ArrayList<String> GetDescription();
 	int GetMpCost();
 	IOneTimeEffect[] GetEffects(CombatEngine engine, CombatEntity user, ArrayList<CombatEntity> targets, ArrayList<String> messages);
 	

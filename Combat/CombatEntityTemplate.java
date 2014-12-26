@@ -9,6 +9,7 @@ import TBC.CombatEntitySaveData;
 import TBC.Pair;
 import TBC.Combat.Abilities.AbilityLookup;
 import TBC.Combat.Abilities.ConstantAbility;
+import TBC.Combat.Abilities.IAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 
 public class CombatEntityTemplate implements Serializable
@@ -25,7 +26,7 @@ public class CombatEntityTemplate implements Serializable
 	public int xpValue;
 	public int apValue;
 
-	public Pair<Integer, ICombatAbility>[] abilities;
+	public Pair<Integer, IAbility>[] abilities;
 	
 	public CombatEntityTemplate()
 	{
@@ -43,34 +44,34 @@ public class CombatEntityTemplate implements Serializable
 		template.speed += data.BonusSpeed;
 		template.name = name;
 
-		ArrayList<Pair<Integer, ICombatAbility>> abilities = new ArrayList<Pair<Integer,ICombatAbility>>();
+		ArrayList<Pair<Integer, IAbility>> abilities = new ArrayList<Pair<Integer,IAbility>>();
 		for(String s : data.Abilities)
 		{
-			ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(s);
+			IAbility ability = AbilityLookup.Instance.GetAbilityWithName(s);
 			if(ability != null)
 			{
-				abilities.add(new Pair<Integer, ICombatAbility>(1, ability));
+				abilities.add(new Pair<Integer, IAbility>(1, ability));
 			}
 		}
 
 		int primaryJobLevel = data.GetJobLevelMin1(data.CurrentJob);
-		List<ICombatAbility> jobAbilities = JobLookup.Instance.GetJobAbilities(data.CurrentJob, primaryJobLevel, true, false);
-		for(ICombatAbility ability : jobAbilities)
+		List<IAbility> jobAbilities = JobLookup.Instance.GetJobAbilities(data.CurrentJob, primaryJobLevel, true, false);
+		for(IAbility ability : jobAbilities)
 		{
-			abilities.add(new Pair<Integer, ICombatAbility>(1, ability));
+			abilities.add(new Pair<Integer, IAbility>(1, ability));
 		}
 		
 		if(!data.SecondaryJob.isEmpty())
 		{
 			int secondaryJobLevel = data.GetJobLevelMin1(data.SecondaryJob);
-			List<ICombatAbility> secondaryJobAbilities = JobLookup.Instance.GetJobAbilities(data.SecondaryJob, secondaryJobLevel, false, false);
-			for(ICombatAbility ability : secondaryJobAbilities)
+			List<IAbility> secondaryJobAbilities = JobLookup.Instance.GetJobAbilities(data.SecondaryJob, secondaryJobLevel, false, false);
+			for(IAbility ability : secondaryJobAbilities)
 			{
-				abilities.add(new Pair<Integer, ICombatAbility>(1, ability));
+				abilities.add(new Pair<Integer, IAbility>(1, ability));
 			}
 		}
 		
-		Pair<Integer, ICombatAbility>[] asArray = new Pair[abilities.size()];
+		Pair<Integer, IAbility>[] asArray = new Pair[abilities.size()];
 		abilities.toArray(asArray);
 		template.abilities = asArray;
 		return template;

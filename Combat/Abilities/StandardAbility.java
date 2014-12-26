@@ -108,4 +108,10 @@ public class StandardAbility implements ICombatAbility
 	{
 		return 600;
 	}
+
+	@Override
+	public Boolean IsUsableInCombat() 
+	{
+		return true;
+	}
 }

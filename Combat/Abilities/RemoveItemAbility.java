@@ -141,4 +141,10 @@ public class RemoveItemAbility implements ICombatAbility
 	{
 		return this.itemAbility.GetAnimationTime();
 	}
+
+	@Override
+	public Boolean IsUsableInCombat() 
+	{
+		return true;
+	}
 }
