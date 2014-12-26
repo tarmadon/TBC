@@ -1,16 +1,28 @@
 package TBC.Combat;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import TBC.Combat.Abilities.ICombatAbility;
 
 public class UsableItem 
 {
-	private ICombatAbility ability;
+	private List<ICombatAbility> ability;
 	private int damageFromUse;
 	private ArrayList<String> descriptions;
 	private ArrayList<String> proficiencies;
+	
 	public UsableItem(ICombatAbility ability, int damageFromUse, ArrayList<String> descriptions, ArrayList<String> proficiencies)
+	{
+		ArrayList<ICombatAbility> abilityList = new ArrayList<ICombatAbility>();
+		abilityList.add(ability);
+		this.ability = abilityList;
+		this.damageFromUse = damageFromUse;
+		this.descriptions = descriptions;
+		this.proficiencies = proficiencies;
+	}
+	
+	public UsableItem(List<ICombatAbility> ability, int damageFromUse, ArrayList<String> descriptions, ArrayList<String> proficiencies)
 	{
 		this.ability = ability;
 		this.damageFromUse = damageFromUse;
@@ -18,7 +30,7 @@ public class UsableItem
 		this.proficiencies = proficiencies;
 	}
 	
-	public ICombatAbility GetUseAbility()
+	public List<ICombatAbility> GetUseAbility()
 	{
 		return this.ability;
 	}

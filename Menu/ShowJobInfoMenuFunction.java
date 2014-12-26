@@ -43,7 +43,7 @@ public class ShowJobInfoMenuFunction implements IGenericAction
 		ArrayList<GenericScrollBoxCellData> abilitiesToDisplay = new ArrayList<GenericScrollBoxCellData>();
 		for(ICombatAbility ability : abilities)
 		{
-			abilitiesToDisplay.add(new GenericScrollBoxCellData(ability.GetAbilityName(), "", null, ability.GetDescription().get(0)));
+			abilitiesToDisplay.add(new GenericScrollBoxCellData(ability.GetAbilityName(), "", null, ability.GetDescription()));
 		}
 		
 		ArrayList<GenericScrollBoxCellData> constantButtons = new ArrayList<GenericScrollBoxCellData>();

@@ -14,12 +14,12 @@ public class StatChangeStatus implements IStatusChange, IEffectFactory
 	public static final int MpChange = 7;
 
 	public int changeType;
-	private int flatStrength;
-	private float strengthMultiplier;
-	private int numTurnsToLive;
-	private int numTicksToLive;
-	private String abilityCategory;
-	private CombatEntity user;
+	protected int flatStrength;
+	protected float strengthMultiplier;
+	protected int numTurnsToLive;
+	protected int numTicksToLive;
+	protected String abilityCategory;
+	protected CombatEntity user;
 
 	public StatChangeStatus(String abilityCategory, int changeType, int flatStrength, float strengthModifier, int numTurnsToLive, int numTicksToLive)
 	{
@@ -63,7 +63,7 @@ public class StatChangeStatus implements IStatusChange, IEffectFactory
 		return false;
 	}
 
-	public int GetEffectiveStat(int existingStat)
+	public int GetEffectiveStat(CombatEntity entity, int existingStat)
 	{
 		return flatStrength + Math.round(existingStat * strengthMultiplier);
 	}

@@ -9,6 +9,7 @@ import TBC.Pair;
 import TBC.PlayerSaveData;
 import TBC.Quintuplet;
 import TBC.SetItemDataHandler;
+import TBC.Combat.CombatEntity;
 import TBC.Combat.EquippedItem;
 import TBC.Combat.EquippedItemManager;
 import TBC.Combat.Abilities.RemoveItemAbility;
@@ -76,6 +77,7 @@ public class ChangeEquipmentMenuFunction implements IGenericAction
 		{
 			EquippedItemManager.SetItem(index, inventoryItem, PlayerSaveData.GetPlayerTag(this.user.Player));
 			MainMod.syncPlayerDataHandler.sendToServer(new NBTTagCompoundMessage(PlayerSaveData.GetPlayerTag(this.user.Player)));
+			this.user.CombatEntity = CombatEntity.GetCombatEntity(this.user.Player).item2;
 		}
 		else
 		{
@@ -85,6 +87,7 @@ public class ChangeEquipmentMenuFunction implements IGenericAction
 			m.ItemDurability = this.user.Item.getItemDamage();
 			m.Slot = this.user.CombatEntity.id;
 			MainMod.setItemDataHandler.sendToServer(m);
+			this.user.CombatEntity = CombatEntity.GetCombatEntity(this.user.CombatEntity.id, user.Item).item2;
 		}
 		
 		new ShowEquipmentForCharMenuFunction(this.gui, this.user, null).Invoke();

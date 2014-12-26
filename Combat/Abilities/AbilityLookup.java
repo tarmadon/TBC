@@ -10,6 +10,7 @@ import TBC.ArrayExtensions;
 import TBC.Combat.DamageType;
 import TBC.Combat.IStatusChange;
 import TBC.Combat.Effects.ApplyStatusEffect;
+import TBC.Combat.Effects.CrossStatChangeStatus;
 import TBC.Combat.Effects.DeathEffect;
 import TBC.Combat.Effects.DelayTurnEffect;
 import TBC.Combat.Effects.FlatDamageEffect;
@@ -32,6 +33,7 @@ import TBC.Combat.TriggeredEffects.DamageOverTimeEffect;
 import TBC.Combat.TriggeredEffects.DamageReturnEffect;
 import TBC.Combat.TriggeredEffects.ITriggeredEffect;
 import TBC.Combat.TriggeredEffects.LifeStealConstantEffect;
+import TBC.Combat.TriggeredEffects.MissChanceTriggeredEffect;
 import TBC.Combat.TriggeredEffects.PoisonImmunityEffect;
 import TBC.Combat.TriggeredEffects.PoisonStatusEffect;
 import TBC.Combat.TriggeredEffects.RangedAttacksTriggeredEffect;
@@ -60,6 +62,17 @@ public class AbilityLookup
 		
 		lookup.put("Default", new DefaultAttackAbility());
 		lookup.put("BasicCounter", this.BuildStandardAbility("", "", AbilityTargetType.OneEnemy, 0, false, false, new PhysicalDamageEffect(0).SetAdditionalDamageTypes(DamageType.Uncounterable)));
+		lookup.put("MissChance20", this.BuildConstantAbility("Miss Chance 20%", "Chance to miss on all physical attacks", new MissChanceTriggeredEffect(.2F)));
+		lookup.put("MpUp5", this.BuildConstantAbility("+5 MP", "Increases max MP by 5", BuildConstantFlatStatChange("", 5, StatChangeStatus.MpChange)));
+		lookup.put("MpUp10", this.BuildConstantAbility("+10 MP", "Increases max MP by 10", BuildConstantFlatStatChange("", 10, StatChangeStatus.MpChange)));
+		lookup.put("MpUp20", this.BuildConstantAbility("+20 MP", "Increases max MP by 20", BuildConstantFlatStatChange("", 20, StatChangeStatus.MpChange)));
+		lookup.put("MpUp40", this.BuildConstantAbility("+40 MP", "Increases max MP by 40", BuildConstantFlatStatChange("", 40, StatChangeStatus.MpChange)));
+		lookup.put("MAtkUp3", this.BuildConstantAbility("+3 Magic", "Increases magic by 3", BuildConstantFlatStatChange("", 3, StatChangeStatus.MagicChange)));
+		lookup.put("MAtkUp6", this.BuildConstantAbility("+6 Magic", "Increases magic by 6", BuildConstantFlatStatChange("", 6, StatChangeStatus.MagicChange)));
+		lookup.put("MAtkUp9", this.BuildConstantAbility("+9 Magic", "Increases magic by 9", BuildConstantFlatStatChange("", 9, StatChangeStatus.MagicChange)));
+		lookup.put("MAtkUp15", this.BuildConstantAbility("+15 Magic", "Increases magic by 15", BuildConstantFlatStatChange("", 15, StatChangeStatus.MagicChange)));
+		lookup.put("SpeedAttackBoost", this.BuildConstantAbility("Quick Attack", "Increases attack based on speed", new CrossStatChangeStatus("", StatChangeStatus.AttackChange, StatChangeStatus.SpeedChange, 0, .2F, -1, -1)));
+		lookup.put("MagicAttackBoost", this.BuildConstantAbility("Enchanted Attack", "Increases attack based on magic", new CrossStatChangeStatus("", StatChangeStatus.AttackChange, StatChangeStatus.MagicChange, 0, .2F, -1, -1)));
 		
 		// Adventurer skills
 		lookup.put("beginnerBoostPrimary", this.BuildConstantAbility("Beginner Boost II", "Increases all stats passively", ArrayExtensions.MergeLists(
@@ -284,7 +297,7 @@ public class AbilityLookup
 		List<IEffect> changes = new ArrayList<IEffect>();
 		for(int statType : statTypes)
 		{
-			changes.add(new StatChangeStatus("beginnerBoost", statType, statAmount, 1, -1, -1));
+			changes.add(new StatChangeStatus(category, statType, statAmount, 1, -1, -1));
 		}
 		
 		return changes;

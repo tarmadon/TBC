@@ -17,7 +17,6 @@ public class FlatBonusEquippedItem extends EquippedItem
 		this.itemEffectType = effectType;
 		this.itemEffectStrength = effectStrength;
 		this.itemSlot = slot;
-		this.doesRequireWorn = doesRequireWorn;
 	}
 
 	public Boolean HasEffect(int effectType)
@@ -33,43 +32,5 @@ public class FlatBonusEquippedItem extends EquippedItem
 	public String GetSlot()
 	{
 		return this.itemSlot;
-	}
-
-	public String GetDisplayString()
-	{
-		String effectName = "";
-		if(itemEffectType == StatChangeStatus.AttackChange)
-		{
-			effectName = "Attack";
-		}
-		else if(itemEffectType == StatChangeStatus.DefenseChange)
-		{
-			effectName = "Defense";
-		}
-		else if(itemEffectType == StatChangeStatus.HpChange)
-		{
-			effectName = "Hp";
-		}
-		else if(itemEffectType == StatChangeStatus.MagicChange)
-		{
-			effectName = "Magic";
-		}
-		else if(itemEffectType == StatChangeStatus.MpChange)
-		{
-			effectName = "Mp";
-		}
-		else if(itemEffectType == StatChangeStatus.SpeedChange)
-		{
-			effectName = "Speed";
-		}
-
-		if(itemEffectStrength > 0)
-		{
-			return effectName + " +" + this.itemEffectStrength;
-		}
-		else
-		{
-			return effectName + " " + this.itemEffectStrength;
-		}
 	}
 }

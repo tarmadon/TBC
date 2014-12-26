@@ -47,7 +47,7 @@ public class ShowAbilitiesForCharMenuFunction implements IGenericAction
 					mpDisplay = "";
 				}
 
-				displayAbilities.add(new GenericScrollBoxCellData(ability.GetAbilityName(), mpDisplay, action, ability.GetDescription().get(0)));
+				displayAbilities.add(new GenericScrollBoxCellData(ability.GetAbilityName(), mpDisplay, action, ability.GetDescription()));
 			}
 		}
 

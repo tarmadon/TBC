@@ -580,6 +580,142 @@ public class MainMod
 	{
 		EntityRegistry.registerModEntity(BattleEntity.class, "Battle", 1, TBCMod.instance, 40, 1, false);
 		
+		Item weaponCore = createItemCopy(Items.ender_eye, "weaponCore");
+		ItemStack weaponCoreStack = new ItemStack(weaponCore);
+		GameRegistry.addShapedRecipe(weaponCoreStack, " y "," y "," x ", 'x',Items.stick, 'y', Blocks.gravel);
+		LanguageRegistry.addName(weaponCoreStack, "Weapon Core");
+		
+		Item armorCore = createItemCopy(Items.ender_pearl, "armorCore");
+		ItemStack armorCoreStack = new ItemStack(armorCore);
+		GameRegistry.addShapedRecipe(weaponCoreStack, "x x","xxx","xxx", 'x',Blocks.gravel);
+		LanguageRegistry.addName(armorCoreStack, "Armor Core");
+		
+		//Greatswords
+		Item stoneGSword = createItemCopy(Items.stone_sword, "stoneGSword");
+		ItemStack stoneGSwordStack = new ItemStack(stoneGSword);
+		GameRegistry.addShapedRecipe(stoneGSwordStack, " y "," y "," x ", 'x',weaponCore, 'y', Blocks.cobblestone);
+		LanguageRegistry.addName(stoneGSwordStack, "Stone Greatsword");
+		
+		Item ironGSword = createItemCopy(Items.iron_sword, "ironGSword");
+		ItemStack ironGSwordStack = new ItemStack(ironGSword);
+		GameRegistry.addShapedRecipe(ironGSwordStack, " y "," y "," x ", 'x',weaponCore, 'y', Items.iron_ingot);
+		LanguageRegistry.addName(ironGSwordStack, "Iron Greatsword");
+		
+		Item goldGSword = createItemCopy(Items.golden_sword, "goldGSword");
+		ItemStack goldGSwordStack = new ItemStack(goldGSword);
+		GameRegistry.addShapedRecipe(goldGSwordStack, " y "," y "," x ", 'x',weaponCore, 'y', Items.gold_ingot);
+		LanguageRegistry.addName(goldGSwordStack, "Gold Greatsword");
+		
+		Item diamondGSword = createItemCopy(Items.diamond_sword, "diamondGSword");
+		ItemStack diamondGSwordStack = new ItemStack(diamondGSword);
+		GameRegistry.addShapedRecipe(diamondGSwordStack, " y "," y "," x ", 'x',weaponCore, 'y', Items.diamond);
+		LanguageRegistry.addName(diamondGSwordStack, "Diamond Greatsword");
+		
+		//Maces
+		Item stoneMace = createItemCopy(Items.stone_sword, "stoneMace");
+		ItemStack stoneMaceStack = new ItemStack(stoneMace);
+		GameRegistry.addShapedRecipe(stoneMaceStack, "yyy"," y "," x ", 'x',weaponCore, 'y', Blocks.cobblestone);
+		LanguageRegistry.addName(stoneMaceStack, "Stone Mace");
+		
+		Item ironMace = createItemCopy(Items.iron_sword, "ironMace");
+		ItemStack ironMaceStack = new ItemStack(ironMace);
+		GameRegistry.addShapedRecipe(ironMaceStack, "yyy"," y "," x ", 'x',weaponCore, 'y', Items.iron_ingot);
+		LanguageRegistry.addName(ironMaceStack, "Iron Mace");
+		
+		Item goldMace = createItemCopy(Items.golden_sword, "goldMace");
+		ItemStack goldMaceStack = new ItemStack(goldMace);
+		GameRegistry.addShapedRecipe(goldMaceStack, "yyy"," y "," x ", 'x',weaponCore, 'y', Items.gold_ingot);
+		LanguageRegistry.addName(goldMaceStack, "Gold Mace");
+		
+		Item diamondMace = createItemCopy(Items.diamond_sword, "diamondMace");
+		ItemStack diamondMaceStack = new ItemStack(diamondMace);
+		GameRegistry.addShapedRecipe(diamondMaceStack, "yyy"," y "," x ", 'x',weaponCore, 'y', Items.diamond);
+		LanguageRegistry.addName(diamondMaceStack, "Diamond Mace");
+
+		//Bows
+		Item ironBow = createItemCopy(Items.bow, "ironBow");
+		ItemStack ironBowStack = new ItemStack(ironBow);
+		GameRegistry.addShapedRecipe(ironBowStack, " z "," y "," x ", 'x',weaponCore, 'y', Items.bow, 'z', Items.iron_ingot);
+		LanguageRegistry.addName(ironBowStack, "Iron Bow");
+		
+		Item goldBow = createItemCopy(Items.bow, "goldBow");
+		ItemStack goldBowStack = new ItemStack(goldBow);
+		GameRegistry.addShapedRecipe(goldBowStack, " z "," y "," x ", 'x',weaponCore, 'y', Items.bow, 'z', Items.gold_ingot);
+		LanguageRegistry.addName(goldBowStack, "Gold Bow");
+		
+		Item diamondBow = createItemCopy(Items.bow, "diamondBow");
+		ItemStack diamondBowStack = new ItemStack(diamondBow);
+		GameRegistry.addShapedRecipe(diamondBowStack, " z "," y "," x ", 'x',weaponCore, 'y', Items.bow, 'z', Items.diamond);
+		LanguageRegistry.addName(diamondBowStack, "Diamond Bow");
+		
+		
+		//Daggers
+		Item stoneDagger = createItemCopy(Items.stone_sword, "stoneDagger");
+		ItemStack stoneDaggerStack = new ItemStack(stoneDagger);
+		GameRegistry.addShapedRecipe(stoneDaggerStack, "   "," y "," x ", 'x',weaponCore, 'y', Blocks.cobblestone);
+		LanguageRegistry.addName(stoneDaggerStack, "Stone Dagger");
+		
+		Item ironDagger = createItemCopy(Items.iron_sword, "ironDagger");
+		ItemStack ironDaggerStack = new ItemStack(ironDagger);
+		GameRegistry.addShapedRecipe(ironDaggerStack, "   "," y "," x ", 'x',weaponCore, 'y', Items.iron_ingot);
+		LanguageRegistry.addName(ironDaggerStack, "Iron Dagger");
+		
+		Item goldDagger = createItemCopy(Items.golden_sword, "goldDagger");
+		ItemStack goldDaggerStack = new ItemStack(goldDagger);
+		GameRegistry.addShapedRecipe(goldDaggerStack, "   "," y "," x ", 'x',weaponCore, 'y', Items.gold_ingot);
+		LanguageRegistry.addName(goldDaggerStack, "Gold Dagger");
+		
+		Item diamondDagger = createItemCopy(Items.diamond_sword, "diamondDagger");
+		ItemStack diamondDaggerStack = new ItemStack(diamondDagger);
+		GameRegistry.addShapedRecipe(diamondDaggerStack, "   "," y "," x ", 'x',weaponCore, 'y', Items.diamond);
+		LanguageRegistry.addName(diamondDaggerStack, "Diamond Dagger");
+		
+		
+		//Staffs
+		Item stoneStaff = createItemCopy(Items.stone_sword, "stoneStaff");
+		ItemStack stoneStaffStack = new ItemStack(stoneStaff);
+		GameRegistry.addShapedRecipe(stoneStaffStack, "x  "," y ","  y", 'x',weaponCore, 'y', Blocks.cobblestone);
+		LanguageRegistry.addName(stoneStaffStack, "Stone Staff");
+		
+		Item ironStaff = createItemCopy(Items.iron_sword, "ironStaff");
+		ItemStack ironStaffStack = new ItemStack(ironStaff);
+		GameRegistry.addShapedRecipe(ironStaffStack, "x  "," y ","  y", 'x',weaponCore, 'y', Items.iron_ingot);
+		LanguageRegistry.addName(ironStaffStack, "Iron Staff");
+		
+		Item goldStaff = createItemCopy(Items.golden_sword, "goldStaff");
+		ItemStack goldStaffStack = new ItemStack(goldStaff);
+		GameRegistry.addShapedRecipe(goldStaffStack, "x  "," y ","  y", 'x',weaponCore, 'y', Items.gold_ingot);
+		LanguageRegistry.addName(goldStaffStack, "Gold Staff");
+		
+		Item diamondStaff = createItemCopy(Items.diamond_sword, "diamondStaff");
+		ItemStack diamondStaffStack = new ItemStack(diamondStaff);
+		GameRegistry.addShapedRecipe(diamondStaffStack, "x  "," y ","  y", 'x',weaponCore, 'y', Items.diamond);
+		LanguageRegistry.addName(diamondStaffStack, "Diamond Staff");
+		
+		
+		//Wands
+		Item stoneWand = createItemCopy(Items.stone_sword, "stoneWand");
+		ItemStack stoneWandStack = new ItemStack(stoneWand);
+		GameRegistry.addShapedRecipe(stoneWandStack, "   ","y  "," x ", 'x',weaponCore, 'y', Blocks.cobblestone);
+		LanguageRegistry.addName(stoneWandStack, "Stone Wand");
+		
+		Item ironWand = createItemCopy(Items.iron_sword, "ironWand");
+		ItemStack ironWandStack = new ItemStack(ironWand);
+		GameRegistry.addShapedRecipe(ironWandStack, "   ","y  "," x ", 'x',weaponCore, 'y', Items.iron_ingot);
+		LanguageRegistry.addName(ironWandStack, "Iron Wand");
+		
+		Item goldWand = createItemCopy(Items.golden_sword, "goldWand");
+		ItemStack goldWandStack = new ItemStack(goldWand);
+		GameRegistry.addShapedRecipe(goldWandStack, "   ","y  "," x ", 'x',weaponCore, 'y', Items.gold_ingot);
+		LanguageRegistry.addName(goldWandStack, "Gold Wand");
+		
+		Item diamondWand = createItemCopy(Items.diamond_sword, "diamondWand");
+		ItemStack diamondWandStack = new ItemStack(diamondWand);
+		GameRegistry.addShapedRecipe(diamondWandStack, "   ","y  "," x ", 'x',weaponCore, 'y', Items.diamond);
+		LanguageRegistry.addName(diamondWandStack, "Diamond Wand");
+		
+		
+		//Armor
 		Item clothArmor = createItemCopy(Items.leather_chestplate, "clothArmor");
 		ItemStack clothArmorStack = new ItemStack(clothArmor);
 		GameRegistry.addShapelessRecipe(clothArmorStack, Blocks.wool, Blocks.wool, Items.leather_chestplate, Blocks.wool);
@@ -604,6 +740,7 @@ public class MainMod
 		ItemStack diamondArmorStack = new ItemStack(diamondArmor);
 		GameRegistry.addShapelessRecipe(diamondArmorStack, Items.diamond_boots, Items.diamond_leggings, Items.diamond_chestplate, Items.diamond_helmet);
 		LanguageRegistry.addName(diamondArmorStack, "Diamond Armor");
+		
 		
 		Item smallHealthPotion = createItemCopy(Items.potionitem, "smallPotion");
 		ItemStack smallHealthPotionStack = new ItemStack(smallHealthPotion);

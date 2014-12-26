@@ -129,10 +129,19 @@ public class CombatEntity implements Serializable
 			e.currentHp = 1;
 		}
 		
+		if(e.currentHp > e.GetMaxHp())
+		{
+			e.currentHp = e.GetMaxHp();
+		}
+		
 		NBTTagCompound tag = PlayerSaveData.GetPlayerTag(entity);
 		if(tag.hasKey("TBCPlayerMP"))
 		{
 			e.currentMp = tag.getInteger("TBCPlayerMP");
+			if(e.currentMp > e.GetMaxMp())
+			{
+				e.currentMp = e.GetMaxMp();
+			}
 		}
 
 		return new Pair<Integer, CombatEntity>(s.IsInParty, e);
@@ -220,8 +229,11 @@ public class CombatEntity implements Serializable
 					{
 						if(!appliedEffects.contains(statChange.GetEffectName()))
 						{
-							effectiveStat = statChange.GetEffectiveStat(effectiveStat);
-							appliedEffects.add(statChange.GetEffectName());
+							effectiveStat = statChange.GetEffectiveStat(this, effectiveStat);
+							if(!statChange.GetEffectName().isEmpty())
+							{
+								appliedEffects.add(statChange.GetEffectName());
+							}
 						}
 					}
 				}

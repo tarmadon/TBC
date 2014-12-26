@@ -100,7 +100,7 @@ public class ShowEquipmentForCharMenuFunction implements IGenericAction
 						continue;
 					}
 					
-					rightSide.add(new GenericScrollBoxCellData(new ItemStack(equip.item3).getDisplayName(), "", new ChangeEquipmentMenuFunction(gui, user, equip, equipmentSlot), equip.item4.DescriptionStrings().get(0)));
+					rightSide.add(new GenericScrollBoxCellData(new ItemStack(equip.item3).getDisplayName(), "", new ChangeEquipmentMenuFunction(gui, user, equip, equipmentSlot), equip.item4.DescriptionStrings()));
 				}
 			}
 			
@@ -119,11 +119,11 @@ public class ShowEquipmentForCharMenuFunction implements IGenericAction
 	private void HandleSlot(Integer chosenEquipmentSlot, int slotToHandle, ArrayList<GenericScrollBoxCellData> equipSlotButtons, ItemStack currentItem)
 	{
 		String slotName = GetSlotForIndex(slotToHandle);
-		String hoverText = "";
+		List<String> hoverText = new ArrayList<String>();
 		if(currentItem != null)
 		{
 			slotName = currentItem.getDisplayName();
-			hoverText = EquippedItemManager.Instance.GetEquippedItem(currentItem).DescriptionStrings().get(0);
+			hoverText = EquippedItemManager.Instance.GetEquippedItem(currentItem).DescriptionStrings();
 		}
 		
 		if(chosenEquipmentSlot != null && chosenEquipmentSlot == slotToHandle)

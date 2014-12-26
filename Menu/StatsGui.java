@@ -130,7 +130,7 @@ public class StatsGui extends GuiInventory
             	if(d != null && !d.HoverText.isEmpty())
             	{
             		ArrayList<String> toShow = new ArrayList<String>();
-            		toShow.add(d.HoverText);
+            		toShow.addAll(d.HoverText);
             		this.drawHoveringText(toShow, par1, par2, fontRendererObj);
             	}
         	}

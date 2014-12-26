@@ -104,11 +104,21 @@ public class EquippedItemManager
 					}
 					
 					String abilityName = split[6].trim();
-					ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(abilityName);
-					ArrayList<String> proficiencies = SplitString(split[3].trim());
-					if(ability != null)
+					ArrayList<String> splitAbilityNames = SplitString(abilityName);
+					ArrayList<ICombatAbility> abilities = new ArrayList<ICombatAbility>();
+					for(String splitAbilityName : splitAbilityNames)
 					{
-						usableLookup.put(split[0].trim(), new UsableItem(ability, Integer.parseInt(split[7].trim()), descriptions, proficiencies));
+						ICombatAbility ability = AbilityLookup.Instance.GetAbilityWithName(splitAbilityName);
+						if(ability != null)
+						{
+							abilities.add(ability);
+						}
+					}
+					
+					ArrayList<String> proficiencies = SplitString(split[3].trim());
+					if(abilities.size() > 0)
+					{
+						usableLookup.put(split[0].trim(), new UsableItem(abilities, Integer.parseInt(split[7].trim()), descriptions, proficiencies));
 					}
 				}
 			}
@@ -164,7 +174,7 @@ public class EquippedItemManager
 				if(usableLookup.containsKey(effectiveItemName))
 				{
 					UsableItem ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.ArmorInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility(), ability);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.ArmorInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility().get(0), ability);
 					usableItems.add(new Pair(itemAbility, 1));
 				}
 			}
@@ -179,7 +189,7 @@ public class EquippedItemManager
 				if(usableLookup.containsKey(effectiveItemName))
 				{
 					UsableItem ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.MainInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility(), ability);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.MainInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility().get(0), ability);
 					usableItems.add(new Pair(itemAbility, s.stackSize));
 				}
 			}
@@ -241,7 +251,7 @@ public class EquippedItemManager
 				if(usableLookup.containsKey(effectiveItemName))
 				{
 					UsableItem ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.ArmorInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility(), ability);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.ArmorInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility().get(0), ability);
 					usableItems.add(new Quintuplet(s.getItem(), null, itemAbility, 1));
 				}
 				else if(lookup.containsKey(effectiveItemName))
@@ -261,7 +271,7 @@ public class EquippedItemManager
 				if(usableLookup.containsKey(effectiveItemName))
 				{
 					UsableItem ability = usableLookup.get(effectiveItemName);
-					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.MainInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility(), ability);
+					ICombatAbility itemAbility = new RemoveItemAbility(player.getEntityId(), new Pair(RemoveItemAbility.MainInventory, i), ability.GetDamageFromUse(), ability.GetUseAbility().get(0), ability);
 					usableItems.add(new Quintuplet(s.getItem(), null, itemAbility, s.stackSize));
 				}
 				else if(lookup.containsKey(effectiveItemName))
@@ -287,7 +297,7 @@ public class EquippedItemManager
 				if(usableLookup.containsKey(effectiveItemName))
 				{
 					UsableItem ability = usableLookup.get(effectiveItemName);
-					equippedItems.add(ability.GetUseAbility());
+					equippedItems.addAll(ability.GetUseAbility());
 				}
 			}
 		}
