@@ -16,7 +16,7 @@ import net.minecraft.util.ResourceLocation;
 
 public class RenderWithName extends Render
 {
-	private Render internalRender;
+	public Render internalRender;
 
 	public RenderWithName(Render internalRender)
 	{

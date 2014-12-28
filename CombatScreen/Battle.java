@@ -664,7 +664,7 @@ public class Battle
 			
 			if(found)
 			{
-				break;
+				continue;
 			}
 			
 			for(int j = 0; j < allies.size(); j++)

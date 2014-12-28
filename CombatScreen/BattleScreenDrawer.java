@@ -5,9 +5,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
+import java.util.UUID;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -24,12 +26,21 @@ import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.monster.EntitySlime;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.ChunkCoordinates;
+import net.minecraft.util.IChatComponent;
 import net.minecraft.util.IIcon;
+import net.minecraft.util.MovementInput;
+import net.minecraft.util.Session;
 import net.minecraft.world.World;
 import net.minecraftforge.event.entity.player.AttackEntityEvent;
 
 import org.lwjgl.opengl.GL11;
 
+import TBC.CloneItem;
 import TBC.Pair;
 import TBC.TBCMod;
 import TBC.Triplet;
@@ -39,6 +50,7 @@ import TBC.Combat.Abilities.ConstantAbility;
 import TBC.Combat.Abilities.DelayedAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Effects.INonStackingEffect;
+import TBC.EnemyLabels.RenderWithName;
 
 public class BattleScreenDrawer
 {
@@ -162,7 +174,14 @@ public class BattleScreenDrawer
 			String abilityCost = Integer.toString(ability.GetMpCost());
 			if(abilityName != null && abilityName != ""  && !(ability instanceof ConstantAbility))
 			{
-				usableAbilities.add(new GenericScrollBoxCellData(abilityName, abilityCost, new UseAbilityFunction(this.canvas, ability)));
+				if(entity.currentMp >= ability.GetMpCost())
+				{
+					usableAbilities.add(new GenericScrollBoxCellData(abilityName, abilityCost, new UseAbilityFunction(this.canvas, ability)));
+				}
+				else
+				{
+					usableAbilities.add(new GenericScrollBoxCellData(abilityName, abilityCost, null));
+				}
 			}
 		}
 
@@ -372,16 +391,15 @@ public class BattleScreenDrawer
 
 	public void DrawCombatEntity(CombatEntity entity, int xPos, int playerYPos, int rotation, long damageTextTime, boolean showHitIndicator)
 	{
-		Entity found = Minecraft.getMinecraft().theWorld.getEntityByID(entity.id);
 		int yPos = playerYPos;
 		int modelYPos = yPos;
-		if(found instanceof EntityPlayer)
+		if(entity.entityType == null || entity.entityType.isEmpty() || entity.entityType.equals("player"))
 		{
 			yPos -= 20;
 			modelYPos -= 25;
 		}
 
-		drawCombatModel(found, xPos, modelYPos, entity, rotation);
+		drawCombatModel(Minecraft.getMinecraft().theWorld, xPos, modelYPos, entity, rotation, 0);
 		drawStatusEffects(xPos, yPos, entity);
 		if(showHitIndicator)
 		{
@@ -472,19 +490,69 @@ public class BattleScreenDrawer
 		this.canvas.drawTexturedModalRect(xPos + 23, yPos - 25 , 0, 0, 32, 32);
 	}
 
-	private void drawCombatModel(Entity worldEntity, int xPos, int yPos, CombatEntity entity, int rotation)
+	public static void drawCombatModel(World world, int xPos, int yPos, CombatEntity entity, int xRotation, int yRotation)
 	{
-		EntityLivingBase el = (EntityLivingBase)worldEntity;
-		if(worldEntity == null || !(worldEntity instanceof EntityPlayer || worldEntity instanceof EntitySlime))
+		ItemStack[] equippedItems = new ItemStack[5];
+		if(entity.tag != null)
 		{
-			try
+			equippedItems = EquippedItemManager.Instance.GetEquippedItems(entity.tag);
+		}
+		
+		EntityLivingBase el = null;
+		try
+		{
+			if(entity.entityType == null || entity.entityType.isEmpty() || entity.entityType.equals("player"))
 			{
-				el = (EntityLivingBase)EntityList.createEntityByName(entity.entityType, Minecraft.getMinecraft().theWorld);
-				//el = (EntityLivingBase)worldEntity.getClass().getConstructor(new Class[] {World.class}).newInstance(new Object[] {worldEntity.worldObj});
+				EntityPlayer p = new DisplayEntityPlayer(world, new DisplayProfile(UUID.randomUUID(), ""));
+				//p.movementInput = new MovementInput();
+				el = p;
+				
+				if(equippedItems[0] != null)
+				{
+					p.inventory.currentItem = 0;
+					p.inventory.mainInventory[0] = equippedItems[0];
+				}
+				
+				if(equippedItems[2] != null)
+				{
+					Item armor = equippedItems[2].getItem();
+					if(armor.getUnlocalizedName().equals("item.leatherArmor"))
+					{
+						p.inventory.armorInventory[0] = new ItemStack(Items.leather_helmet);
+						p.inventory.armorInventory[1] = new ItemStack(Items.leather_chestplate);
+						p.inventory.armorInventory[2] = new ItemStack(Items.leather_leggings);
+						p.inventory.armorInventory[3] = new ItemStack(Items.leather_boots);
+					}
+					else if(armor.getUnlocalizedName().equals("item.ironArmor"))
+					{
+						p.inventory.armorInventory[0] = new ItemStack(Items.iron_helmet);
+						p.inventory.armorInventory[1] = new ItemStack(Items.iron_chestplate);
+						p.inventory.armorInventory[2] = new ItemStack(Items.iron_leggings);
+						p.inventory.armorInventory[3] = new ItemStack(Items.iron_boots);
+					}
+					else if(armor.getUnlocalizedName().equals("item.goldArmor"))
+					{
+						p.inventory.armorInventory[0] = new ItemStack(Items.golden_helmet);
+						p.inventory.armorInventory[1] = new ItemStack(Items.golden_chestplate);
+						p.inventory.armorInventory[2] = new ItemStack(Items.golden_leggings);
+						p.inventory.armorInventory[3] = new ItemStack(Items.golden_boots);
+					}
+					else if(armor.getUnlocalizedName().equals("item.diamondArmor"))
+					{
+						p.inventory.armorInventory[0] = new ItemStack(Items.diamond_helmet);
+						p.inventory.armorInventory[1] = new ItemStack(Items.diamond_chestplate);
+						p.inventory.armorInventory[2] = new ItemStack(Items.diamond_leggings);
+						p.inventory.armorInventory[3] = new ItemStack(Items.diamond_boots);
+					}
+				}
 			}
-			catch (Exception e)
+			else
 			{
+				el = (EntityLivingBase)EntityList.createEntityByName(entity.entityType, world);
 			}
+		}
+		catch (Exception e)
+		{
 		}
 
 		if(el == null)
@@ -493,10 +561,11 @@ public class BattleScreenDrawer
 		}
 		
 		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-		this.canvas.GetMc().entityRenderer.setupOverlayRendering();
+		Minecraft.getMinecraft().entityRenderer.setupOverlayRendering();
+		//this.canvas.GetMc().entityRenderer.setupOverlayRendering();
         GL11.glTranslatef(xPos + 40, yPos, 0);
-        GL11.glRotatef(150, 1F, 0, 0);
-        GL11.glRotatef(el.prevRenderYawOffset + rotation, 0, 1F, 0);
+        GL11.glRotatef(150 + yRotation, 1F, 0, 0);
+        GL11.glRotatef(el.prevRenderYawOffset + xRotation, 0, 1F, 0);
         GL11.glScaled(15, 15, 15);
         el.prevSwingProgress = 0;
         el.swingProgress = 0;

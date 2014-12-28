@@ -99,11 +99,23 @@ public class HenchmanItem extends Item
     	if(!hench.hasTagCompound() || !hench.getTagCompound().hasKey("TBCIsInParty"))
     	{
         	HenchmanItem item = (HenchmanItem)hench.getItem();
-        	CombatEntityTemplate t = CombatEntityLookup.Instance.lookupByName.get(item.henchmanName);
-        	CombatEntitySaveData d = new CombatEntitySaveData(t);
-        	d.CurrentJob = "Monster";
-        	d.JobLevels.add(new Pair<String, Integer>("Monster", 1));
-        	d.Level = 1;
+        	CombatEntitySaveData d;
+        	if(item.henchmanName == "Adventurer")
+        	{
+        		d = new CombatEntitySaveData();
+        		d.loadNBTData(new NBTTagCompound());
+        		d.CurrentJob = "Adventurer";
+        		d.JobLevels.add(new Pair<String, Integer>("Adventurer", 1));
+            	d.Level = 1;
+        	}
+        	else
+        	{
+        		CombatEntityTemplate t = CombatEntityLookup.Instance.lookupByName.get(item.henchmanName);
+            	d = new CombatEntitySaveData(t);
+        		d.CurrentJob = "Monster";
+        		d.JobLevels.add(new Pair<String, Integer>("Monster", 1));
+        		d.Level = 1;
+        	}
         	
         	HenchmanItem.SetCombatEntitySaveData(d, hench);
     	}

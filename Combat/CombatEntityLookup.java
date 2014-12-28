@@ -152,6 +152,10 @@ public class CombatEntityLookup
 		{
 			return new CombatEntity(entityId, entityType, this.lookupByName.get(templateName), tag);
 		}
+		else if(tag != null)
+		{
+			return GetCombatEntityForTag(entityId, templateName, tag);
+		}
 
 		FMLLog.severe("Could not find entity for:  " + templateName);
 		return null;
@@ -160,18 +164,17 @@ public class CombatEntityLookup
 	public CombatEntity GetCombatEntityForPlayer(EntityPlayer player)
 	{
 		String playerName = player.getDisplayName();
-		String lookupName = "Player" + playerName;
-		if(this.lookupByName.containsKey(lookupName))
-		{
-			CombatEntityTemplate template = this.lookupByName.get(lookupName);
-			return new CombatEntity(player.getEntityId(), null, template, PlayerSaveData.GetPlayerTag(player));
-		}
-
 		CombatEntitySaveData data = LevelingEngine.Instance.GetPlayerSaveData(player);
 		CombatEntityTemplate playerTemplate = CombatEntityTemplate.GetCombatEntityTemplateFromSaveData(playerName, data);
-		
-		lookupByName.put(lookupName, playerTemplate);
 		return new CombatEntity(player.getEntityId(), null, playerTemplate, PlayerSaveData.GetPlayerTag(player));
+	}
+	
+	public CombatEntity GetCombatEntityForTag(int id, String name, NBTTagCompound tag)
+	{
+		CombatEntitySaveData data = new CombatEntitySaveData();
+		data.loadNBTData(tag);
+		CombatEntityTemplate template = CombatEntityTemplate.GetCombatEntityTemplateFromSaveData(name, data);
+		return new CombatEntity(id, null, template, tag);
 	}
 
 	public void ClearCombatEntitiesForPlayers()

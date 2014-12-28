@@ -24,11 +24,13 @@ import TBC.Combat.Abilities.AbilityTargetType;
 import TBC.Combat.Abilities.ConstantAbility;
 import TBC.Combat.Abilities.ICombatAbility;
 import TBC.Combat.Effects.StatChangeStatus;
+import TBC.CombatScreen.BattleScreenDrawer;
 import TBC.CombatScreen.GenericGuiButton;
 import TBC.CombatScreen.GenericScrollBox;
 import TBC.CombatScreen.GenericScrollBoxCellData;
 import TBC.CombatScreen.IGenericAction;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiInventory;
@@ -52,6 +54,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTBase.NBTPrimitive;
 import net.minecraft.util.EnumChatFormatting;
+import net.minecraft.util.MovementInput;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
@@ -210,12 +213,18 @@ public class StatsGui extends GuiInventory
     			if(partyMember.Player != null)
     			{
     				int playerYPosOffset = 25;
-    				this.drawCombatModel(partyMember.Player, xPos, this.guiTop + playerYPosOffset + (i * gapBetweenChars), -60);
+    				BattleScreenDrawer.drawCombatModel(player.worldObj, xPos, this.guiTop + playerYPosOffset + (i * gapBetweenChars), partyMember.CombatEntity, -60, 20);
     			}
     			else
     			{
+    				String henchmanType = ((HenchmanItem)partyMember.Item.getItem()).henchmanType;
     				int partyYPosOffset = 50;
-    				this.drawCombatModel(player.worldObj, ((HenchmanItem)partyMember.Item.getItem()).henchmanType, xPos, this.guiTop + (i * gapBetweenChars) + partyYPosOffset, -60);
+    				if(henchmanType == "player")
+    				{
+    					partyYPosOffset = 25;
+    				}
+    				
+    				BattleScreenDrawer.drawCombatModel(player.worldObj, xPos, this.guiTop + (i * gapBetweenChars) + partyYPosOffset, partyMember.CombatEntity, -60, 20);
     			}
     		}
     	}
@@ -314,37 +323,48 @@ public class StatsGui extends GuiInventory
 		}
 	}
 	
-	private void drawCombatModel(World world, String entityType, int xPos, int yPos, int rotation)
-	{
-		EntityLivingBase el = (EntityLivingBase)EntityList.createEntityByName(entityType, world);
-		if(el == null)
-		{
-			return;
-		}
-		
-		drawCombatModel(el, xPos, yPos, rotation);
-	}
-	
-	private void drawCombatModel(EntityLivingBase el, int xPos, int yPos, int rotation)
-	{
-		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-		Minecraft.getMinecraft().entityRenderer.setupOverlayRendering();
-        GL11.glTranslatef(xPos + 40, yPos, 0);
-        GL11.glRotatef(170, 1F, 0, 0);
-        GL11.glRotatef(el.prevRenderYawOffset + rotation, 0, 1F, 0);
-        GL11.glScaled(15, 15, 15);
-        el.prevSwingProgress = 0;
-        el.swingProgress = 0;
-        el.limbSwing = 0;
-        el.prevLimbSwingAmount = 0;
-        el.limbSwingAmount = 0;
-        el.prevRotationYawHead = el.prevRenderYawOffset;
-        el.rotationYawHead = el.prevRenderYawOffset;
-        el.rotationPitch = 0;
-        el.prevRotationPitch = 0;
-        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-        Render ren = (Render) RenderManager.instance.getEntityClassRenderObject(el.getClass());
-        ren.doRender(el, 0, 0, 0, 0F, 0F);
-        GL11.glPopAttrib();
-	}
+//	private void drawCombatModel(World world, String entityType, int xPos, int yPos, int rotation)
+//	{
+//		EntityLivingBase el;
+//		if(entityType.equals("player"))
+//		{
+//			EntityPlayerSP p = new EntityPlayerSP(Minecraft.getMinecraft(), Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().getSession(), 0);
+//			p.movementInput = new MovementInput();
+//			el = p;
+//		}
+//		else
+//		{
+//			el = (EntityLivingBase)EntityList.createEntityByName(entityType, world);
+//		}
+//		
+//		if(el == null)
+//		{
+//			return;
+//		}
+//		
+//		drawCombatModel(el, xPos, yPos, rotation);
+//	}
+//	
+//	private void drawCombatModel(EntityLivingBase el, int xPos, int yPos, int rotation)
+//	{
+//		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
+//		Minecraft.getMinecraft().entityRenderer.setupOverlayRendering();
+//        GL11.glTranslatef(xPos + 40, yPos, 0);
+//        GL11.glRotatef(170, 1F, 0, 0);
+//        GL11.glRotatef(el.prevRenderYawOffset + rotation, 0, 1F, 0);
+//        GL11.glScaled(15, 15, 15);
+//        el.prevSwingProgress = 0;
+//        el.swingProgress = 0;
+//        el.limbSwing = 0;
+//        el.prevLimbSwingAmount = 0;
+//        el.limbSwingAmount = 0;
+//        el.prevRotationYawHead = el.prevRenderYawOffset;
+//        el.rotationYawHead = el.prevRenderYawOffset;
+//        el.rotationPitch = 0;
+//        el.prevRotationPitch = 0;
+//        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
+//        Render ren = (Render) RenderManager.instance.getEntityClassRenderObject(el.getClass());
+//        ren.doRender(el, 0, 0, 0, 0F, 0F);
+//        GL11.glPopAttrib();
+//	}
 }
