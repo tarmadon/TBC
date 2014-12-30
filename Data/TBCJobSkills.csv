@@ -1,6 +1,8 @@
 Job,Level,Skill,SkillType
 Adventurer,1,beginnerBoostPrimary,primary
 Adventurer,1,beginnerBoostSecondary,secondary
+Adventurer,1,profThiefWeapons,primary
+Adventurer,1,profDualWield,primary
 Monster,1,profMonsterWeapons,primary
 Monster,1,profMonsterArmors,primary
 Fighter,1,profFighterWeapons,secondary
@@ -12,6 +14,8 @@ Fighter,4,attackUp5,secondary
 Fighter,4,defenseUp5,secondary
 Fighter,5,Blind,primary
 Fighter,6,hpUp10,secondary
+Fighter,6,attackUp5,secondary
+Fighter,6,defenseUp5,secondary
 Fighter,7,Trip,primary
 Priest,1,profPriestWeapons,secondary
 Priest,1,profClothArmor,primary
@@ -19,13 +23,34 @@ Priest,1,mpUp10,secondary
 Priest,1,Heal,secondary
 Priest,2,mDefUp5,secondary
 Priest,2,manaUp10,secondary
+Priest,3,Shield,primary
+Priest,4,hpUp10,secondary
+Priest,5,Strength,primary
+Priest,5,Revive,primary
+Priest,6,mDefUp5,secondary
+Priest,6,manaUp10,secondary
+Priest,6,mAtkUp5,secondary
+Priest,7,Mass Heal,primary
 Thief,1,profThiefWeapons,secondary
 Thief,1,profLeatherArmor,primary
-Thief,1,Backstab,secondary
+Thief,1,Steal,secondary
 Thief,2,hpUp5,secondary
 Thief,2,attackUp5,secondary
+Thief,3,profDualWield,primary
+Thief,4,speedUp5,secondary
+Thief,5,Backstab,primary
+Thief,6,attackUp5,secondary
+Thief,6,speedUp5,secondary
+Thief,7,Mug,primary
 Mage,1,profMageWeapons,secondary
 Mage,1,profClothArmor,primary
 Mage,1,mAtkUp5,secondary
 Mage,1,Fireball,secondary
+Mage,2,mAtkUp5,secondary
 Mage,2,manaUp10,secondary
+Mage,3,Ice Bolt,primary
+Mage,4,attackUp5,secondary
+Mage,5,Thunder,primary
+Mage,6,mAtkUp5,secondary
+Mage,6,manaUp10,secondary
+Mage,7,Inferno,primary

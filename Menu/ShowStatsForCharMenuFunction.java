@@ -15,11 +15,13 @@ public class ShowStatsForCharMenuFunction implements IGenericAction, ICustomMenu
 	private StatsGui gui;
 	private StatMenuCharData player;
 	private CombatEntitySaveData xpData;
+	private boolean isBeingEdited;
 	
-	public ShowStatsForCharMenuFunction(StatsGui gui, StatMenuCharData player)
+	public ShowStatsForCharMenuFunction(StatsGui gui, StatMenuCharData player, boolean isBeingEdited)
 	{
 		this.gui = gui;
 		this.player = player;
+		this.isBeingEdited = isBeingEdited;
 	}
 
 	@Override
@@ -35,7 +37,14 @@ public class ShowStatsForCharMenuFunction implements IGenericAction, ICustomMenu
 		}
 		
 		ArrayList<GenericScrollBoxCellData> buttons = new ArrayList<GenericScrollBoxCellData>();
-		buttons.add(new GenericScrollBoxCellData("Name:   " + this.player.CombatEntity.name, "", null));
+		if(!isBeingEdited)
+		{
+			buttons.add(new GenericScrollBoxCellData("Name:   " + this.player.CombatEntity.name, "", new ShowStatsForCharMenuFunction(gui, player, true)));
+		}
+		else
+		{
+			buttons.add(new GenericScrollBoxCellData("Name:   ", "", new ChangeCharNameMenuFunction(gui, player), new ArrayList<String>(), true));
+		}
 		
 		ArrayList<GenericScrollBoxCellData> constantButtons = new ArrayList<GenericScrollBoxCellData>();
 		constantButtons.add(new GenericScrollBoxCellData("Back", "", new SelectStatsMenuFunction(this.gui)));
@@ -73,7 +82,7 @@ public class ShowStatsForCharMenuFunction implements IGenericAction, ICustomMenu
     	fontRendererObj.drawString(xpData.CurrentXp + " / " + LevelingEngine.GetXpRequiredForLevel(xpData.Level), rightValueXPos, firstLineYPos, 2);
 
     	fontRendererObj.drawString("AP:", rightLabelXPos, secondLineYPos, 2);
-    	fontRendererObj.drawString(xpData.CurrentAp + "", rightValueXPos, secondLineYPos, 2);
+    	fontRendererObj.drawString(xpData.CurrentAp + " / " + LevelingEngine.GetApRequiredForLevel(xpData.GetJobLevelMin1(xpData.CurrentJob)), rightValueXPos, secondLineYPos, 2);
 
     	fontRendererObj.drawString("Att:", leftLabelXPos, thirdLineYPos, 2);
     	fontRendererObj.drawString(player.CombatEntity.GetAttack() + "", leftValueXPos, thirdLineYPos, 2);

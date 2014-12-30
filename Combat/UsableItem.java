@@ -1,14 +1,19 @@
 package TBC.Combat;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 import TBC.Combat.Abilities.ICombatAbility;
 
-public class UsableItem extends BaseItem
+public class UsableItem extends BaseItem implements Serializable
 {
 	private List<ICombatAbility> ability;
 	private int damageFromUse;
+	
+	public UsableItem()
+	{
+	}
 	
 	public UsableItem(ICombatAbility ability, int damageFromUse, ArrayList<String> descriptions, ArrayList<String> proficiencies)
 	{

@@ -146,15 +146,11 @@ public class CombatEntityLookup
 		}
 	}
 
-	public CombatEntity GetCombatEntity(int entityId, String entityType, String templateName, NBTTagCompound tag)
+	public CombatEntity GetCombatEntity(int entityId, String entityType, String templateName)
 	{
 		if(this.lookupByName.containsKey(templateName))
 		{
-			return new CombatEntity(entityId, entityType, this.lookupByName.get(templateName), tag);
-		}
-		else if(tag != null)
-		{
-			return GetCombatEntityForTag(entityId, templateName, tag);
+			return new CombatEntity(entityId, entityType, this.lookupByName.get(templateName), new NBTTagCompound());
 		}
 
 		FMLLog.severe("Could not find entity for:  " + templateName);

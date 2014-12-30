@@ -545,7 +545,7 @@ public class Battle
 			{
 				if(!wonBattle)
 				{
-					player.setHealth(0);
+					player.handleHealthUpdate((byte)3);
 				}
 				else
 				{

@@ -63,7 +63,7 @@ public class ShowEquipmentForCharMenuFunction implements IGenericAction
 		ArrayList<GenericScrollBoxCellData> rightSide = new ArrayList<GenericScrollBoxCellData>();
 		if(equipmentSlot != null)
 		{
-			ArrayList<Quintuplet<Integer, Integer, Item, EquippedItem>> equippable = EquippedItemManager.Instance.GetEquippableItemsForPlayer(gui.mc, gui.player);
+			ArrayList<Quintuplet<Integer, Integer, Item, EquippedItem>> equippable = EquippedItemManager.Instance.GetEquippableItemsForPlayer(EquippedItemManager.Instance.GetSlotForIndex(equipmentSlot), gui.mc, gui.player);
 			List<String> proficiencies = JobLookup.Instance.GetProficiencies(data.CurrentJob, data.GetJobLevelMin1(data.CurrentJob), true);
 			if(!data.SecondaryJob.isEmpty())
 			{
@@ -72,7 +72,7 @@ public class ShowEquipmentForCharMenuFunction implements IGenericAction
 			
 			for(Quintuplet<Integer, Integer, Item, EquippedItem> equip : equippable)
 			{
-				if(equip.item4.GetSlot().equals(GetSlotForIndex(equipmentSlot)))
+				if(equip.item4.GetSlot().equals(EquippedItemManager.Instance.GetSlotForIndex(equipmentSlot)))
 				{
 					ArrayList<String> reqs = equip.item4.RequiredProficiencies();
 					boolean foundAllProf = true;
@@ -118,47 +118,22 @@ public class ShowEquipmentForCharMenuFunction implements IGenericAction
 
 	private void HandleSlot(Integer chosenEquipmentSlot, int slotToHandle, ArrayList<GenericScrollBoxCellData> equipSlotButtons, ItemStack currentItem)
 	{
-		String slotName = GetSlotForIndex(slotToHandle);
+		String slotName = EquippedItemManager.Instance.GetSlotForIndex(slotToHandle);
+		String displayName = slotName;
 		List<String> hoverText = new ArrayList<String>();
 		if(currentItem != null)
 		{
-			slotName = currentItem.getDisplayName();
-			hoverText = EquippedItemManager.Instance.GetEquippedItem(currentItem).DescriptionStrings();
+			hoverText = EquippedItemManager.Instance.GetEquippedItem(currentItem, slotName).DescriptionStrings();
+			displayName = currentItem.getDisplayName();
 		}
 		
 		if(chosenEquipmentSlot != null && chosenEquipmentSlot == slotToHandle)
 		{
-			equipSlotButtons.add(new GenericScrollBoxCellData(slotName, "", null, hoverText));
+			equipSlotButtons.add(new GenericScrollBoxCellData(displayName, "", null, hoverText));
 		}
 		else
 		{
-			equipSlotButtons.add(new GenericScrollBoxCellData(slotName, "", new ShowEquipmentForCharMenuFunction(this.gui, this.user, slotToHandle), hoverText));
+			equipSlotButtons.add(new GenericScrollBoxCellData(displayName, "", new ShowEquipmentForCharMenuFunction(this.gui, this.user, slotToHandle), hoverText));
 		}
-	}
-	
-	private String GetSlotForIndex(int index)
-	{
-		if(index == 0)
-		{
-			return EquippedItemManager.MainHandItemSlot;
-		}
-		else if(index == 1)
-		{
-			return EquippedItemManager.OffHandItemSlot;
-		}
-		else if(index == 2)
-		{
-			return EquippedItemManager.ArmorItemSlot;
-		}
-		else if(index == 3)
-		{
-			return EquippedItemManager.AccItemSlot;
-		}
-		else if(index == 4)
-		{
-			return EquippedItemManager.AccItemSlot;
-		}
-		
-		return EquippedItemManager.MainHandItemSlot;
 	}
 }

@@ -34,6 +34,7 @@ public class CombatEntitySaveData implements Serializable
 	public List<Pair<String, Integer>> JobLevels;
 	public String CurrentJob;
 	public String SecondaryJob;
+	public String Name;
 	
 	public CombatEntitySaveData()
 	{	
@@ -58,6 +59,7 @@ public class CombatEntitySaveData implements Serializable
 		this.JobLevels = new ArrayList<Pair<String, Integer>>();
 		this.CurrentJob = "";
 		this.SecondaryJob = "";
+		this.Name = data.name;
 	}
 	
 	public void loadNBTData(NBTTagCompound nbttagcompound)
@@ -78,6 +80,7 @@ public class CombatEntitySaveData implements Serializable
 		BonusSpeed = getIntOrDefault(nbttagcompound, "TBCSpeed", 0);
 		CurrentJob = getStringOrDefault(nbttagcompound, "TBCCurrentJob", "Adventurer");
 		SecondaryJob = getStringOrDefault(nbttagcompound, "TBCSecondaryJob", "");
+		Name = getStringOrDefault(nbttagcompound, "TBCName", "");
 		
 		if(nbttagcompound.hasKey("TBCAbilities"))
 		{
@@ -113,6 +116,7 @@ public class CombatEntitySaveData implements Serializable
 		nbttagcompound.setInteger("questProgress", QuestProgress);
 		nbttagcompound.setString("TBCCurrentJob", CurrentJob);
 		nbttagcompound.setString("TBCSecondaryJob", SecondaryJob);
+		nbttagcompound.setString("TBCName", Name);
 
 		nbttagcompound.setInteger("TBCIsInParty", IsInParty);
 		nbttagcompound.setInteger("TBCIsFrontRow", IsFrontRow);

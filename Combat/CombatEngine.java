@@ -306,15 +306,18 @@ public class CombatEngine
 		}
 
 		ICombatAbility ability = usableAbilities.get(0).item2;
-		int rand = CombatRandom.GetRandom().nextInt(totalWeight);
-		int weightTilNow = 0;
-		for(int i = 0; i<usableAbilities.size(); i++)
+		if(totalWeight > 0)
 		{
-			weightTilNow += usableAbilities.get(i).item1;
-			if(rand < weightTilNow)
+			int rand = CombatRandom.GetRandom().nextInt(totalWeight);
+			int weightTilNow = 0;
+			for(int i = 0; i<usableAbilities.size(); i++)
 			{
-				ability = usableAbilities.get(i).item2;
-				break;
+				weightTilNow += usableAbilities.get(i).item1;
+				if(rand < weightTilNow)
+				{
+					ability = usableAbilities.get(i).item2;
+					break;
+				}
 			}
 		}
 

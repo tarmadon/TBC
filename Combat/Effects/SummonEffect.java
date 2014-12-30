@@ -21,7 +21,7 @@ public class SummonEffect implements IOneTimeEffect
 
 	public void ApplyToEntity(CombatEngine engine, CombatEntity user, CombatEntity target)
 	{
-		CombatEntity summoned = CombatEntityLookup.Instance.GetCombatEntity(engine.GetNewEntityId(), renderName, entityName, new NBTTagCompound());
+		CombatEntity summoned = CombatEntityLookup.Instance.GetCombatEntity(engine.GetNewEntityId(), renderName, entityName);
 		engine.AddEntityToCombat(user, summoned);
 	}
 }

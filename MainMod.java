@@ -455,7 +455,7 @@ public class MainMod
 				if(s != null && s.getItem() instanceof HenchmanItem)
 				{
 					HenchmanItem item = (HenchmanItem)s.getItem();
-					CombatEntity hench = CombatEntityLookup.Instance.GetCombatEntity(0, item.henchmanType, item.henchmanName, HenchmanItem.GetTag(s));
+					CombatEntity hench = CombatEntity.GetCombatEntity(0, s).item2;
 					s.setItemDamage(0);
 					NBTTagCompound tag = s.getTagCompound();
 					if(tag == null)
@@ -583,7 +583,7 @@ public class MainMod
 		Item adventurer = new HenchmanItem("player", "Adventurer").setUnlocalizedName("AdventurerHench");
 		ItemStack adventurerStack = new ItemStack(adventurer);
 		GameRegistry.registerItem(adventurer, adventurer.getUnlocalizedName(), "tbc");
-		GameRegistry.addShapedRecipe(adventurerStack, " x ","yzy"," z ", 'x', Blocks.coal_ore, 'y', Items.bread, 'z', Items.leather);
+		GameRegistry.addShapedRecipe(adventurerStack, " x ","yzy"," z ", 'x', Items.coal, 'y', Items.bread, 'z', Items.leather);
 		LanguageRegistry.addName(adventurerStack, "Adventurer Link");
 		
 		Item weaponCore = RegisterItem(Items.ender_eye, "weaponCore", "Weapon Core", " y "," y "," x ", 'x',Items.stick, 'y', Blocks.gravel);
@@ -737,7 +737,7 @@ public class MainMod
 		String name = evt.itemStack.getItem().getUnlocalizedName().replace("item.", "");
         if(EquippedItemManager.Instance.lookup.containsKey(name))
         {
-        	ArrayList<String> descriptions = EquippedItemManager.Instance.lookup.get(name).DescriptionStrings();
+        	ArrayList<String> descriptions = EquippedItemManager.Instance.lookup.get(name).elements().nextElement().DescriptionStrings();
         	for(String displayString : descriptions)
         	{
         		if(displayString != null && displayString.length() > 0)

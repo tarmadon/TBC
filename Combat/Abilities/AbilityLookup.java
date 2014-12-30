@@ -59,6 +59,7 @@ public class AbilityLookup
 		lookup.put("profMageWeapons", new PlaceholderAbility("Mage Weapon Prof.", ArrayExtensions.GetArray("Allows equipping wands and staves."), "Staff;Wand"));
 		lookup.put("profMonsterWeapons", new PlaceholderAbility("Monster Weapon Prof.", ArrayExtensions.GetArray("Allows equipping claws."), "Claw"));
 		lookup.put("profMonsterArmors", new PlaceholderAbility("Monster Armor Prof.", ArrayExtensions.GetArray("Allows equipping skins."), "Skin"));
+		lookup.put("profDualWield", new PlaceholderAbility("Dual Wield", ArrayExtensions.GetArray("Allows equipping weapons in the off-hand."), "DualWield"));
 		
 		lookup.put("Default", new DefaultAttackAbility());
 		ICombatAbility basicCounter = this.BuildStandardAbility("", "", AbilityTargetType.OneEnemy, 0, false, false, new PhysicalDamageEffect(0).SetAdditionalDamageTypes(DamageType.Uncounterable));
@@ -66,6 +67,13 @@ public class AbilityLookup
 		lookup.put("MissChance20", this.BuildConstantAbility("Miss Chance 20%", "Chance to miss on all physical attacks", new MissChanceTriggeredEffect(.2F)));
 		lookup.put("SpeedAttackBoost", this.BuildConstantAbility("Quick Attack", "Increases attack based on speed", new CrossStatChangeStatus("", StatChangeStatus.AttackChange, StatChangeStatus.SpeedChange, 0, .2F, -1, -1)));
 		lookup.put("MagicAttackBoost", this.BuildConstantAbility("Enchanted Attack", "Increases attack based on magic", new CrossStatChangeStatus("", StatChangeStatus.AttackChange, StatChangeStatus.MagicChange, 0, .2F, -1, -1)));
+		lookup.put("hpUp10", this.BuildConstantAbility("HP +10", "", this.BuildConstantFlatStatChange("", 10, StatChangeStatus.HpChange)));
+		lookup.put("mpUp10", this.BuildConstantAbility("MP +10", "", this.BuildConstantFlatStatChange("", 10, StatChangeStatus.MpChange)));
+		lookup.put("attackUp5", this.BuildConstantAbility("Attack +5", "", this.BuildConstantFlatStatChange("", 5, StatChangeStatus.AttackChange)));
+		lookup.put("mAtkUp5", this.BuildConstantAbility("Magic +5", "", this.BuildConstantFlatStatChange("", 5, StatChangeStatus.MagicChange)));
+		lookup.put("defenseUp5", this.BuildConstantAbility("Defense +5", "", this.BuildConstantFlatStatChange("", 5, StatChangeStatus.DefenseChange)));
+		lookup.put("mDefUp5", this.BuildConstantAbility("Magic Defense +5", "", this.BuildConstantFlatStatChange("", 5, StatChangeStatus.MagicDefenseChange)));
+		
 		
 		// Adventurer skills
 		lookup.put("beginnerBoostPrimary", this.BuildConstantAbility("Beginner Boost II", "Increases all stats passively", ArrayExtensions.MergeLists(
@@ -119,7 +127,9 @@ public class AbilityLookup
 				"Swift", AbilityTargetType.OneEnemy, 0, false, false, ArrayExtensions.GetArray("Quick attack that does low damage")));
 
 		lookup.put("Backstab", this.BuildStandardAbility("Backstab", "Deals low damage which ignores armor", AbilityTargetType.OneEnemy, 0, false, false, new PhysicalDamageEffect(0).SetAttackMultiplier(.8F).SetDefenseMultiplier(0)));
-		lookup.put("Fireball", this.BuildStandardAbility("Fireball", "Deals low fire damage to one enemy", AbilityTargetType.OneEnemy, 0, false, true, new MagicDamageEffect(0, 1F)));
+		lookup.put("Fireball", this.BuildStandardAbility("Fireball", "Deals low fire damage to one enemy", AbilityTargetType.OneEnemy, 1, false, true, new MagicDamageEffect(0, 1F, DamageType.Fire)));
+		lookup.put("Ice Bolt", this.BuildStandardAbility("Ice Bolt", "Deals low ice damage to one enemy", AbilityTargetType.OneEnemy, 1, false, true, new MagicDamageEffect(0, 1F, DamageType.Ice)));
+		lookup.put("Thunder", this.BuildStandardAbility("Thunder", "Deals low lightning damage to one enemy", AbilityTargetType.OneEnemy, 1, false, true, new MagicDamageEffect(0, 1F, DamageType.Lightning)));
 		lookup.put("Inferno", this.BuildStandardAbility("Inferno", "Deals low fire damage to all enemies", AbilityTargetType.AllEnemies, 3, false, true, new MagicDamageEffect(0, .75F)));
 		lookup.put("Web", this.BuildStandardAbility("Web", "A standard attack which also slows the target", AbilityTargetType.OneEnemy, 0, false, false,
 					new PhysicalDamageEffect(0),
@@ -138,7 +148,8 @@ public class AbilityLookup
 		lookup.put("Absorb", this.BuildStandardAbility("Absorb", "Steals MP from one target", AbilityTargetType.OneEnemy, 1, false, true, new ManaStealEffect(0, 0, 0F, .25F)));
 		lookup.put("Heal", this.BuildStandardAbility("Heal", "Heals one target", AbilityTargetType.OneAlly, 1, true, true, new HealEffect(20, 0.5F)));
 		lookup.put("Mass Heal", this.BuildStandardAbility("Mass Heal", "Heals all party members", AbilityTargetType.AllAllies, 3, true, true, new HealEffect(20, 0.5F)));
-
+		lookup.put("Revive", this.BuildStandardAbility("Revive", "Brings a dead ally to 1 HP", AbilityTargetType.OneDeadAlly, 10, true, true, new SetHPEffect(1)));
+		
 		lookup.put("Poison", this.BuildStandardAbility("Poison", "Poisons one target", AbilityTargetType.OneEnemy, 0, false, true,
 				new ApplyStatusEffect(new PoisonStatusEffect(), 1F)));
 		lookup.put("Paralyze", this.BuildStandardAbility("Paralyze", "Paralyzes one target", AbilityTargetType.OneEnemy, 0, false, true,

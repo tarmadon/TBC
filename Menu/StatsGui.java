@@ -168,6 +168,20 @@ public class StatsGui extends GuiInventory
         }
 	}
 
+	protected void keyTyped(char key, int keycode) 
+	{
+		Object o = this.buttonList.get(0);
+		if(o instanceof GenericScrollBox)
+		{
+			((GenericScrollBox)o).keyTyped(key, keycode);
+		}
+		
+		if(keycode == 1)
+		{
+			this.mc.thePlayer.closeScreen();
+		}
+	}
+	
 	protected void drawGuiContainerBackgroundLayer(float par1, int par2, int par3)
 	{
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -304,7 +318,7 @@ public class StatsGui extends GuiInventory
 		}
 		
 		this.partyMembers.clear();
-		while(staging.size() != 0)
+		while(staging.size() != 0 && this.partyMembers.size() < 4)
 		{
 			int lowestPos = -1;
 			int lowest = 1000;
@@ -322,49 +336,4 @@ public class StatsGui extends GuiInventory
 			staging.remove(lowestPos);
 		}
 	}
-	
-//	private void drawCombatModel(World world, String entityType, int xPos, int yPos, int rotation)
-//	{
-//		EntityLivingBase el;
-//		if(entityType.equals("player"))
-//		{
-//			EntityPlayerSP p = new EntityPlayerSP(Minecraft.getMinecraft(), Minecraft.getMinecraft().theWorld, Minecraft.getMinecraft().getSession(), 0);
-//			p.movementInput = new MovementInput();
-//			el = p;
-//		}
-//		else
-//		{
-//			el = (EntityLivingBase)EntityList.createEntityByName(entityType, world);
-//		}
-//		
-//		if(el == null)
-//		{
-//			return;
-//		}
-//		
-//		drawCombatModel(el, xPos, yPos, rotation);
-//	}
-//	
-//	private void drawCombatModel(EntityLivingBase el, int xPos, int yPos, int rotation)
-//	{
-//		GL11.glPushAttrib(GL11.GL_ALL_ATTRIB_BITS);
-//		Minecraft.getMinecraft().entityRenderer.setupOverlayRendering();
-//        GL11.glTranslatef(xPos + 40, yPos, 0);
-//        GL11.glRotatef(170, 1F, 0, 0);
-//        GL11.glRotatef(el.prevRenderYawOffset + rotation, 0, 1F, 0);
-//        GL11.glScaled(15, 15, 15);
-//        el.prevSwingProgress = 0;
-//        el.swingProgress = 0;
-//        el.limbSwing = 0;
-//        el.prevLimbSwingAmount = 0;
-//        el.limbSwingAmount = 0;
-//        el.prevRotationYawHead = el.prevRenderYawOffset;
-//        el.rotationYawHead = el.prevRenderYawOffset;
-//        el.rotationPitch = 0;
-//        el.prevRotationPitch = 0;
-//        GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
-//        Render ren = (Render) RenderManager.instance.getEntityClassRenderObject(el.getClass());
-//        ren.doRender(el, 0, 0, 0, 0F, 0F);
-//        GL11.glPopAttrib();
-//	}
 }

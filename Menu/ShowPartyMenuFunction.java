@@ -58,7 +58,7 @@ public class ShowPartyMenuFunction implements IGenericAction
 				if(stack.getItem() instanceof HenchmanItem)
 				{
 					HenchmanItem hench = (HenchmanItem)stack.getItem();
-					CombatEntity cHench = CombatEntityLookup.Instance.GetCombatEntity(i, hench.henchmanType, hench.henchmanName, HenchmanItem.GetTag(stack));
+					CombatEntity cHench = CombatEntity.GetCombatEntity(i, stack).item2;
 					potentialPartyMembers.add(new StatMenuCharData(null, stack, cHench, false));
 				}
 			}

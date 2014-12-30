@@ -47,9 +47,9 @@ public class EquippedItemManager
 	public static final String AccItemSlot = "Acc";
 
 	public static EquippedItemManager Instance = new EquippedItemManager();
-	public Hashtable<String, EquippedItem> lookup = new Hashtable<String, EquippedItem>();
+	public Hashtable<String, Hashtable<String, EquippedItem>> lookup = new Hashtable<String, Hashtable<String, EquippedItem>>();
 	public Hashtable<String, UsableItem> usableLookup = new Hashtable<String, UsableItem>();
-	public Hashtable<String, ConstantItem> constantLookup = new Hashtable<String, ConstantItem>();
+	public Hashtable<String, Hashtable<String, ConstantItem>> constantLookup = new Hashtable<String, Hashtable<String, ConstantItem>>();
 
 	private File file;
 
@@ -108,7 +108,13 @@ public class EquippedItemManager
 					
 					String slot = split[2].trim();
 					ArrayList<String> proficiencies = SplitString(split[3].trim());
-					lookup.put(split[0].trim(), new FlatBonusEquippedItem(modifiers, slot, descriptions, proficiencies));
+					String itemName = split[0].trim();
+					if(!lookup.containsKey(itemName))
+					{
+						lookup.put(itemName, new Hashtable<String, EquippedItem>());
+					}
+					
+					lookup.get(itemName).put(slot, new FlatBonusEquippedItem(modifiers, slot, descriptions, proficiencies));
 				}
 
 				if(split[1].trim().toLowerCase().contains("use"))
@@ -146,7 +152,14 @@ public class EquippedItemManager
 					
 					if(constantAbilities.size() > 0)
 					{
-						constantLookup.put(split[0].trim(), new ConstantItem(descriptions, proficiencies, constantAbilities));
+						String itemName = split[0].trim();
+						String slot = split[2].trim();
+						if(!constantLookup.containsKey(itemName))
+						{
+							constantLookup.put(itemName, new Hashtable<String, ConstantItem>());
+						}
+						
+						constantLookup.get(itemName).put(slot, new ConstantItem(descriptions, proficiencies, constantAbilities));
 					}
 				}
 			}
@@ -226,7 +239,7 @@ public class EquippedItemManager
 		return usableItems;
 	}
 
-	public ArrayList<Quintuplet<Integer, Integer, Item, EquippedItem>> GetEquippableItemsForPlayer(Minecraft mc, EntityPlayer player)
+	public ArrayList<Quintuplet<Integer, Integer, Item, EquippedItem>> GetEquippableItemsForPlayer(String slot, Minecraft mc, EntityPlayer player)
 	{
 		ArrayList<Quintuplet<Integer, Integer, Item, EquippedItem>> usableItems = new ArrayList<Quintuplet<Integer, Integer, Item, EquippedItem>>();
 		InventoryPlayer inventory = player.inventory;
@@ -236,9 +249,9 @@ public class EquippedItemManager
 			if(s != null)
 			{
 				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
-				if(lookup.containsKey(effectiveItemName))
+				if(lookup.containsKey(effectiveItemName) && lookup.get(effectiveItemName).containsKey(slot))
 				{
-					EquippedItem item = lookup.get(effectiveItemName);
+					EquippedItem item = lookup.get(effectiveItemName).get(slot);
 					usableItems.add(new Quintuplet(RemoveItemAbility.ArmorInventory, i, s.getItem(), item));
 				}
 			}
@@ -250,9 +263,9 @@ public class EquippedItemManager
 			if(s != null)
 			{
 				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
-				if(lookup.containsKey(effectiveItemName))
+				if(lookup.containsKey(effectiveItemName) && lookup.get(effectiveItemName).containsKey(slot))
 				{
-					EquippedItem item = lookup.get(effectiveItemName);
+					EquippedItem item = lookup.get(effectiveItemName).get(slot);
 					usableItems.add(new Quintuplet(RemoveItemAbility.MainInventory, i, s.getItem(), item));
 				}
 			}
@@ -261,9 +274,9 @@ public class EquippedItemManager
 		return usableItems;
 	}
 	
-	public EquippedItem GetEquippedItem(ItemStack itemStack)
+	public EquippedItem GetEquippedItem(ItemStack itemStack, String slot)
 	{
-		return lookup.get(itemStack.getItem().getUnlocalizedName().replaceFirst("item.", ""));
+		return lookup.get(itemStack.getItem().getUnlocalizedName().replaceFirst("item.", "")).get(slot);
 	}
 	
 	public ArrayList<Quintuplet<Item, EquippedItem, ICombatAbility, Integer>> GetAllKnownItemsForPlayer(Minecraft mc, EntityPlayer player)
@@ -284,12 +297,12 @@ public class EquippedItemManager
 				}
 				else if(lookup.containsKey(effectiveItemName))
 				{
-					EquippedItem item = lookup.get(effectiveItemName);
+					EquippedItem item = lookup.get(effectiveItemName).elements().nextElement();
 					usableItems.add(new Quintuplet(s.getItem(), item, null, 1));
 				}
 				else if(constantLookup.containsKey(effectiveItemName))
 				{
-					ConstantItem item = constantLookup.get(effectiveItemName);
+					ConstantItem item = constantLookup.get(effectiveItemName).elements().nextElement();
 					usableItems.add(new Quintuplet(s.getItem(), item, null, 1));
 				}
 			}
@@ -309,12 +322,12 @@ public class EquippedItemManager
 				}
 				else if(lookup.containsKey(effectiveItemName))
 				{
-					EquippedItem item = lookup.get(effectiveItemName);
+					EquippedItem item = lookup.get(effectiveItemName).elements().nextElement();
 					usableItems.add(new Quintuplet(s.getItem(), item, null, s.stackSize));
 				}
 				else if(constantLookup.containsKey(effectiveItemName))
 				{
-					ConstantItem item = constantLookup.get(effectiveItemName);
+					ConstantItem item = constantLookup.get(effectiveItemName).elements().nextElement();
 					usableItems.add(new Quintuplet(s.getItem(), item, null, s.stackSize));
 				}
 			}
@@ -327,14 +340,16 @@ public class EquippedItemManager
 	{
 		ArrayList<ConstantAbility> equippedItems = new ArrayList<ConstantAbility>();
 		ItemStack[] items = this.GetEquippedItems(tag);
-		for(ItemStack s : items)
+		for(int i = 0; i < items.length; i++)
 		{
+			ItemStack s = items[i];
 			if(s != null)
 			{
+				String slot = this.GetSlotForIndex(i);
 				String effectiveItemName = s.getItem().getUnlocalizedName().replaceFirst("item.", "");
-				if(constantLookup.containsKey(effectiveItemName))
+				if(constantLookup.containsKey(effectiveItemName) && constantLookup.get(effectiveItemName).containsKey(slot))
 				{
-					ConstantItem ability = constantLookup.get(effectiveItemName);
+					ConstantItem ability = constantLookup.get(effectiveItemName).get(slot);
 					equippedItems.addAll(ability.GetConstantAbilities());
 				}
 			}
@@ -349,12 +364,13 @@ public class EquippedItemManager
 		if(entity.tag != null)
 		{
 			ItemStack[] items = this.GetEquippedItems(entity.tag);
-			for(ItemStack item : items)
+			for(int i = 0; i < items.length; i++)
 			{
+				ItemStack item = items[i];
 				if(item != null)
 				{
 					String itemName = item.getItem().getUnlocalizedName();
-					returnStat = ApplyFoundItem(itemName, statType, returnStat);
+					returnStat = ApplyFoundItem(itemName, GetSlotForIndex(i), statType, returnStat);
 				}
 			}
 		}
@@ -362,12 +378,12 @@ public class EquippedItemManager
 		return returnStat;
 	}
 
-	private int ApplyFoundItem(String itemName, int statType, int currentStat)
+	private int ApplyFoundItem(String itemName, String slot, int statType, int currentStat)
 	{
 		String effectiveItemName = itemName.replaceFirst("item.", "");
 		if(lookup.containsKey(effectiveItemName))
 		{
-			EquippedItem foundItem = lookup.get(effectiveItemName);
+			EquippedItem foundItem = lookup.get(effectiveItemName).get(slot);
 			if(foundItem.HasEffect(statType))
 			{
 				return foundItem.GetModifiedValue(statType, currentStat);
@@ -389,6 +405,32 @@ public class EquippedItemManager
 		}
 		
 		return equipped;
+	}
+	
+	public String GetSlotForIndex(int index)
+	{
+		if(index == 0)
+		{
+			return EquippedItemManager.MainHandItemSlot;
+		}
+		else if(index == 1)
+		{
+			return EquippedItemManager.OffHandItemSlot;
+		}
+		else if(index == 2)
+		{
+			return EquippedItemManager.ArmorItemSlot;
+		}
+		else if(index == 3)
+		{
+			return EquippedItemManager.AccItemSlot;
+		}
+		else if(index == 4)
+		{
+			return EquippedItemManager.AccItemSlot;
+		}
+		
+		return EquippedItemManager.MainHandItemSlot;
 	}
 	
     public static void SetItem(int slot, ItemStack item, NBTTagCompound tag)

@@ -25,6 +25,9 @@ public class GenericScrollBox extends GuiButton
 	public static final int ySpacing = 10;
 	private int xSpacing = 80;
 	private int contantItemXSpacing = 60;
+	private GenericScrollBoxCellData edited = null;
+	private String initialEditedData = "";
+	private String builtData = "";
 	private ArrayList<GenericScrollBoxCellData> items;
 	private ArrayList<GenericScrollBoxCellData> constantItems;
 	private ArrayList<Triplet<Integer, Integer, Integer>> positions;
@@ -41,6 +44,13 @@ public class GenericScrollBox extends GuiButton
 		int maxStringLength = 0;
 		for(GenericScrollBoxCellData i : items)
 		{
+			if(i.IsBeingEdited)
+			{
+				edited = i;
+				initialEditedData = edited.Text;
+				edited.Text += "_";
+			}
+			
 			int stringLength = fontRenderer.getStringWidth(i.Text);
 			if(stringLength > maxStringLength)
 			{
@@ -123,6 +133,41 @@ public class GenericScrollBox extends GuiButton
 		return false;
 	}
 
+	public void keyTyped(char key, int keyCode)
+	{
+		if(this.edited != null)
+		{
+			if(keyCode == 28)
+			{
+				if(this.edited.OnClick instanceof IGenericStringAction)
+				{
+					((IGenericStringAction)this.edited.OnClick).Invoke(this.builtData);
+				}
+				else
+				{
+					this.edited.OnClick.Invoke();
+				}
+			}
+			else if(keyCode == 14)
+			{
+				if(this.builtData.length() > 0)
+				{
+					this.builtData = this.builtData.substring(0, this.builtData.length() - 1);
+					this.edited.Text = this.initialEditedData + this.builtData + "_";
+				}
+			}
+			else if(keyCode == 42)
+			{
+				return;
+			}
+			else
+			{
+				this.builtData += key;
+				this.edited.Text = this.initialEditedData + this.builtData + "_";
+			}
+		}
+	}
+	
 	public void drawButton(Minecraft par1Minecraft, int par2, int par3)
     {
         if (this.visible)

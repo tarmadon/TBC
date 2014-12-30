@@ -83,6 +83,21 @@ public class HenchmanItem extends Item
     	return item.getTagCompound();
     }
     
+    @Override
+    public String getItemStackDisplayName(ItemStack stack) 
+    {
+    	if(stack.getItem() instanceof HenchmanItem)
+    	{
+    		CombatEntitySaveData d = HenchmanItem.GetCombatEntitySaveData(stack);
+    		if(!d.Name.isEmpty())
+    		{
+    			return d.Name.trim() + " Link";
+    		}
+    	}
+    	
+    	return super.getItemStackDisplayName(stack);
+    }
+    
     public static void SetCombatEntitySaveData(CombatEntitySaveData data, ItemStack hench)
     {
     	if(!hench.hasTagCompound())

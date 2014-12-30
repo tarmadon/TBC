@@ -77,7 +77,7 @@ public class ChangeJobMenuFunction implements IGenericAction
 				continue;
 			}
 			
-			EquippedItem item = EquippedItemManager.Instance.GetEquippedItem(currentlyEquipped[i]);
+			EquippedItem item = EquippedItemManager.Instance.GetEquippedItem(currentlyEquipped[i], EquippedItemManager.Instance.GetSlotForIndex(i));
 			boolean foundAllReq = true;
 			for(String req : item.RequiredProficiencies())
 			{

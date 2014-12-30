@@ -133,7 +133,7 @@ public class CombatEntitySpawnLookup
 		
 		if(innerEntity.getEntityData().getString("TBCEntityName") != "")
 		{
-			return CombatEntityLookup.Instance.GetCombatEntity(entityId, entityName, innerEntity.getEntityData().getString("TBCEntityName"), new NBTTagCompound());
+			return CombatEntityLookup.Instance.GetCombatEntity(entityId, entityName, innerEntity.getEntityData().getString("TBCEntityName"));
 		}
 
 		if(entityName != null && this.lookup.containsKey(entityName))
@@ -181,7 +181,7 @@ public class CombatEntitySpawnLookup
 
 			int totalWeight = nearMatches.size();
 			int value = CombatRandom.GetRandom().nextInt(totalWeight);
-			CombatEntity found = CombatEntityLookup.Instance.GetCombatEntity(entityId, entityName, nearMatches.get(value).templateName, new NBTTagCompound());
+			CombatEntity found = CombatEntityLookup.Instance.GetCombatEntity(entityId, entityName, nearMatches.get(value).templateName);
 			if(found != null)
 			{
 				return found;

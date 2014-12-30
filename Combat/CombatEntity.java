@@ -53,7 +53,7 @@ public class CombatEntity implements Serializable
 	public static CombatEntity GetCombatEntity(int entityId, String entityType, String enemyName, int enemyNumber)
 	{
 		CombatEntity lookup;
-		lookup = CombatEntityLookup.Instance.GetCombatEntity(entityId, entityType, enemyName, new NBTTagCompound());
+		lookup = CombatEntityLookup.Instance.GetCombatEntity(entityId, entityType, enemyName);
 		lookup.name = lookup.baseStats.name;
 		lookup.isFrontLine = true;
 		if(enemyNumber == 1)
@@ -120,7 +120,7 @@ public class CombatEntity implements Serializable
 		String name = entity.getDisplayName();
 		CombatEntityTemplate t = CombatEntityTemplate.GetCombatEntityTemplateFromSaveData(name, s);
 		CombatEntity e = new CombatEntity(entity.getEntityId(), null, t, PlayerSaveData.GetPlayerTag(entity));
-		e.name = t.name;
+		e.name = s.Name.isEmpty() ? t.name : s.Name;
 		e.isFrontLine = s.IsFrontRow > 0 ? true : false;
 		
 		float currentHpPercentage = (float)entity.getHealth() / entity.getMaxHealth();
@@ -155,7 +155,7 @@ public class CombatEntity implements Serializable
 		String name = h.henchmanName;
 		CombatEntityTemplate t = CombatEntityTemplate.GetCombatEntityTemplateFromSaveData(name, s);
 		CombatEntity henchmanEntity = new CombatEntity(entityId, null, t, HenchmanItem.GetTag(henchmanStack));
-		henchmanEntity.name = name;
+		henchmanEntity.name = s.Name.isEmpty() ? name : s.Name;
 		henchmanEntity.entityType = h.henchmanType;
 		henchmanEntity.isFrontLine = s.IsFrontRow > 0 ? true : false;
 		henchmanEntity.currentHp = (int)(henchmanEntity.currentHp * (1.0F - (h.getDamage(henchmanStack)/(float)h.getMaxDamage())));
