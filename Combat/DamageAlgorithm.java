@@ -27,7 +27,7 @@ public class DamageAlgorithm
 
 	public static int GetRatioDamage(int attack, int defense)
 	{
-		double baseDmg = attack * (attack / (double)(attack + defense));
+		double baseDmg = attack * (50 / (double)(50 + defense));
 		int damage = (int)(Math.round(baseDmg * (.9F + (CombatRandom.GetRandom().nextInt(101) / 500F))));
 		if(damage < 1)
 		{

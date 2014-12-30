@@ -210,7 +210,17 @@ public class StatsGui extends GuiInventory
     		for(int i = 0; i < this.partyMembers.size(); i++)
     		{
     			StatMenuCharData partyMember = this.partyMembers.get(i);
-    			this.fontRendererObj.drawString(partyMember.CombatEntity.GetName(), labelXPos, yOffset + firstLineYPos + (i * gapBetweenChars), 2);
+    			CombatEntitySaveData d = null;
+    			if(partyMember.Player != null)
+    			{
+    				d = LevelingEngine.Instance.GetPlayerSaveData(partyMember.Player);
+    			}
+    			else
+    			{
+    				d = HenchmanItem.GetCombatEntitySaveData(partyMember.Item);
+    			}
+    			
+    			this.fontRendererObj.drawString(partyMember.CombatEntity.GetName() + " Lvl: " + d.Level, labelXPos, yOffset + firstLineYPos + (i * gapBetweenChars), 2);
     			this.fontRendererObj.drawString("HP: " + partyMember.CombatEntity.currentHp + "/" + partyMember.CombatEntity.GetMaxHp(), labelXPos, yOffset + secondLineYPos + (i * gapBetweenChars), 2);
     			this.fontRendererObj.drawString("MP: " + partyMember.CombatEntity.currentMp + "/" + partyMember.CombatEntity.GetMaxMp(), labelXPos, yOffset + thirdLineYPos + (i * gapBetweenChars), 2);
     		}

@@ -50,11 +50,11 @@ public class ShowJobsForCharMenuFunction implements IGenericAction
 		{
 			if(job.Name.equals(selectedJobName))
 			{
-				jobsToDisplay.add(new GenericScrollBoxCellData(job.Name, "", null, job.Description));
+				jobsToDisplay.add(new GenericScrollBoxCellData(job.Name + " Level: " + saveData.GetJobLevelMin1(job.Name), "", null, job.Description));
 			}
 			else
 			{
-				jobsToDisplay.add(new GenericScrollBoxCellData(job.Name, "", new ShowJobsForCharMenuFunction(gui, player, job.Name), job.Description));
+				jobsToDisplay.add(new GenericScrollBoxCellData(job.Name + " Level: " + saveData.GetJobLevelMin1(job.Name), "", new ShowJobsForCharMenuFunction(gui, player, job.Name), job.Description));
 			}
 		}
 		
@@ -79,7 +79,7 @@ public class ShowJobsForCharMenuFunction implements IGenericAction
 		{
 			if(selectedJobName.equals("Remove"))
 			{
-				constantButtons.add(new GenericScrollBoxCellData("Primary", "", new ChangeJobMenuFunction(gui, player, "Adventurer", true)));
+				constantButtons.add(new GenericScrollBoxCellData("Primary", "", null));
 				constantButtons.add(new GenericScrollBoxCellData("Secondary", "", new ChangeJobMenuFunction(gui, player, "", false)));
 				constantButtons.add(new GenericScrollBoxCellData("Info", "", null));
 			}
